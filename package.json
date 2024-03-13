@@ -14,6 +14,7 @@
     "@typescript-eslint/parser": "^7.2.0",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
+    "inversify": "^6.0.2",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0",
     "tsx": "^4.7.1",
@@ -24,6 +25,7 @@
     "helmet": "^7.1.0",
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.1",
     "redis": "^4.6.13"
   }
 }

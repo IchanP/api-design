@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "module": "NodeNext",
-    "target": "ESNext",
     "moduleResolution": "NodeNext",
+    "target": "ESNext",
     "baseUrl": "src",
     "outDir": "dist",
     "sourceMap": true,
-    "noImplicitAny": true
+    "allowImportingTsExtensions": true,
+    "noImplicitAny": true,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
