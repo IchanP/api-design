@@ -7,4 +7,4 @@ const controller = container.get<AuthController>(TYPES.AuthController);
 
 
 router.post('/register', (req, res) => controller.register(req, res));
-router.get('/login', (req, res) => res.json({ message: 'Hello to login page!' }));
+router.post('/login', (req, res) => res.json({ message: 'Hello to login page!' }));

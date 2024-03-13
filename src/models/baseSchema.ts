@@ -1,6 +1,9 @@
+/**
+ * Credit to Mathias Loock for the idea and general structure of this file.
+ */
+
 import mongoose from "mongoose";
-
-
+import { Schema } from "mongoose";
 
 const conversionOptions = {
     virtuals: true,
@@ -14,7 +17,7 @@ const conversionOptions = {
     }
 };
 
-const baseSchema = new mongoose.Schema({}, {
+const baseSchema = new Schema({}, {
     toJSON: conversionOptions,
     toObject: conversionOptions,
     timestamps: true,

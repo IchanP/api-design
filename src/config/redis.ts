@@ -1,5 +1,5 @@
 
-import { createClient } from 'redis'
+import { createClient } from 'redis';
 
 /**
  * Establishes a conenction to the redis database.
@@ -9,13 +9,13 @@ import { createClient } from 'redis'
 export const connectToRedis = async (connectionString: string | undefined) => {
     const redisClient = createClient({
         url: connectionString
-    })
-    await redisClient.connect()
+    });
+    await redisClient.connect();
     if (!redisClient.isReady) {
         console.error('Redis connection error occurred.');
         throw new Error('Redis connection error occurred.');
     } else {
         console.log('Redis connection opened.');
     }
-    return redisClient
-}
+    return redisClient;
+};

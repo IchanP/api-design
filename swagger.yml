@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: 1DV027 API
+  description: "An api for the course 1dv027, view anime data and be notified about new episodes"
+  version: 0.0.0
+servers:
+  - url: http://localhost:3000
+    description: Optional server description, e.g. Main (production) server
+tags:
+  - name: auth
+    description: Everything about your Pets
+paths:
+  /login:
+    post:
+      tags: 
+      - auth
+      summary: Allows the user to login.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+      responses:
+        '200':
+          description: 'Successful login'
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accesstoken:
+                    type: string
+                  refreshtoken:
+                    type: string
+      
+        '401':
+          description: 'Invalid credentials'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /register:
+    post:
+      tags:
+      - auth
+      summary: 'The user calls this to register an account with the API.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '201':
+          description: 'Successful registration'
+        '409':
+          description: 'Duplicate entries'
+          content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: 'Something went wrong with the request'
+
+

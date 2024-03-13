@@ -1,10 +1,10 @@
 import express from 'express';
 import createError from 'http-errors';
-import { router as v1Router } from './v1/router.ts'
+import { router as authRouter } from './auth/router.ts';
 
 export const router = express.Router();
 
-router.use('/v1', v1Router)
+router.use('/v1', authRouter);
 
 // TODO
-router.use('*', (req, res, next) => next(createError(404)))
+router.use('*', (req, res, next) => next(createError(404)));
