@@ -1,9 +1,15 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema, Model, model } from 'mongoose';
 import validator from 'validator';
 import { BASE_SCHEMA } from './BaseSchema.ts';
-import bcrypt from 'bcrypt';
+import { container } from 'config/inversify.config.ts';
+import { TYPES } from 'config/types.ts';
+import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
 
-const userSchema = new Schema<IUser>({
+interface ExtendedUser extends Model<IUser> {
+  authenticate(email: string, pw: string): boolean;
+}
+
+const userSchema = new Schema<IUser, ExtendedUser>({
   email: {
     type: String,
     required: [true, 'Email address is required'],
@@ -36,9 +42,10 @@ const userSchema = new Schema<IUser>({
 }, {});
 
 userSchema.pre('save', async function () {
-  this.password = await bcrypt.hash(this.password, 12);
+  const bcrypt = container.get<BcryptWrapper>(TYPES.BcryptWrapper);
+  this.password = await bcrypt.hashPassword(this.password, 12);
 });
 
 userSchema.add(BASE_SCHEMA);
-
-export const UserModel = mongoose.model('User', userSchema);
+userSchema.index({ email: 1 });
+export const UserModel = model<IUser, ExtendedUser>('User', userSchema);

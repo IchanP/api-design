@@ -12,6 +12,6 @@
     "noEmit": true,
     "experimentalDecorators": true
   },
-  "include": ["src/**/*", "types/**/*", "util/**/*"],
+  "include": ["src/**/*", "types/**/*", "./Utils/**/*"],
   "exclude": ["node_modules"]
 }

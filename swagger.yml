@@ -36,8 +36,12 @@ paths:
                 properties:
                   accesstoken:
                     type: string
+                    example:
+                      eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwZ0BncmFuZGluLmdtYWlsLmNvbSI6InBnQGdyYW5kaW4uZ21haWwuY29tIiwiaWF0IjoxNzEwMzM4Nzc1LCJleHAiOjE3MTAzNDc0MTV9.OpvRoQYfCK1RDYnCrI50sAx3kpJz74p1uKjD_EuuTeFJdU_O65JkrUNWQej35CHsbNQ6l7yC79UK_Avm_5o3aCsMPk9IXb1zqsLq3yi4BEWLjLXuFJB_fAvsur9mFGvGPZkNc3JXFxLdKbU4zVK1Ca11TXq3igET1-S8E7zckKdE17KHNQRzRXGHfD9_G0Ct57vfF_nDcGnAhGFsLqcVrGtLV5gecXI8ryNfVLeKwzmgdSQ-Ok8UcvWCOEvxkaQd-2IxcE7Ablf9sBtVdeLADcfKX0qLwjFzD8UbA8F-DXXmIejjVmMx_aawiVBEZqe03ZpaVgz3i8nC3MXZVyrwfw
                   refreshtoken:
                     type: string
+                    example:
+                      eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXNoYSI6IlBhc2hhIiwiaWF0IjoxNzEwMzM4Nzc1LCJleHAiOjE3MTAzOTkyNTV9.MuwJKRVMFtnsb321CZDeQsiR2Pb2meDRcnro6Sp6mNo
       
         '401':
           description: 'Invalid credentials'
@@ -46,8 +50,29 @@ paths:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: number
+                    example:
+                      401
                   message:
                     type: string
+                    example: 
+                      The credentials provided are invalid
+        '500':
+          description: An unexpected condition was encountered on the server.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                      500
+                  message:
+                    type: string
+                    example:
+                      An unexpected condition was encountered on the server
   /register:
     post:
       tags:

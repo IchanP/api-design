@@ -4,20 +4,17 @@
  * @author Pontus Grandin
  */
 import express, { NextFunction, Request, Response } from 'express';
+import { container } from 'config/inversify.config.ts';
 import helmet from 'helmet';
 import logger from 'morgan';
-import dotenv from 'dotenv';
-import { connectToRedis } from './config/redis.js';
 import { router } from 'routes/router.ts';
 import { connectDB } from 'config/mongoose.ts';
+import 'dotenv/config';
 
 try {
-  dotenv.config();
   const app = express();
-
   await connectDB(process.env.DB_CONNECTION_STRING);
-  await connectToRedis(process.env.REDIS_CONNECT_STRING);
-
+  app.set('container', container);
   // Boiler plate for security and logging
   app.use(helmet());
   app.use(express.json());

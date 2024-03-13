@@ -7,4 +7,4 @@ export const router = express.Router();
 const controller = container.get<AuthController>(TYPES.AuthController);
 
 router.post('/register', (req, res, next) => controller.register(req, res, next));
-router.post('/login', (req, res) => res.json({ message: 'Hello to login page!' }));
+router.post('/login', (req, res, next) => controller.login(req, res, next));
