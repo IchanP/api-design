@@ -10,3 +10,8 @@ declare type LoginCredentials = {
 }
 
 type ValidDataType = User
+
+declare type RefreshRequestSchema = {
+    refreshToken: string;
+
+}

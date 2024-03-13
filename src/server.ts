@@ -50,6 +50,7 @@ try {
 
     // Development only!
     // Only providing detailed error in development.
+    console.error(err.stack);
     return res
       .status(err.status)
       .json({

@@ -4,15 +4,18 @@ import { BadDataError } from '../../Utils/BadDataError.ts';
 import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
 import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 import { TYPES } from 'config/types.ts';
+import { JwtPayload } from 'jsonwebtoken';
 import 'dotenv/config';
-import jwt from 'jsonwebtoken';
-import fs from 'fs';
+import { JWTCrafter } from '../../Utils/JWTCrafter.ts';
+
 @injectable()
 export class AuthService implements IAuthService {
-  #privateKey: Buffer = fs.readFileSync(process.env.PRIVATE_KEY_PATH);
   #bcrypt: BcryptWrapper;
-  constructor (@inject(TYPES.BcryptWrapper) bcrypt: BcryptWrapper) {
+  #jwtCrafter: JWTCrafter;
+  constructor (@inject(TYPES.BcryptWrapper) bcrypt: BcryptWrapper,
+  @inject(TYPES.JWTCrafter) jwtCrafter: JWTCrafter) {
     this.#bcrypt = bcrypt;
+    this.#jwtCrafter = jwtCrafter;
   }
 
   castToUser (userData: User) {
@@ -26,19 +29,17 @@ export class AuthService implements IAuthService {
     if (!(await this.#bcrypt.matchPassword(user, givenPassword))) {
       throw new BadCredentialsError();
     }
-    const accessToken = this.#issueToken(user.email, 'RS256', process.env.JWT_EXPIRATION_TIME, this.#privateKey);
-    const refreshToken = this.#issueToken(user.username, 'HS256', process.env.REFRESH_TOKEN_LIFE, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = this.#jwtCrafter.createAccessToken({ email: user.email });
+    const refreshToken = this.#jwtCrafter.createRefreshToken({ email: user.email });
     return { accessToken, refreshToken };
   }
 
-  #issueToken (payloadField: string, algorithmType: string, expirationTime: string, key: string | Buffer) {
-    const payload = {
-      [payloadField]: payloadField
-    };
-    const accessToken = jwt.sign(payload, key, {
-      algorithm: algorithmType as jwt.Algorithm,
-      expiresIn: expirationTime
-    });
-    return accessToken;
+  refreshToken (refreshToken: string): string {
+    const decoded = this.#jwtCrafter.verifyRefresh(refreshToken) as JwtPayload;
+    if (!decoded.email) {
+      throw new Error();
+    }
+    const newAccessToken = this.#jwtCrafter.createAccessToken({ email: decoded.email });
+    return newAccessToken;
   }
 }

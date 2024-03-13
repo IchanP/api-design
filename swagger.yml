@@ -9,6 +9,12 @@ servers:
 tags:
   - name: auth
     description: Everything about your Pets
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
   /login:
     post:
@@ -153,5 +159,43 @@ paths:
                     type: string
                     example:
                       An unexpected condition was encountered on the server
+  /refresh:
+    post:        
+      security:
+        - bearerAuth: []
+      tags:
+        - auth
+      summary: Issues a renewed access if the refresh token is valid.
+      responses:
+        '500':
+          description: An unexpected condition was encountered on the server.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                      500
+                  message:
+                    type: string
+                    example:
+                      An unexpected condition was encountered on the server
+        '401':
+          description: The token given is either expried, invalid or the authentication scheme is incorrect.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                      401
+                  message:
+                    type: string
+                    example:
+                      Invalid authentication scheme
 
 
