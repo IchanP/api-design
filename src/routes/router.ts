@@ -4,7 +4,7 @@ import { router as authRouter } from './auth/router.ts';
 
 export const router = express.Router();
 
-router.use('/v1', authRouter);
+router.use('/auth', authRouter);
 
 // TODO
 router.use('*', (req, res, next) => next(createError(404)));

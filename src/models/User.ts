@@ -1,12 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import validator from "validator";
-import { BASE_SCHEMA } from "./baseSchema.ts";
-
-interface IUser {
-    email: string;
-    password: string;
-    username: string;
-}
+import { BASE_SCHEMA } from "./BaseSchema.ts";
 
 const userSchema = new Schema<IUser>({
     email: {   
@@ -38,7 +32,7 @@ const userSchema = new Schema<IUser>({
         lowercase: false,
         trim: true,
     }
-});
+},{});
 
 userSchema.add(BASE_SCHEMA);
 
