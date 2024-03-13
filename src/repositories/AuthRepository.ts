@@ -7,14 +7,16 @@ import { BadDataError } from "../../Utils/BadDataError.ts";
 @injectable()
 export class AuthRepository implements Repository<User>{
 
-   async addData(userData: User): Promise<void> {
+   async addData(userData: User): Promise<string> {
     try {
         const user = new UserModel({
             email: userData.email,
             password: userData.password,
             username: userData.username
         });
-        const response = await user.save();
+        console.log(user.password)
+        await user.save();
+        return user.id;
     } catch (e: unknown) {
         const error = e as ExtendedError;
         if(error.code === 11000) {
@@ -22,6 +24,7 @@ export class AuthRepository implements Repository<User>{
         } else if (error instanceof Error.ValidationError) {
             throw new BadDataError(error.message);
         }
+        throw error;
     }
-}
+    }
 }

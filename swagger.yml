@@ -68,17 +68,65 @@ paths:
                   type: string
       responses:
         '201':
-          description: 'Successful registration'
-        '409':
-          description: 'Duplicate entries'
+          description: 'Successful registration, a new account is created.'
           content:
            application/json:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: number
+                    example:
+                      201
+                  id:
+                    type: string
+                    example:
+                      65f19170a691b9af5c9ba094
+        '409':
+          description: 'Data provided by the client is duplicate of what is present on server.'
+          content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                     409
                   message:
                     type: string
+                    example: 
+                      Duplicate data found, this data already exists
+
         '400':
-          description: 'Something went wrong with the request'
+          description: 'Something went wrong with the request due to what was perceived to be a client error'
+          content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                      400 
+                  message:
+                    type: string
+                    example: 
+                      'Invalid data provided'
+        '500':
+          description: An unexpected condition was encountered on the server.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example:
+                      500
+                  message:
+                    type: string
+                    example:
+                      An unexpected condition was encountered on the server
 
 

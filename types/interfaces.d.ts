@@ -3,7 +3,7 @@ declare interface Service<T extends ValidDataType> {
 }
 
 declare interface Repository<T extends ValidDataType> {
-    addData: (data: T) => Promise<void>;
+    addData: (data: T) => Promise<string>;
 }
 
 declare interface IUser {

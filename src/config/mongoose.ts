@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 /**
  * Establish a connection to the mongoDB database.
  *
+ * @param {string} connectionString - The url to connect to mongodb with.
  * @returns { Promise} Resolves to this if the connection suceeded
  */
 export const connectDB = async (connectionString : string) => {

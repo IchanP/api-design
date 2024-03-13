@@ -7,10 +7,13 @@
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "@lnu"
     ],
     "rules": {
-      "semi": ["error", "always"]
+      "semi": ["error", "always"],
+      "no-undef": "off",
+      "jsdoc/require-jsdoc": "off"
     },
-    "ignorePatterns":["node_mudels"]
+    "ignorePatterns":["node_modules"]
   }
