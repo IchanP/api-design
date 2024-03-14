@@ -3,7 +3,7 @@
     "start": "node src/server.ts",
     "dev": "nodemon",
     "lint": "eslint . --ext .ts",
-    "populate": "tsx ./populate.ts"
+    "populate": "tsx ./populate.ts" 
   },
   "type": "module",
   "devDependencies": {
