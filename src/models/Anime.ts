@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import { BASE_SCHEMA } from './BaseSchema.ts';
 
 const animeSeasonSchema = new Schema({
-  season: { type: String, required: true, enum: ['SPRING', 'SUMMER', 'FALL', 'WINTER'] },
+  season: { type: String, required: true, enum: ['SPRING', 'SUMMER', 'FALL', 'WINTER', 'UNDEFINED'] },
   year: { type: Number }
 });
 
@@ -15,9 +15,9 @@ const broadcastSchema = new Schema({
 
 const animeSchema = new Schema<IAnime>({
   title: { type: String, required: true },
-  type: { type: String, required: true, enum: ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'] },
+  type: { type: String, required: true, enum: ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL', 'UNKNOWN'] },
   episodes: { type: Number, required: true },
-  status: { type: String, required: true, enum: ['FINISHED', 'ONGOING', 'NOT_YET_AIRED', 'CANCELLED'] },
+  status: { type: String, required: true, enum: ['FINISHED', 'ONGOING', 'NOT_YET_AIRED', 'CANCELLED', 'UPCOMING', 'UNKNOWN'] },
   animeSeason: { type: animeSeasonSchema, required: true },
   synonyms: [{ type: String }],
   relatedAnime: [{ type: String }],

@@ -16,8 +16,8 @@ export const connectDB = async (connectionString : string) => {
 
   // If the Node.js process ends, close the connection.
   process.on('SIGINT', async () => {
-    await connection.close(true);
     console.log('MongoDB connection closed due to Node.js process termination.');
+    await connection.close(true);
     process.exit(0);
   });
 

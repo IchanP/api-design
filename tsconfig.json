@@ -10,8 +10,9 @@
     "noImplicitAny": true,
     "emitDecoratorMetadata": true,
     "noEmit": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*", "types/**/*", "./Utils/**/*"],
+  "include": ["src/**/*", "types/**/*", "./Utils/**/*", "./populate.ts"],
   "exclude": ["node_modules"]
 }

@@ -13,7 +13,8 @@ import 'dotenv/config';
 
 try {
   const app = express();
-  await connectDB(process.env.DB_CONNECTION_STRING);
+  await connectDB(process.env.AUTH_DB_CONNECTION_STRING);
+  await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
   app.set('container', container);
 
   // Boiler plate for security and logging
