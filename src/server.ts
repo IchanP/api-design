@@ -15,6 +15,7 @@ try {
   const app = express();
   await connectDB(process.env.DB_CONNECTION_STRING);
   app.set('container', container);
+
   // Boiler plate for security and logging
   app.use(helmet());
   app.use(express.json());

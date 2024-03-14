@@ -29,3 +29,23 @@ declare interface JWTFactory {
     createRefreshToken: (payload: object) => string;
     createAccessToken: (payload: object) => string;
 }
+
+declare interface IAnime {
+    title: string;
+    type: string;
+    episodes?: number;
+    status: string;
+    animeSeason: {
+        season: string;
+        year?: number;
+    };
+    synonyms: string[];
+    relatedAnime: string[];
+    tags: string[];
+    broadcast?: {
+        day: string;
+        time: string;
+        timezone: string;
+        string: string;
+    };
+}

@@ -28,15 +28,10 @@ export class AuthRepository implements Repository<User> {
   }
 
   async getOneMatching (email: string): Promise<User> {
-    try {
-      const user = await UserModel.findOne({ email });
-      if (!user) {
-        throw new BadCredentialsError();
-      }
-      return user;
-    } catch (e: unknown) {
-      console.error(e);
-      throw e;
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      throw new BadCredentialsError();
     }
+    return user;
   }
 }
