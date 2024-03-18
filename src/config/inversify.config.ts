@@ -8,11 +8,12 @@ import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
 import { JWTCrafter } from '../../Utils/JWTCrafter.ts';
 
 const container = new Container();
-
-container.bind<JWTFactory>(TYPES.JWTCrafter).to(JWTCrafter).inSingletonScope();
-container.bind<BcryptWrapper>(TYPES.BcryptWrapper).to(BcryptWrapper).inSingletonScope();
-container.bind<AuthRepository>(TYPES.AuthRepository).to(AuthRepository).inSingletonScope();
-container.bind<AuthService>(TYPES.AuthService).to(AuthService).inSingletonScope();
-container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
+// Bind concretes to themselves
+container.bind(TYPES.AuthController).to(AuthController);
+container.bind(TYPES.BcryptWrapper).to(BcryptWrapper);
+// Bind abstractions to concrete implementations
+container.bind<JWTFactory>(TYPES.JWTFactory).to(JWTCrafter).inSingletonScope();
+container.bind<Repository<User>>(TYPES.Repository).to(AuthRepository).inSingletonScope();
+container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();
 
 export { container };

@@ -1,7 +1,7 @@
 export const TYPES = {
-  AuthController: Symbol.for('AuthController'),
-  AuthService: Symbol.for('AuthService'),
-  AuthRepository: Symbol.for('AuthRepoistory'),
+  IAuthService: Symbol.for('IAuthService'),
+  Repository: Symbol.for('Repository'),
   BcryptWrapper: Symbol.for('BcryptWrapper'),
-  JWTCrafter: Symbol.for('JWTCrafter')
+  JWTFactory: Symbol.for('JWTFactory'),
+  AuthController: Symbol.for('AuthController')
 };

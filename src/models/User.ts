@@ -1,9 +1,9 @@
 import { Schema, Model, model } from 'mongoose';
 import validator from 'validator';
-import { BASE_SCHEMA } from './BaseSchema.ts';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
+import { BASE_SCHEMA } from './baseSchema.ts';
 
 interface ExtendedUser extends Model<IUser> {
   authenticate(email: string, pw: string): boolean;

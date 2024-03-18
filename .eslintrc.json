@@ -13,7 +13,9 @@
     "rules": {
       "semi": ["error", "always"],
       "no-undef": "off",
-      "jsdoc/require-jsdoc": "off"
+      "jsdoc/require-jsdoc": "off",
+      "jsdoc": "off"
+
     },
     "ignorePatterns":["node_modules"]
   }

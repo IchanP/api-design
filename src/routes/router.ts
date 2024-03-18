@@ -4,7 +4,11 @@ import { router as authRouter } from './auth/router.ts';
 import { router as animeRouter } from './anime/router.ts';
 export const router = express.Router();
 
-router.use('/auth', authRouter);
+router.use('/auth', authRouter
+/*
+#swagger.tags = ['auth']
+*/
+);
 
 router.use('/anime', animeRouter);
 

@@ -13,6 +13,6 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "types/**/*", "./Utils/**/*", "./populate.ts"],
+  "include": ["src/**/*", "./types/**/*", "./Utils/**/*", "./populate.ts", "./swagger.ts"],
   "exclude": ["node_modules"]
 }

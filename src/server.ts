@@ -10,11 +10,11 @@ import logger from 'morgan';
 import { router } from 'routes/router.ts';
 import { connectDB } from 'config/mongoose.ts';
 import 'dotenv/config';
-
+import swaggerUi from 'swagger-ui-express';
+import swaggerFile from '../swagger_output.json';
 try {
   const app = express();
-  await connectDB(process.env.AUTH_DB_CONNECTION_STRING);
-  await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
+  // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
   app.set('container', container);
 
   // Boiler plate for security and logging
@@ -22,7 +22,9 @@ try {
   app.use(express.json());
   app.use(logger('dev'));
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
   app.use('/', router);
+
   app.listen(process.env.PORT || 3000, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
     console.log('Press Ctrl-C to terminate...');

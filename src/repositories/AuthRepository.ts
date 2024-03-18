@@ -5,9 +5,13 @@ import { Error } from 'mongoose';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 
+interface ExtendedIUser extends IUser {
+  id: string;
+}
+
 @injectable()
 export class AuthRepository implements Repository<User> {
-  async addData (userData: User): Promise<string> {
+  async addData (userData: User): Promise<ExtendedIUser> {
     try {
       const user = new UserModel({
         email: userData.email,
@@ -15,7 +19,7 @@ export class AuthRepository implements Repository<User> {
         username: userData.username
       });
       await user.save();
-      return user.id;
+      return { id: user._id.toString(), email: user.email, username: user.username };
     } catch (e: unknown) {
       const error = e as ExtendedError;
       if (error.code === 11000) {

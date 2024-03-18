@@ -2,11 +2,12 @@ import { connectDB } from './src/config/mongoose.ts';
 import { AnimeModel } from './src/models/Anime.ts';
 import animeData from './anime-offline-database.json';
 import 'dotenv/config';
+
 await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING as string);
 const count = await AnimeModel.countDocuments({});
 // Will only populate the database if it's empty.
 if (count === 0) {
-  console.log(`Populating database, we have ${animeData.length} entries to add.`);
+  console.log(`Populating database, we have ${(<Array<IAnime>>animeData).length} entries to add.`);
   for (const anime of animeData as Array<IAnime>) {
     const newAnime = new AnimeModel({
       title: anime.title,

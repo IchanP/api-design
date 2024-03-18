@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { BASE_SCHEMA } from './BaseSchema.ts';
+import { BASE_SCHEMA } from './baseSchema.ts';
 
 const animeSeasonSchema = new Schema({
   season: { type: String, required: true, enum: ['SPRING', 'SUMMER', 'FALL', 'WINTER', 'UNDEFINED'] },

@@ -1,17 +1,20 @@
 declare interface IAuthService {
-    castToUser: (data: User) => User;
     login: (User: User, password: string) => Promise<{ accessToken: string; refreshToken: string }>;
     refreshToken: (refreshToken: string) => string;
 }
 
+declare interface IAnimeService {
+
+}
+
 declare interface Repository<T extends ValidDataType> {
-    addData: (data: T) => Promise<string>;
+    addData: (data: T) => Promise<T>;
     getOneMatching: (matcher: string) => Promise<T>;
 }
 
 declare interface IUser {
     email: string;
-    password: string;
+    password?: string;
     username: string;
 }
 
@@ -23,11 +26,6 @@ declare interface ExtendedError extends Error {
         message: string;
         stack: string;
     }
-}
-
-declare interface JWTFactory {
-    createRefreshToken: (payload: object) => string;
-    createAccessToken: (payload: object) => string;
 }
 
 declare interface IAnime {
