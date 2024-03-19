@@ -3,7 +3,8 @@ import validator from 'validator';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
-import { BASE_SCHEMA } from './baseSchema.ts';
+import { BASE_SCHEMA } from './BaseSchema.ts';
+import { Counter } from './Counter.ts';
 
 interface ExtendedUser extends Model<IUser> {
   authenticate(email: string, pw: string): boolean;
@@ -38,12 +39,27 @@ const userSchema = new Schema<IUser, ExtendedUser>({
     maxLength: [32, 'The username must be a maximum length of 32 characters.'],
     lowercase: false,
     trim: true
+  },
+  userId: {
+    type: Number
   }
 }, {});
 
 userSchema.pre('save', async function () {
   const bcrypt = container.get<BcryptWrapper>(TYPES.BcryptWrapper);
   this.password = await bcrypt.hashPassword(this.password, 12);
+});
+
+userSchema.pre('save', async function (next) {
+  if (this.isNew) { // Check if the document is new
+    const count = await Counter.findByIdAndUpdate(
+      { _id: 'userId' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.userId = count.seq;
+  }
+  next();
 });
 
 userSchema.add(BASE_SCHEMA);

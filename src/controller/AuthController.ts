@@ -16,7 +16,7 @@ export class AuthController {
           try {
             const matchingUser = await this.repository.getOneMatching(req.body?.email);
             const { accessToken, refreshToken } = await this.service.login(matchingUser, req.body?.password);
-            return res.status(200).json({ accessToken, refreshToken });
+            return res.status(200).json({ accessToken, refreshToken, userId: matchingUser.userId });
           } catch (e: unknown) {
             let err = e;
             if (e instanceof BadCredentialsError) {

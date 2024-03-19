@@ -14,7 +14,7 @@ export class AuthService implements IAuthService {
     if (!(await this.bcrypt.matchPassword(user, givenPassword))) {
       throw new BadCredentialsError();
     }
-    const accessToken = this.jwtCrafter.createAccessToken({ email: user.email, username: user.username });
+    const accessToken = this.jwtCrafter.createAccessToken({ email: user.email, username: user.username, userId: user.userId });
     const refreshToken = this.jwtCrafter.createRefreshToken({ email: user.email, username: user.username });
     return { accessToken, refreshToken };
   }

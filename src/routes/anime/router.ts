@@ -55,10 +55,9 @@ const controller = container.get<AnimeController>(TYPES.AuthController);
  */
 router.get('/', (req: Request, res: Response, next: NextFunction) => controller.displayAnime(req, res, next));
 
-
 /**
  * @swagger
- * anime/{id}:
+ * anime/{anime-id}:
  *   get:
  *     tags:
  *       - anime
@@ -66,7 +65,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *     description: Returns a single anime object based on its ID.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: anime-id
  *         required: true
  *         schema:
  *           type: integer

@@ -2,6 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import { router as authRouter } from './auth/router.ts';
 import { router as animeRouter } from './anime/router.ts';
+import { router as animeListRouter } from './animelist/router.ts';
 export const router = express.Router();
 
 /**
@@ -131,6 +132,45 @@ export const router = express.Router();
  *             string:
  *               type: string
  *               example: 'Saturdays at 23:00 (JST)'
+ *     MinimizedAnime:
+ *       type: object
+ *       required:
+ *         - animeId
+ *         - title
+ *         - type
+ *       properties:
+ *         animeId:
+ *           type: integer
+ *           description: The unique identifier for the anime
+ *           example: 101
+ *         title:
+ *           type: string
+ *           description: The title of the anime
+ *           example: 'Naruto'
+ *         type:
+ *           type: string
+ *           description: The type of the anime (e.g., TV, Movie, OVA)
+ *           example: 'TV'
+ *     AnimeList:
+ *       type: object
+ *       required:
+ *         - ownerId
+ *         - ownerUsername
+ *         - list
+ *       properties:
+ *         ownerId:
+ *           type: integer
+ *           description: The unique identifier for the owner of the anime list
+ *           example: 1
+ *         ownerUsername:
+ *           type: string
+ *           description: The username of the owner of the anime list
+ *           example: 'AnimeFan123'
+ *         list:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/MinimizedAnime'
+ *           description: A list of minimized anime objects
  */
 
 /**
@@ -146,6 +186,13 @@ router.use('/auth', authRouter);
  *  name: anime
  */
 router.use('/anime', animeRouter);
+
+/**
+ * @swagger
+ * tags:
+ *  name: animelist
+ */
+router.use('/anime-list', animeListRouter);
 
 // TODO
 router.use('*', (req, res, next) => next(createError(404)));

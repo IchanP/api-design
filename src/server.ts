@@ -14,7 +14,7 @@ import swaggerUi from 'swagger-ui-express';
 import { initSwagger } from '../swagger.ts';
 try {
   const app = express();
-  // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
+ // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
   app.set('container', container);
 
   // Boiler plate for security and logging
@@ -22,7 +22,6 @@ try {
   app.use(express.json());
   app.use(logger('dev'));
   const swaggerjson = initSwagger();
-  console.log(swaggerjson);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerjson));
   app.use('/', router);
   app.listen(process.env.PORT || 3000, () => {
