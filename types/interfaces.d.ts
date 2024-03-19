@@ -16,6 +16,7 @@ declare interface IUser {
     email: string;
     password?: string;
     username: string;
+    userId: number;
 }
 
 declare interface ExtendedError extends Error {
@@ -29,6 +30,7 @@ declare interface ExtendedError extends Error {
 }
 
 declare interface IAnime {
+    animeId: number;
     title: string;
     type: string;
     episodes?: number;

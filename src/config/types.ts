@@ -3,5 +3,6 @@ export const TYPES = {
   Repository: Symbol.for('Repository'),
   BcryptWrapper: Symbol.for('BcryptWrapper'),
   JWTFactory: Symbol.for('JWTFactory'),
-  AuthController: Symbol.for('AuthController')
+  AuthController: Symbol.for('AuthController'),
+  AnimeController: Symbol.for('AnimeController')
 };

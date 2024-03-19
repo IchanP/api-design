@@ -14,7 +14,9 @@
       "semi": ["error", "always"],
       "no-undef": "off",
       "jsdoc/require-jsdoc": "off",
-      "jsdoc": "off"
+      "jsdoc": "off",
+      "jsdoc/check-tag-names": "off",
+      "jsdoc/check-indentation": "off"
 
     },
     "ignorePatterns":["node_modules"]

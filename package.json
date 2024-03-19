@@ -4,7 +4,7 @@
     "dev": "nodemon",
     "lint": "eslint . --ext .ts",
     "populate": "tsx ./populate.ts",
-    "swagger-autogen": "tsx swagger.ts"
+    "autogen": "tsx swagger.ts"
   },
   "type": "module",
   "devDependencies": {
@@ -27,7 +27,6 @@
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0",
     "reflect-metadata": "^0.2.1",
-    "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "ts-json-schema-generator": "^1.5.0",

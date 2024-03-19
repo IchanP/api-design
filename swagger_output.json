@@ -268,7 +268,7 @@
             }
           },
           "401": {
-            "description": "The token provided is invalid or expired",
+            "description": "The token or authorization scheme is invalid or expired.",
             "content": {
               "application/json": {
                 "schema": {
@@ -305,6 +305,27 @@
         ],
         "requestBody": {
           "required": false
+        }
+      }
+    },
+    "/anime/": {
+      "get": {
+        "tags": [
+          "anime"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Returns a page of anime, 20 items at a time. Data is an array of anime objects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "page": 1,
+                  "$ref": "#/components/schemas/Anime"
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -415,6 +436,125 @@
         ],
         "xml": {
           "name": "Token"
+        }
+      },
+      "Anime": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Oshi no Ko"
+          },
+          "type": {
+            "type": "string",
+            "example": "TV"
+          },
+          "episodes": {
+            "type": "number",
+            "example": 11
+          },
+          "status": {
+            "type": "string",
+            "example": "FINISHED"
+          },
+          "animeSeason": {
+            "type": "object",
+            "properties": {
+              "season": {
+                "type": "string",
+                "example": "SPRING"
+              },
+              "year": {
+                "type": "number",
+                "example": 2023
+              }
+            },
+            "required": [
+              "season",
+              "year"
+            ]
+          },
+          "synonyms": {
+            "type": "array",
+            "example": [
+              "Oshi no Ko",
+              "My Idol's Child",
+              "My Star"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "relatedAnime": {
+            "type": "array",
+            "example": [
+              "https://anidb.net/anime/14111",
+              "https://anidb.net/anime/18022",
+              "https://anilist.co/anime/166531"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "example": [
+              "Drama",
+              "Romance",
+              "Slice of Life",
+              "acting",
+              "idol",
+              "female protagonist"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "animeId": {
+            "type": "number",
+            "example": 19
+          },
+          "broadcast": {
+            "type": "object",
+            "properties": {
+              "day": {
+                "type": "string",
+                "example": "Saturday"
+              },
+              "time": {
+                "type": "string",
+                "example": "23:00"
+              },
+              "timezone": {
+                "type": "string",
+                "example": "JST"
+              },
+              "string": {
+                "type": "string",
+                "example": "Saturdays at 23:00 (JST)"
+              }
+            },
+            "required": [
+              "day",
+              "time",
+              "timezone",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "type",
+          "episodes",
+          "status",
+          "animeSeason",
+          "synonyms",
+          "relatedAnime",
+          "tags",
+          "animeId"
+        ],
+        "xml": {
+          "name": "Anime"
         }
       }
     }

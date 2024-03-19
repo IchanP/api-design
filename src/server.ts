@@ -11,7 +11,7 @@ import { router } from 'routes/router.ts';
 import { connectDB } from 'config/mongoose.ts';
 import 'dotenv/config';
 import swaggerUi from 'swagger-ui-express';
-import swaggerFile from '../swagger_output.json';
+import { initSwagger } from '../swagger.ts';
 try {
   const app = express();
   // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
@@ -21,10 +21,10 @@ try {
   app.use(helmet());
   app.use(express.json());
   app.use(logger('dev'));
-
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+  const swaggerjson = initSwagger();
+  console.log(swaggerjson);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerjson));
   app.use('/', router);
-
   app.listen(process.env.PORT || 3000, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
     console.log('Press Ctrl-C to terminate...');
