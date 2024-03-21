@@ -14,7 +14,7 @@ import swaggerUi from 'swagger-ui-express';
 import { initSwagger } from '../swagger.ts';
 try {
   const app = express();
- // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
+  // await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
   app.set('container', container);
 
   // Boiler plate for security and logging
@@ -33,7 +33,6 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use(function (err: ExtendedError, req: Request, res: Response, next: NextFunction) {
     err.status = err.status || 500;
-
     if (err.status === 400) {
       err.message = err.message || 'The request cannot or will not be processed due to something that is perceived to be a client error (for example validation error).';
     }

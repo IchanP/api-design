@@ -4,7 +4,7 @@ import { TYPES } from 'config/types.ts';
 import { AnimeController } from 'controller/AnimeController.ts';
 
 export const router = express.Router();
-const controller = container.get<AnimeController>(TYPES.AuthController);
+const controller = container.get<AnimeController>(TYPES.AnimeController);
 
 /**
  * @swagger
@@ -54,6 +54,82 @@ const controller = container.get<AnimeController>(TYPES.AuthController);
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
 router.get('/', (req: Request, res: Response, next: NextFunction) => controller.displayAnime(req, res, next));
+
+/**
+ * @swagger
+ * /anime/search:
+ *   get:
+ *     tags:
+ *       - anime
+ *     summary: Search for anime by title
+ *     description: Returns a list of up to 20 matching anime per page based on the provided title query.
+ *     parameters:
+ *       - in: query
+ *         name: title
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The title of the anime to search for.
+ *     responses:
+ *       200:
+ *         description: A list of matching anime
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Anime'
+ *                 currentPage:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *               example:
+ *                 results:
+ *                   - title: "Naruto"
+ *                     type: "TV"
+ *                     episodes: 220
+ *                     status: "FINISHED"
+ *                     animeSeason:
+ *                       season: "WINTER"
+ *                       year: 2002
+ *                   - title: "Attack on Titan"
+ *                     type: "TV"
+ *                     episodes: 59
+ *                     status: "FINISHED"
+ *                     animeSeason:
+ *                       season: "SPRING"
+ *                       year: 2013
+ *                 currentPage: 1
+ *                 totalPages: 5
+ *       400:
+ *         description: Bad Request - The title query is missing.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               missingTitle:
+ *                 value:
+ *                   code: 400
+ *                   message: "The title query parameter is missing."
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   code: 500
+ *                   message: "Something else went wrong."
+ */
+router.get('/search', (req, res, next) => {
+  controller.searchAnime(req, res, next);
+});
 
 /**
  * @swagger

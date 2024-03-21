@@ -9,68 +9,6 @@ const controller = container.get<AuthController>(TYPES.AuthController);
 
 /**
  * @swagger
- * auth/register:
- *   post:
- *     tags:
- *       - auth
- *     summary: Registers a new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *     responses:
- *       201:
- *         description: Returns the user data after registration
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 username:
- *                   type: string
- *                   example: BetusTestus
- *                 email:
- *                   type: string
- *                   example: betaTester@testing.com
- *                 id:
- *                   type: string
- *                   example: 1234
- *       400:
- *         description: Bad data was sent in the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:    # Use this to reference specific examples
- *               badRequest:
- *                 $ref: '#/components/schemas/Error/examples/badRequest'
- *       409:
- *         description: The email or username is already in use
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               conflict:
- *                 $ref: '#/components/schemas/Error/examples/conflict'
- *       500:
- *         description: Something went wrong on the server
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               serverError:
- *                 $ref: '#/components/schemas/Error/examples/serverError'
- */
-router.post('/register', (req, res, next) => {
-  controller.register(req, res, next);
-});
-
-/**
- * @swagger
  * auth/login:
  *   post:
  *     tags:

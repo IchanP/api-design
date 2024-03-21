@@ -3,6 +3,8 @@ import createError from 'http-errors';
 import { router as authRouter } from './auth/router.ts';
 import { router as animeRouter } from './anime/router.ts';
 import { router as animeListRouter } from './animelist/router.ts';
+import { router as userRouter } from './user/router.ts';
+import { router as webHookRouter } from './webhook/router.ts';
 export const router = express.Router();
 
 /**
@@ -183,6 +185,13 @@ router.use('/auth', authRouter);
 /**
  * @swagger
  * tags:
+ *  name: user
+ */
+router.use('/user', userRouter);
+
+/**
+ * @swagger
+ * tags:
  *  name: anime
  */
 router.use('/anime', animeRouter);
@@ -194,5 +203,11 @@ router.use('/anime', animeRouter);
  */
 router.use('/anime-list', animeListRouter);
 
-// TODO
+/**
+ * @swagger
+ * tags:
+ *  name: webhook
+ */
+router.use('/webhook', webHookRouter);
+
 router.use('*', (req, res, next) => next(createError(404)));

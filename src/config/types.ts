@@ -5,5 +5,6 @@ export const TYPES = {
   JWTFactory: Symbol.for('JWTFactory'),
   AuthController: Symbol.for('AuthController'),
   AnimeController: Symbol.for('AnimeController'),
-  AnimeListController: Symbol.for('AnimeListController')
+  AnimeListController: Symbol.for('AnimeListController'),
+  UserController: Symbol.for('UserController')
 };
