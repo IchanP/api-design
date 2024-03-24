@@ -17,13 +17,15 @@ export class UserRepository implements Repository<IUser> {
       await user.save();
       return { userId: user.userId, email: user.email, username: user.username };
     } catch (e: unknown) {
-      const error = e as ExtendedError;
-      if (error.code === 11000) {
-        throw new DuplicateError();
-      } else if (error instanceof Error.ValidationError) {
-        throw new BadDataError(error.message);
-      }
-      throw error;
+      this.#handleError(e);
+    }
+  }
+
+  async updateOneValue (field: string, value: string, id: number): Promise<void> {
+    try {
+      await UserModel.findOneAndUpdate({ userId: id }, { [field]: value });
+    } catch (e: unknown) {
+      this.#handleError(e);
     }
   }
 
@@ -33,5 +35,15 @@ export class UserRepository implements Repository<IUser> {
       throw new BadCredentialsError();
     }
     return user;
+  }
+
+  #handleError (e: unknown): void {
+    const error = e as ExtendedError;
+    if (error.code === 11000) {
+      throw new DuplicateError();
+    } else if (error instanceof Error.ValidationError) {
+      throw new BadDataError(error.message);
+    }
+    throw error;
   }
 }

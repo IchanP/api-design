@@ -20,7 +20,7 @@ export class UserService implements IUserService {
       if (!isValidType(info, [`${field}`, 'token'])) {
         throw new BadDataError();
       }
-      this.userRepo.updateOneValue(field, info[field].toString(), payload.userId);
+      await this.userRepo.updateOneValue(field, info[field].toString(), payload.userId);
     }
 
     #validateUserInfo (userInfo: RequestBody): User {
