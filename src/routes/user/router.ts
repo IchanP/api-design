@@ -2,6 +2,7 @@ import express from 'express';
 import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -105,6 +106,15 @@ router.post('/register', (req, res, next) => {
  *     responses:
  *       204:
  *         description: Username successfully updated. No content in the response body.
+ *       400:
+ *         description: Bad Request - Request body does not match the expected format.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       401:
  *         description: Unauthorized - No valid Bearer JWT provided
  *         content:
@@ -134,6 +144,6 @@ router.post('/register', (req, res, next) => {
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
 
-router.put('/username', (req, res, next) => {
-  controller.updateUsername(req, res, next);
-});
+router.put('/username', (req, res, next) =>
+  validateAuthScheme(req, res, next),
+(req, res, next) => controller.updateUsername(req, res, next));
