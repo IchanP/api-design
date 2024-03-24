@@ -49,15 +49,6 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *                 totalAnime:
  *                   type: integer
  *                   example: 200
- *       400:
- *         description: Bad Request - Invalid page number
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               badRequest:
- *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       500:
  *         description: Internal Server Error
  *         content:

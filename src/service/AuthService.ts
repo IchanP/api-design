@@ -23,6 +23,7 @@ export class AuthService implements IAuthService {
   }
 
   refreshToken (refreshToken: string): string {
+    console.log(refreshToken);
     const decoded = this.jwtCrafter.verifyRefresh(refreshToken) as JwtPayload;
     if (!decoded.email) {
       throw new Error();

@@ -63,5 +63,4 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.add(BASE_SCHEMA);
-userSchema.index({ email: 1 });
 export const UserModel = model<IUser, ExtendedUser>('User', userSchema);

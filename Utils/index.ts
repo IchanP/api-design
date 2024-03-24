@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import createError from 'http-errors';
-import { set } from 'mongoose';
 export function validateAuthScheme (req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.headers.authorization) {
@@ -23,8 +22,9 @@ export function validateAuthScheme (req: Request, res: Response, next: NextFunct
 }
 
 function setPayloadToRequest (req: Request, token: string) {
-  const payload = atob(token.split('.')[1]);
-  req.body.token = JSON.parse(payload);
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  payload.token = token;
+  req.body.token = payload;
 }
 
 export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[]): typeToValidate is Type {

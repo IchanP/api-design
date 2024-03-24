@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { BASE_SCHEMA } from './baseSchema.ts';
+import { BASE_SCHEMA } from './BaseSchema.ts';
 import { Counter } from './Counter.ts';
 
 const animeSeasonSchema = new Schema({
