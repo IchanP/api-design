@@ -10,6 +10,7 @@ declare interface IAnimeService {
 declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
     getOneMatching: (matcher: string) => Promise<T>;
+    updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
 }
 
 declare interface IUser {
@@ -56,10 +57,19 @@ declare interface IAnimeList {
     list: MinimizedAnime[];
 }
 
+declare interface TokenPayload {
+    userId: number;
+    username: string;
+    email: string;
+    iat: number;
+    exp: number;
+}
+
 declare interface RequestBody {
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | TokenPayload;
 }
 
 declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
+    updateField: (info: RequestBody, field: string) => Promise<void>;
 }
