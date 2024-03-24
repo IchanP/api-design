@@ -15,6 +15,14 @@ export class UserService implements IUserService {
       return userData;
     }
 
+    async updateField (info: RequestBody, field: string) {
+      const payload = info.token as TokenPayload;
+      if (!isValidType(info, [`${field}`, 'token'])) {
+        throw new BadDataError();
+      }
+      await this.userRepo.updateOneValue(field, info[field].toString(), payload.userId);
+    }
+
     #validateUserInfo (userInfo: RequestBody): User {
       if (!isValidType<User>(userInfo as User, ['email', 'password', 'username'])) {
         throw new BadDataError();

@@ -27,6 +27,16 @@ export class UserController {
     }
 
     async updateUsername (req: Request, res: Response, next: NextFunction) {
-      // TODO implement
+      try {
+        await this.service.updateField(req.body, 'username');
+        return res.status(204).send();
+      } catch (e: unknown) {
+        let err = e;
+        if (e instanceof BadDataError) {
+          err = createError(400, e.message);
+        }
+        console.log(err);
+        next(err);
+      }
     }
 }
