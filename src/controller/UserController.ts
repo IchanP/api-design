@@ -9,15 +9,11 @@ import { TYPES } from 'config/types.ts';
 
 @injectable()
 export class UserController {
-    @inject(TYPES.Repository) private repository: Repository<User>;
+    @inject(TYPES.IUserService) private service: IUserService;
 
     async register (req: Request, res: Response, next: NextFunction) {
       try {
-        if (!isValidType<User>(req.body, ['email', 'password', 'username'])) {
-          throw new BadDataError();
-        }
-        const userInfo = req.body as User;
-        const userData = await this.repository.addData(userInfo);
+        const userData = await this.service.register(req.body);
         return res.status(201).json({ userData });
       } catch (e: unknown) {
         let err = e;

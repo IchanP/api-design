@@ -51,8 +51,10 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *             examples:
- *               badRequest:
- *                 $ref: '#/components/schemas/Error/examples/badRequest'
+ *               unauthorized:
+ *                 value:
+ *                   code: 401
+ *                   message: "Invalid credentials provided."
  *       500:
  *         description: Something went wrong on the server
  *         content:

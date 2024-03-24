@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { BASE_SCHEMA } from './baseSchema.ts';
+import { BASE_SCHEMA } from './BaseSchema.ts';
 
 const minimizedAnimeSchema = new Schema<MinimizedAnime>({
   animeId: { type: Number, required: true },
@@ -8,7 +8,7 @@ const minimizedAnimeSchema = new Schema<MinimizedAnime>({
 });
 
 const animeListSchema = new Schema<IAnimeList>({
-  ownerId: { type: Number, required: true },
+  ownerId: { type: Number, required: true, unique: true },
   ownerUsername: { type: String, required: true },
   list: { type: [minimizedAnimeSchema], required: true }
 });

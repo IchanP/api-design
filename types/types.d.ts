@@ -10,7 +10,7 @@ declare type LoginCredentials = {
     password: string;
 }
 
-type ValidDataType = User
+type ValidDataType = User | IAnimeList
 
 declare type RefreshRequestSchema = {
     refreshToken: string;

@@ -1,5 +1,5 @@
 declare interface IAuthService {
-    login: (User: User, password: string) => Promise<{ accessToken: string; refreshToken: string }>;
+    login: (requestUser: { email: string, password: string}) => Promise<{ accessToken: string; refreshToken: string, userId: number }>;
     refreshToken: (refreshToken: string) => string;
 }
 
@@ -7,8 +7,8 @@ declare interface IAnimeService {
 
 }
 
-declare interface Repository<T extends ValidDataType> {
-    addData: (data: T) => Promise<T>;
+declare interface Repository<T extends ValidDataType, U = T> {
+    createDocument: (data: U) => Promise<T>;
     getOneMatching: (matcher: string) => Promise<T>;
 }
 
@@ -48,4 +48,18 @@ declare interface IAnime {
         timezone: string;
         string: string;
     };
+}
+
+declare interface IAnimeList {
+    ownerId: number;
+    ownerUsername: string;
+    list: MinimizedAnime[];
+}
+
+declare interface RequestBody {
+    [key: string]: string | number | boolean;
+}
+
+declare interface IUserService {
+    register: (userData: RequestBody) => Promise<User>;
 }

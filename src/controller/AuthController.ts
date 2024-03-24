@@ -7,13 +7,11 @@ import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 @injectable()
 export class AuthController {
         @inject(TYPES.IAuthService) private service: IAuthService;
-        @inject(TYPES.Repository) private repository: Repository<User>;
 
         async login (req: Request, res: Response, next: NextFunction) {
           try {
-            const matchingUser = await this.repository.getOneMatching(req.body?.email);
-            const { accessToken, refreshToken } = await this.service.login(matchingUser, req.body?.password);
-            return res.status(200).json({ accessToken, refreshToken, userId: matchingUser.userId });
+            const { accessToken, refreshToken, userId } = await this.service.login(req.body);
+            return res.status(200).json({ accessToken, refreshToken, userId });
           } catch (e: unknown) {
             let err = e;
             if (e instanceof BadCredentialsError) {

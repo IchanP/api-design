@@ -20,7 +20,13 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *         schema:
  *           type: integer
  *           default: 1
- *         description: The page number to retrieve.
+ *         description: The page number to retrieve. Must be greater than 0.
+ *       - in: header
+ *         name: Authorization
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
  *         description: A list of anime
@@ -43,6 +49,15 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *                 totalAnime:
  *                   type: integer
  *                   example: 200
+ *       400:
+ *         description: Bad Request - Invalid page number
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -70,6 +85,12 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *         schema:
  *           type: string
  *         description: The title of the anime to search for.
+ *       - in: header
+ *         name: Authorization
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
  *         description: A list of matching anime
@@ -88,20 +109,33 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *                   type: integer
  *               example:
  *                 results:
- *                   - title: "Naruto"
- *                     type: "TV"
- *                     episodes: 220
- *                     status: "FINISHED"
+ *                   - title: 'Oshi no Ko'
+ *                     type: 'TV'
+ *                     episodes: 11
+ *                     status: 'FINISHED'
  *                     animeSeason:
- *                       season: "WINTER"
- *                       year: 2002
- *                   - title: "Attack on Titan"
- *                     type: "TV"
+ *                       season: 'SPRING'
+ *                       year: 2023
+ *                     synonyms: ['Oshi no Ko', "My Idol's Child", 'My Star']
+ *                     relatedAnime: ['https://anidb.net/anime/14111', 'https://anidb.net/anime/18022', 'https://anilist.co/anime/166531']
+ *                     tags: ['Drama', 'Romance', 'Slice of Life', 'acting', 'idol', 'female protagonist']
+ *                     animeId: 19
+ *                     broadcast:
+ *                       day: 'Saturday'
+ *                       time: '23:00'
+ *                       timezone: 'JST'
+ *                       string: 'Saturdays at 23:00 (JST)'
+ *                   - title: 'Attack on Titan'
+ *                     type: 'TV'
  *                     episodes: 59
- *                     status: "FINISHED"
+ *                     status: 'FINISHED'
  *                     animeSeason:
- *                       season: "SPRING"
+ *                       season: 'SPRING'
  *                       year: 2013
+ *                     synonyms: ['Shingeki no Kyojin', 'AoT']
+ *                     relatedAnime: ['https://anidb.net/anime/10234', 'https://anidb.net/anime/20482', 'https://anilist.co/anime/21459']
+ *                     tags: ['Action', 'Fantasy', 'Military', 'Survival', 'Titans']
+ *                     animeId: 101
  *                 currentPage: 1
  *                 totalPages: 5
  *       400:
@@ -127,6 +161,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *                   code: 500
  *                   message: "Something else went wrong."
  */
+
 router.get('/search', (req, res, next) => {
   controller.searchAnime(req, res, next);
 });
@@ -146,6 +181,11 @@ router.get('/search', (req, res, next) => {
  *         schema:
  *           type: integer
  *         description: The anime's ID
+ *       - in: header
+ *         name: Bearer
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authorization.
  *     responses:
  *       200:
  *         description: A single anime object

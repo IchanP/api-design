@@ -1,10 +1,12 @@
 export const TYPES = {
   IAuthService: Symbol.for('IAuthService'),
-  Repository: Symbol.for('Repository'),
+  UserRepository: Symbol.for('UserRepository'),
+  AnimeListRepository: Symbol.for('AnimeListRepository'),
   BcryptWrapper: Symbol.for('BcryptWrapper'),
   JWTFactory: Symbol.for('JWTFactory'),
   AuthController: Symbol.for('AuthController'),
   AnimeController: Symbol.for('AnimeController'),
   AnimeListController: Symbol.for('AnimeListController'),
-  UserController: Symbol.for('UserController')
+  UserController: Symbol.for('UserController'),
+  IUserService: Symbol.for('IUserService')
 };

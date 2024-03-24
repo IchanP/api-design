@@ -8,7 +8,7 @@ export const router = express.Router();
 
 /**
  * @swagger
- * user/register:
+ * /user/register:
  *   post:
  *     tags:
  *       - user
@@ -27,15 +27,18 @@ export const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 username:
- *                   type: string
- *                   example: BetusTestus
- *                 email:
- *                   type: string
- *                   example: betaTester@testing.com
- *                 id:
- *                   type: string
- *                   example: 1234
+ *                 userData:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: integer
+ *                       example: 8
+ *                     email:
+ *                       type: string
+ *                       example: mallie.lang@hotmail.com
+ *                     username:
+ *                       type: string
+ *                       example: Loma.Lubowitz
  *       400:
  *         description: Bad data was sent in the request
  *         content:
@@ -64,6 +67,7 @@ export const router = express.Router();
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
+
 router.post('/register', (req, res, next) => {
   controller.register(req, res, next);
 });
@@ -80,11 +84,11 @@ router.post('/register', (req, res, next) => {
  *       - bearerAuth: []
  *     parameters:
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     requestBody:
  *       required: true
  *       content:
@@ -110,6 +114,15 @@ router.post('/register', (req, res, next) => {
  *             examples:
  *               unauthorized:
  *                 $ref: '#/components/schemas/Error/examples/unauthorized'
+ *       409:
+ *         description: Conflict - The username already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               conflict:
+ *                 $ref: '#/components/schemas/Error/examples/conflict'
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -120,6 +133,7 @@ router.post('/register', (req, res, next) => {
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
+
 router.put('/username', (req, res, next) => {
   controller.updateUsername(req, res, next);
 });

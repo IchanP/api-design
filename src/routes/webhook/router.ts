@@ -183,6 +183,7 @@ router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(re
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
 router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribeToList(req, res, next));
+
 /**
  * @swagger
  * /anime-list/{user-id}/subscribe:

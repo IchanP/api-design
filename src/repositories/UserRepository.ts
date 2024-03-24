@@ -7,7 +7,7 @@ import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 
 @injectable()
 export class UserRepository implements Repository<IUser> {
-  async addData (userData: User): Promise<IUser> {
+  async createDocument (userData: User): Promise<IUser> {
     try {
       const user = new UserModel({
         email: userData.email,

@@ -9,14 +9,17 @@ import 'dotenv/config';
 export class AuthService implements IAuthService {
   @inject(TYPES.BcryptWrapper) private bcrypt: BcryptWrapper;
   @inject(TYPES.JWTFactory) private jwtCrafter: JWTFactory;
+  @inject(TYPES.UserRepository) private repository: Repository<User>;
 
-  async login (user: User, givenPassword: string): Promise<{ accessToken: string; refreshToken: string }> {
-    if (!(await this.bcrypt.matchPassword(user, givenPassword))) {
+  async login (requestUser: { email: string, password: string}): Promise<{ accessToken: string; refreshToken: string, userId: number }> {
+    const matchingUser = await this.repository.getOneMatching(requestUser.email);
+
+    if (!(await this.bcrypt.matchPassword(matchingUser, requestUser.password))) {
       throw new BadCredentialsError();
     }
-    const accessToken = this.jwtCrafter.createAccessToken({ email: user.email, username: user.username, userId: user.userId });
-    const refreshToken = this.jwtCrafter.createRefreshToken({ email: user.email, username: user.username });
-    return { accessToken, refreshToken };
+    const accessToken = this.jwtCrafter.createAccessToken({ email: matchingUser.email, username: matchingUser.username, userId: matchingUser.userId });
+    const refreshToken = this.jwtCrafter.createRefreshToken({ email: matchingUser.email, username: matchingUser.username });
+    return { accessToken, refreshToken, userId: matchingUser.userId };
   }
 
   refreshToken (refreshToken: string): string {

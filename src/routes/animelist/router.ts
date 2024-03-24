@@ -17,9 +17,17 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *     parameters:
  *       - in: query
  *         name: page
+ *         required: false
  *         schema:
  *           type: integer
- *         description: The page number for pagination
+ *           default: 1
+ *         description: The page number for pagination. Must be greater than 0.
+ *       - in: header
+ *         name: Authorization
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
  *         description: An array of links to different anime lists.
@@ -52,6 +60,17 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                   format: uri
  *                   description: Link to the previous page of anime lists
  *                   example: "http://localhost:3000/anime-list?page=1"
+ *       400:
+ *         description: Bad Request - Incorrect page value provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 value:
+ *                   code: 400
+ *                   message: "Incorrect page value. Page must be greater than 0."
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -79,6 +98,11 @@ router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
  *         schema:
  *           type: integer
  *         description: The ID of the owner of the anime list
+ *       - in: header
+ *         name: Bearer
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authorization.
  *     responses:
  *       200:
  *         description: An anime list object
