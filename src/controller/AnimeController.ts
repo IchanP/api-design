@@ -5,6 +5,7 @@ import { inject, injectable } from 'inversify';
 import { AnimeService } from 'service/AnimeService.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
+import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 @injectable()
 export class AnimeController {
   @inject(TYPES.AnimeService) private service: AnimeService;
@@ -19,8 +20,17 @@ export class AnimeController {
     }
   }
 
-  displayAnimeById (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async displayAnimeById (req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      if (isNaN(Number(id))) {
+        throw new BadDataError('The id parameter must be a number.');
+      }
+      const response = await this.service.getOneById(id);
+      return res.status(200).json(response);
+    } catch (e: unknown) {
+      this.#handleError(e, next);
+    }
   }
 
   async searchAnime (req: Request, res: Response, next: NextFunction) {
@@ -36,11 +46,7 @@ export class AnimeController {
       console.log(response);
       return res.status(200).json(response);
     } catch (e: unknown) {
-      let err = e;
-      if (e instanceof BadDataError) {
-        err = createError(400, e.message);
-      }
-      next(err);
+      this.#handleError(e, next);
     }
   }
 
@@ -48,5 +54,16 @@ export class AnimeController {
     let page;
     Number(requestedPage) > 0 ? page = Number(requestedPage) : page = 1;
     return page;
+  }
+
+  #handleError (e: unknown, next: NextFunction): void {
+    let err = e;
+    if (e instanceof BadDataError) {
+      err = createError(400, e.message);
+    }
+    if (e instanceof NotFoundError) {
+      err = createError(404, e.message);
+    }
+    next(err);
   }
 }

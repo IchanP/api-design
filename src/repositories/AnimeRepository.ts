@@ -12,16 +12,17 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
   // Currently not implemented due to only admins being able to add anime (not users)
   createDocument: (data: IAnime) => Promise<IAnime>;
 
-  // TODO - implement getOneMatching
-  getOneMatching: (matcher: string) => Promise<IAnime>;
+  async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnime> {
+    AnimeModel.validateFilterKeys(filter);
+    return AnimeModel.findOne(filter);
+  }
 
   async getMany (page: number, limit: number = this.defaultPageLimit, filter: { [key: string]: string | number } = null): Promise<IAnime[]> {
-    try {
-      const pagesToSkip = (page - 1) * limit;
-      const listOfAnime = await AnimeModel.find(filter || {}).skip(pagesToSkip).limit(limit);
-      return listOfAnime;
-    } catch (e: unknown) {
-      // TODO - handle error
+    const pagesToSkip = (page - 1) * limit;
+    if (filter) {
+      AnimeModel.validateFilterKeys(filter);
     }
+    const listOfAnime = await AnimeModel.find(filter || {}).skip(pagesToSkip).limit(limit);
+    return listOfAnime;
   }
 }

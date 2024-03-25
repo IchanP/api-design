@@ -5,7 +5,7 @@ declare interface IAuthService {
 
 declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
-    getOneMatching: (matcher: string) => Promise<T>;
+    getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
     getTotalPages: (limit?: number) => Promise<number>;

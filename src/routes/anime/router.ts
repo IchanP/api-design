@@ -189,6 +189,17 @@ router.get('/search', (req, res, next) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Anime'
+ *       400:
+ *         description: Bad Request - The ID parameter must be a number.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               missingTitle:
+ *                 value:
+ *                   code: 400
+ *                   message: "The ID parameter must be a number."
  *       404:
  *         description: Anime not found
  *         content:

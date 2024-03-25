@@ -1,7 +1,6 @@
 import { injectable, inject } from 'inversify';
-import { BadDataError } from '../../Utils/BadDataError.ts';
 import { TYPES } from 'config/types.ts';
-
+import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
@@ -17,5 +16,13 @@ export class AnimeService {
       const searchResults = await this.animeRepo.getMany(page, 20, query);
       const totalPages = await this.animeRepo.getTotalPages();
       return { data: searchResults, totalPages, currentPage: page };
+    }
+
+    async getOneById (id: string): Promise<IAnime> {
+      const anime = await this.animeRepo.getOneMatching({ animeId: Number(id) });
+      if (!anime) {
+        throw new NotFoundError();
+      }
+      return anime;
     }
 }

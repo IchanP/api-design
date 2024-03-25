@@ -18,7 +18,7 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
     return animeList;
   }
 
-  getOneMatching: (id: string) => Promise<IAnimeList>;
+  getOneMatching: (filter: { [key: string]: string | number }) => Promise<IAnimeList>;
   // TODO add default: this.defaultPageLimit on limit
   getMany: (page: number, limit: number) => Promise<IAnimeList[]>;
 }

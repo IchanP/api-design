@@ -41,8 +41,8 @@ export class UserRepository extends BaseRepository<IUser> implements Repository<
     }
   }
 
-  async getOneMatching (email: string): Promise<IUser> {
-    const user = await UserModel.findOne({ email });
+  async getOneMatching (filter: { [key: string]: string | number }): Promise<IUser> {
+    const user = await UserModel.findOne(filter);
     if (!user) {
       throw new BadCredentialsError();
     }
