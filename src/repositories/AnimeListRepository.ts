@@ -19,6 +19,8 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
   }
 
   getOneMatching: (filter: { [key: string]: string | number }) => Promise<IAnimeList>;
-  // TODO add default: this.defaultPageLimit on limit
-  getMany: (page: number, limit: number) => Promise<IAnimeList[]>;
+  getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
+    const pagesToSkip = (page - 1) * limit;
+    return AnimeListModel.find().skip(pagesToSkip).limit(limit);
+  }
 }

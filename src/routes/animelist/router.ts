@@ -13,7 +13,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *     tags:
  *       - animelist
  *     summary: Get anime lists
- *     description: Retrieves anime lists containing links to individual anime lists along with the owner's username.
+ *     description: Retrieves a paginated array containing links to individual anime lists along with the owner's username.
  *     parameters:
  *       - in: query
  *         name: page
@@ -36,7 +36,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *             schema:
  *               type: object
  *               properties:
- *                 results:
+ *                 data:
  *                   type: array
  *                   items:
  *                     type: object
@@ -60,17 +60,14 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                   format: uri
  *                   description: Link to the previous page of anime lists
  *                   example: "http://localhost:3000/anime-list?page=1"
- *       400:
- *         description: Bad Request - Incorrect page value provided.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               badRequest:
- *                 value:
- *                   code: 400
- *                   message: "Incorrect page value. Page must be greater than 0."
+ *                 totalPages:
+ *                   type: number
+ *                   description: The total number of pages of anime lists
+ *                   example: 100
+ *                 currentPage:
+ *                   type: number
+ *                   description: The current page number
+ *                   example: 2
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -81,7 +78,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
+router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next));
 
 /**
  * @swagger

@@ -38,3 +38,9 @@ export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[])
   return expectedKeys.length === actualKeys.length &&
            expectedKeys.every(key => actualKeys.includes(key));
 }
+
+export function defaultToOne (providedValue: string): number {
+  let result;
+  Number(providedValue) > 0 ? result = Number(providedValue) : result = 1;
+  return result;
+}

@@ -21,3 +21,29 @@ declare type MinimizedAnime = {
     title: string;
     type: string;
 }
+
+type URLstring = string;
+
+declare type AnimeListsResponseSchema = {
+    data: Array<{
+        link: URLstring;
+        ownerUsername: string;}>;
+
+    next: URLstring;
+    previous: URLstring;
+    totalPages: number;
+    currentPage: number;
+}
+
+declare type ListOfAnimeResponseSchema = {
+    currentPage: number;
+    totalPages: number;
+    data: IAnime[];
+    totalAnime: number;
+}
+
+declare type AnimeQueryResultSchema = {
+    data: IAnime[];
+    totalPages: number;
+    currentPage: number;
+}

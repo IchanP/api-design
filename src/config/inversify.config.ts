@@ -13,6 +13,7 @@ import { UserService } from 'service/UserService.ts';
 import { AnimeListRepository } from 'repositories/AnimeListRepository.ts';
 import { AnimeService } from 'service/AnimeService.ts';
 import { AnimeRepository } from 'repositories/AnimeRepository.ts';
+import { AnimeListService } from 'service/AnimeListService.ts';
 
 const container = new Container();
 // Bind concretes to themselves
@@ -22,6 +23,7 @@ container.bind(TYPES.AnimeController).to(AnimeController);
 container.bind(TYPES.AnimeListController).to(AnimeListController);
 container.bind(TYPES.UserController).to(UserController);
 container.bind(TYPES.AnimeService).to(AnimeService);
+container.bind(TYPES.AnimeListService).to(AnimeListService);
 // Bind abstractions to concrete implementations
 container.bind<JWTFactory>(TYPES.JWTFactory).to(JWTCrafter).inSingletonScope();
 container.bind<Repository<User>>(TYPES.UserRepository).to(UserRepository).inSingletonScope();
