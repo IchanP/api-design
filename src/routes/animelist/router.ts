@@ -2,6 +2,7 @@ import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -143,7 +144,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
 
 /**
  * @swagger
- * anime-list/{user-id}/anime/{anime-id}:
+ * /anime-list/{user-id}/anime/{anime-id}:
  *   post:
  *     tags:
  *       - animelist
@@ -153,32 +154,41 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the anime list owner
+ *         description: The ID of the anime list owner.
  *       - in: path
  *         name: anime-id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the anime to add to the list
+ *         description: The ID of the anime to add to the list.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       201:
- *         description: Anime successfully added to the anime list
+ *         description: Anime successfully added to the anime list.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AnimeList'
+ *       400:
+ *         description: Bad Request - Either of the IDs is invalid.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       401:
- *         description: Unauthorized - No valid Bearer JWT provided or the requester is not the owner of the anime list
+ *         description: Unauthorized - No valid Bearer JWT provided or the requester is not the owner of the anime list.
  *         content:
  *           application/json:
  *             schema:
@@ -187,7 +197,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               unauthorized:
  *                 $ref: '#/components/schemas/Error/examples/unauthorized'
  *       404:
- *         description: Anime list or anime not found
+ *         description: Anime list or anime not found.
  *         content:
  *           application/json:
  *             schema:
@@ -196,7 +206,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               notFoundError:
  *                 $ref: '#/components/schemas/Error/examples/NotFoundError'
  *       500:
- *         description: Internal Server Error
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             schema:
@@ -205,7 +215,9 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/:id/add-anime/:anime-id', (req: Request, res: Response, next: NextFunction) => controller.addAnime(req, res, next));
+router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) =>
+  validateAuthScheme(req, res, next),
+(req, res, next) => controller.addAnime(req, res, next));
 
 /**
  * @swagger

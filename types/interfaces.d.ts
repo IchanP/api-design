@@ -72,16 +72,3 @@ declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
     updateField: (info: RequestBody, field: string) => Promise<void>;
 }
-
-declare interface ListOfAnimeResponseSchema {
-    currentPage: number;
-    totalPages: number;
-    data: IAnime[];
-    totalAnime: number;
-}
-
-declare interface AnimeQueryResultSchema {
-    data: IAnime[];
-    totalPages: number;
-    currentPage: number;
-}

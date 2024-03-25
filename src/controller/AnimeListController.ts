@@ -39,8 +39,20 @@ export class AnimeListController {
     }
   }
 
-  addAnime (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async addAnime (req: Request, res: Response, next: NextFunction) {
+    try {
+      const animelistId = req.params.id;
+      const animeId = req.params.animeId;
+      validateId(animelistId);
+      validateId(animeId);
+      const response = await this.service.addAnime(animelistId, animeId);
+    } catch (e: unknown) {
+      let err = e;
+      if (e instanceof BadDataError) {
+        err = createError(400, e.message);
+      }
+      next(err);
+    }
   }
 
   deleteAnime (req: Request, res: Response, next: NextFunction) {
