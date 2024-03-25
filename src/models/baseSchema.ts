@@ -2,7 +2,7 @@
  * Credit to Mathias Loock for the idea and general structure of this file.
  */
 
-import mongoose, { Schema, mongo } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 interface CustomDoc extends mongoose.Document {
   _id: string;
@@ -20,7 +20,6 @@ const conversionOptions = {
    * @param {mongoose.Document} ret - The plain object representation which has been converted.
    */
   transform: (doc: mongoose.Document, ret: CustomDoc) => {
-    console.log('yo?');
     delete ret._id;
     delete ret.id;
     delete ret.createdAt;

@@ -20,16 +20,13 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnimeList> {
     // TODO add sanitazation to filter?
-    return await AnimeListModel.findOne(filter);
+    const list = await AnimeListModel.findOne(filter);
+    return list.toObject();
   }
 
   async getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
     const pagesToSkip = (page - 1) * limit;
     const docsToStrip = await AnimeListModel.find().skip(pagesToSkip).limit(limit);
-    return docsToStrip.map((doc) => {
-      const newDoc = doc.toObject();
-      console.log(newDoc);
-      return newDoc;
-    });
+    return docsToStrip.map((doc) => doc.toObject());
   }
 }

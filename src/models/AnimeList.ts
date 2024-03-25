@@ -7,6 +7,8 @@ const minimizedAnimeSchema = new Schema<MinimizedAnime>({
   type: { type: String, required: true }
 });
 
+minimizedAnimeSchema.add(BASE_SCHEMA);
+
 const animeListSchema = new Schema<IAnimeList>({
   ownerId: { type: Number, required: true, unique: true },
   ownerUsername: { type: String, required: true },
