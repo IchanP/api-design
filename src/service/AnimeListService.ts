@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
+import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 
 @injectable()
 export class AnimeListService {
@@ -7,10 +8,19 @@ export class AnimeListService {
 
     async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
       const animeList = await this.animeListRepo.getMany(page);
+      console.log(animeList);
       const data = this.#constructAnimeListUrl(animeList);
       const totalPages = await this.animeListRepo.getTotalPages();
       const { next, previous } = this.#constructNextAndPreviousPageUrl(page, totalPages);
       return { data, next, previous, totalPages, currentPage: page };
+    }
+
+    async getOneById (id: string): Promise<IAnimeList> {
+      const animeList = await this.animeListRepo.getOneMatching({ ownerId: Number(id) });
+      if (!animeList) {
+        throw new NotFoundError();
+      }
+      return animeList;
     }
 
     #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{link: string, ownerUsername: string}> {

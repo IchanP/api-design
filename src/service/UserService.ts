@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/types.ts';
-import { isValidType } from '../../Utils/index.ts';
+import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 
 @injectable()

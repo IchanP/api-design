@@ -94,12 +94,13 @@ router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next)
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the owner of the anime list
+ *         description: The ID of the owner of the anime list. Must be a number.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
+ *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
  *         description: An anime list object
@@ -107,6 +108,17 @@ router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next)
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AnimeList'
+ *       400:
+ *         description: Bad Request - The user-id is not a number
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 value:
+ *                   code: 400
+ *                   message: "The id parameter must be a number."
  *       404:
  *         description: Anime list not found
  *         content:
@@ -126,6 +138,7 @@ router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
+
 router.get('/:id', (req: Request, res: Response, next: NextFunction) => controller.displayAnimeList(req, res, next));
 
 /**
