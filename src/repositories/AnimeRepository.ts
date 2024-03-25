@@ -15,10 +15,10 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
   // TODO - implement getOneMatching
   getOneMatching: (matcher: string) => Promise<IAnime>;
 
-  async getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnime[]> {
+  async getMany (page: number, limit: number = this.defaultPageLimit, filter: { [key: string]: string | number } = null): Promise<IAnime[]> {
     try {
       const pagesToSkip = (page - 1) * limit;
-      const listOfAnime = await AnimeModel.find().skip(pagesToSkip).limit(limit);
+      const listOfAnime = await AnimeModel.find(filter || {}).skip(pagesToSkip).limit(limit);
       return listOfAnime;
     } catch (e: unknown) {
       // TODO - handle error

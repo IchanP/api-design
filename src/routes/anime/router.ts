@@ -76,6 +76,11 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *         schema:
  *           type: string
  *         description: The title of the anime to search for.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *         description: The page of the search results.
  *       - in: header
  *         name: Authorization
  *         required: false
@@ -99,7 +104,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *                 totalPages:
  *                   type: integer
  *               example:
- *                 results:
+ *                 data:
  *                   - title: 'Oshi no Ko'
  *                     type: 'TV'
  *                     episodes: 11

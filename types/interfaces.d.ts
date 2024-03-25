@@ -7,7 +7,7 @@ declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
     getOneMatching: (matcher: string) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
-    getMany?: (page: number, limit?: number) => Promise<T[]>;
+    getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
     getTotalPages: (limit?: number) => Promise<number>;
     getTotalCount: () => Promise<number>;
 }
@@ -78,4 +78,10 @@ declare interface ListOfAnimeResponseSchema {
     totalPages: number;
     data: IAnime[];
     totalAnime: number;
+}
+
+declare interface AnimeQueryResultSchema {
+    data: IAnime[];
+    totalPages: number;
+    currentPage: number;
 }
