@@ -11,8 +11,8 @@ const minimizedAnimeSchema = new Schema<MinimizedAnime>({
 minimizedAnimeSchema.add(BASE_SCHEMA);
 
 const animeListSchema = new Schema<IAnimeList>({
-  ownerId: { type: Number, required: true, unique: true },
-  ownerUsername: { type: String, required: true },
+  userId: { type: Number, required: true, unique: true },
+  username: { type: String, required: true },
   list: { type: [minimizedAnimeSchema], required: true }
 });
 
@@ -22,33 +22,41 @@ animeListSchema.pre('updateOne', async function (next) {
   const filter = this.getFilter();
   const docBeingUpdated = await AnimeListModel.findOne(filter);
   const updateQuery = this.getUpdate();
-
-  if (isUpdatingList(updateQuery as { [key: string]: unknown })) { // Typescript doesn't know that it's indexed using strings so we're casting and throwing inside the function if we're wrong.
-    verifyUniqueId(docBeingUpdated);
+  const animeId = extractAnimeIdFromList(updateQuery);
+  if (animeId) {
+    verifyUniqueId(docBeingUpdated, animeId);
     next();
   }
-  // TODO for ownerUsername update!
   next();
 });
 
-function verifyUniqueId (animeList: IAnimeList) {
+function verifyUniqueId (animeList: IAnimeList, animeIdToAdd: number) {
   const animeIds = animeList.list.map(item => item.animeId);
-  const uniqueAnimeIds = new Set(animeIds);
 
-  if (animeIds.length !== uniqueAnimeIds.size) {
-    throw new DuplicateError('Anime is already in list.');
+  for (const id of animeIds) {
+    if (id === animeIdToAdd) {
+      throw new DuplicateError('Anime is already in list.');
+    }
   }
 }
 
-function isUpdatingList (updateQuery: { [key: string]: unknown }): boolean {
+// Poor practice but mongoose is being obtuse about fetching the animeId.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractAnimeIdFromList (updateQuery: { [key: string]: any }): number | undefined {
   try {
-    return Object.keys(updateQuery).some(operator => {
+    for (const operator of Object.keys(updateQuery)) {
       const fields = updateQuery[operator];
-      return typeof fields === 'object' && 'list' in fields;
-    });
+      if (typeof fields === 'object' && 'list' in fields) {
+        const listUpdate = fields.list;
+        if (typeof listUpdate === 'object' && !Array.isArray(listUpdate)) {
+          return listUpdate.animeId;
+        }
+      }
+    }
   } catch (e: unknown) {
-    return false;
+    return undefined;
   }
+  return undefined;
 }
 
 export const AnimeListModel = model<IAnimeList>('AnimeList', animeListSchema);

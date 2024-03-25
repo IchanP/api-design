@@ -11,8 +11,8 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
 
   async createDocument (data: IUser): Promise<IAnimeList> {
     const animeList = new AnimeListModel({
-      ownerId: data.userId,
-      ownerUsername: data.username,
+      userId: data.userId,
+      username: data.username,
       animeList: []
     });
     await animeList.save();
@@ -35,18 +35,16 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
     if (field === 'list') {
       this.#addNewAnimeToList(identifier as number, JSON.parse(value));
     }
-  //  const updatedValue = await AnimeListModel.findOneAndUpdate({ ownerId: identifier }, { [field]: x });
-  //  console.log(updatedValue);
+    await AnimeListModel.findOneAndUpdate({ userId: identifier }, { [field]: value });
   }
 
   async #addNewAnimeToList (ownerId: number, anime: IAnime): Promise<IAnimeList> {
     try {
-      const updatedDoc = await AnimeListModel.updateOne({ ownerId }, { $push: { list: anime } });
+      await AnimeListModel.updateOne({ userId: ownerId }, { $push: { list: anime } });
     } catch (e: unknown) {
-      // If the user attempts to add a duplicate anime to their list, we'll just return the list as it is.
+      // If the user attempts to add a duplicate anime we just silently ignore it.
       if (e instanceof DuplicateError) {
-        const foundDoc = await AnimeListModel.findOne({ ownerId });
-        return foundDoc.toObject();
+        return;
       }
       throw e;
     }

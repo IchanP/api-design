@@ -51,8 +51,8 @@ declare interface IAnime {
 }
 
 declare interface IAnimeList {
-    ownerId: number;
-    ownerUsername: string;
+    userId: number;
+    username: string;
     list: MinimizedAnime[];
 }
 
