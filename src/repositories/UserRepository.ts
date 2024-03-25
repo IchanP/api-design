@@ -41,7 +41,7 @@ export class UserRepository extends BaseRepository<IUser> implements Repository<
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IUser> {
     const user = await UserModel.findOne(filter);
-    return user.toObject();
+    return user?.toObject();
   }
 
   #handleError (e: unknown): void {

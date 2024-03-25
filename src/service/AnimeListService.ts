@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { animeExists, animeListExists } from './ValidatorUtil.ts';
 
 @injectable()
 export class AnimeListService {
@@ -16,21 +17,23 @@ export class AnimeListService {
     }
 
     async getOneById (id: string): Promise<IAnimeList> {
-      const animeList = await this.animeListRepo.getOneMatching({ ownerId: Number(id) });
+      const animeList = await this.animeListRepo.getOneMatching({ userId: Number(id) });
       if (!animeList) {
         throw new NotFoundError();
       }
       return animeList;
     }
 
-    async addAnime (animeListId: string, animeId: string): Promise<void> {
+    async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
       const fieldToAddTo = 'list';
+
       const animeToAdd = await this.animeRepo.getOneMatching({ animeId: Number(animeId) });
-      if (!animeToAdd) {
-        throw new NotFoundError('Anime could not be found with that ID.');
-      }
+      animeExists(animeToAdd);
+      const animeList = await this.getOneById(animeListId);
+      animeListExists(animeList);
       const minimzedAnime = this.#stripAnime(animeToAdd);
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
+      return this.getOneById(animeListId);
     }
 
     #stripAnime (anime: IAnime): MinimizedAnime {
@@ -41,11 +44,11 @@ export class AnimeListService {
       };
     }
 
-    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{link: string, ownerUsername: string}> {
+    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{link: string, username: string}> {
       return animeList.map((list) => {
         return {
-          link: `${process.env.BASE_URL}/anime-list/${list.ownerId}`,
-          ownerUsername: list.ownerUsername
+          link: `${process.env.BASE_URL}/anime-list/${list.userId}`,
+          username: list.username
         };
       });
     }

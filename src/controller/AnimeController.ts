@@ -7,7 +7,7 @@ import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 import { defaultToOne } from '../../Utils/index.ts';
-import { validateId } from '../../Utils/validateutil.ts';
+import { validateId } from 'service/ValidatorUtil.ts';
 @injectable()
 export class AnimeController {
   @inject(TYPES.AnimeService) private service: AnimeService;

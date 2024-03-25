@@ -27,7 +27,7 @@ type URLstring = string;
 declare type AnimeListsResponseSchema = {
     data: Array<{
         link: URLstring;
-        ownerUsername: string;}>;
+        username: string;}>;
 
     next: URLstring;
     previous: URLstring;

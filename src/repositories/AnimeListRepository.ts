@@ -16,24 +16,25 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
       animeList: []
     });
     await animeList.save();
-    return animeList.toObject();
+    return animeList?.toObject();
   }
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnimeList> {
     // TODO add sanitazation to filter?
     const list = await AnimeListModel.findOne(filter);
-    return list.toObject();
+    return list?.toObject();
   }
 
   async getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
     const pagesToSkip = (page - 1) * limit;
     const docsToStrip = await AnimeListModel.find().skip(pagesToSkip).limit(limit);
-    return docsToStrip.map((doc) => doc.toObject());
+    return docsToStrip.map((doc) => doc?.toObject());
   }
 
   async updateOneValue (field: string, value: string, identifier: string | number) {
     if (field === 'list') {
       this.#addNewAnimeToList(identifier as number, JSON.parse(value));
+      return;
     }
     await AnimeListModel.findOneAndUpdate({ userId: identifier }, { [field]: value });
   }

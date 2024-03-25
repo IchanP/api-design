@@ -11,9 +11,3 @@ export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[])
   return expectedKeys.length === actualKeys.length &&
              expectedKeys.every(key => actualKeys.includes(key));
 }
-
-export function validateId (id: string): void {
-  if (isNaN(Number(id))) {
-    throw new BadDataError('The id parameter must be a number.');
-  }
-}

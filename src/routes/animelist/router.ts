@@ -47,7 +47,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                         format: uri
  *                         description: Link to the anime list for the owner
  *                         example: "http://localhost:3000/anime-list/1234"
- *                       ownerUsername:
+ *                       username:
  *                         type: string
  *                         description: Username of the owner of the anime list
  *                         example: "animefan123"

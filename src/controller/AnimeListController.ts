@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { defaultToOne } from '../../Utils/index.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeListService } from 'service/AnimeListService.ts';
-import { validateId } from '../../Utils/validateutil.ts';
+import { validateId } from 'service/ValidatorUtil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
@@ -46,10 +46,13 @@ export class AnimeListController {
       validateId(animelistId);
       validateId(animeId);
       const response = await this.service.addAnime(animelistId, animeId);
+      return res.status(201).json(response);
     } catch (e: unknown) {
       let err = e;
       if (e instanceof BadDataError) {
         err = createError(400, e.message);
+      } else if (e instanceof NotFoundError) {
+        err = createError(404, e.message);
       }
       next(err);
     }
