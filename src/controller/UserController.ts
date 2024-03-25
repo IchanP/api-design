@@ -1,4 +1,3 @@
-import { isValidType } from '../../Utils/index.ts';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { Request, NextFunction } from 'express';
@@ -16,13 +15,7 @@ export class UserController {
         const userData = await this.service.register(req.body);
         return res.status(201).json({ userData });
       } catch (e: unknown) {
-        let err = e;
-        if (e instanceof BadDataError) {
-          err = createError(400, e.message);
-        } else if (e instanceof DuplicateError) {
-          err = createError(409, e.message);
-        }
-        next(err);
+        this.#handleError(e, next);
       }
     }
 
@@ -31,12 +24,17 @@ export class UserController {
         await this.service.updateField(req.body, 'username');
         return res.status(204).send();
       } catch (e: unknown) {
-        let err = e;
-        if (e instanceof BadDataError) {
-          err = createError(400, e.message);
-        }
-        console.log(err);
-        next(err);
+        this.#handleError(e, next);
       }
+    }
+
+    #handleError (e: unknown, next: NextFunction): void {
+      let err = e;
+      if (e instanceof BadDataError) {
+        err = createError(400, e.message);
+      } else if (e instanceof DuplicateError) {
+        err = createError(409, e.message);
+      }
+      next(err);
     }
 }
