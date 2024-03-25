@@ -1,8 +1,13 @@
 import { injectable } from 'inversify';
 import { AnimeListModel } from 'models/AnimeList.ts';
+import { BaseRepository } from './BaseRepository.ts';
 
 @injectable()
-export class AnimeListRepository implements Repository<IAnimeList, IUser> {
+export class AnimeListRepository extends BaseRepository<IAnimeList> implements Repository<IAnimeList, IUser> {
+  constructor () {
+    super(AnimeListModel);
+  }
+
   async createDocument (data: IUser): Promise<IAnimeList> {
     const animeList = new AnimeListModel({
       ownerId: data.userId,
@@ -13,5 +18,7 @@ export class AnimeListRepository implements Repository<IAnimeList, IUser> {
     return animeList;
   }
 
-  getOneMatching: (id: string) => Promise<IAnimeList>;
+  getOneMatching: (filter: { [key: string]: string | number }) => Promise<IAnimeList>;
+  // TODO add default: this.defaultPageLimit on limit
+  getMany: (page: number, limit: number) => Promise<IAnimeList[]>;
 }

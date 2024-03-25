@@ -4,9 +4,14 @@ import { DuplicateError } from '../../Utils/DuplicateError.ts';
 import { Error } from 'mongoose';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
+import { BaseRepository } from './BaseRepository.ts';
 
 @injectable()
-export class UserRepository implements Repository<IUser> {
+export class UserRepository extends BaseRepository<IUser> implements Repository<IUser> {
+  constructor () {
+    super(UserModel);
+  }
+
   async createDocument (userData: User): Promise<IUser> {
     try {
       const user = new UserModel({
@@ -17,20 +22,27 @@ export class UserRepository implements Repository<IUser> {
       await user.save();
       return { userId: user.userId, email: user.email, username: user.username };
     } catch (e: unknown) {
-      this.#handleError(e);
+      const error = e as ExtendedError;
+      if (error.code === 11000) {
+        throw new DuplicateError();
+      } else if (error instanceof Error.ValidationError) {
+        throw new BadDataError(error.message);
+      }
+      throw error;
     }
   }
 
   async updateOneValue (field: string, value: string, id: number): Promise<void> {
     try {
+      console.log(id);
       await UserModel.findOneAndUpdate({ userId: id }, { [field]: value });
     } catch (e: unknown) {
       this.#handleError(e);
     }
   }
 
-  async getOneMatching (email: string): Promise<IUser> {
-    const user = await UserModel.findOne({ email });
+  async getOneMatching (filter: { [key: string]: string | number }): Promise<IUser> {
+    const user = await UserModel.findOne(filter);
     if (!user) {
       throw new BadCredentialsError();
     }

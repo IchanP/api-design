@@ -23,7 +23,8 @@ export class AuthController {
 
         async refresh (req: Request, res: Response, next: NextFunction) {
           try {
-            const newRefresh = this.service.refreshToken(req.body.token);
+            // Looks silly but refer to how we set the payload to the request in Utils/index.ts
+            const newRefresh = this.service.refreshToken(req.body.token.token);
             return res.status(200).json({ accessToken: newRefresh });
           } catch (e: unknown) {
             let err = e;

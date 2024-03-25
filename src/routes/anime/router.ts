@@ -49,15 +49,6 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *                 totalAnime:
  *                   type: integer
  *                   example: 200
- *       400:
- *         description: Bad Request - Invalid page number
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               badRequest:
- *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -85,6 +76,11 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *         schema:
  *           type: string
  *         description: The title of the anime to search for.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *         description: The page of the search results.
  *       - in: header
  *         name: Authorization
  *         required: false
@@ -108,7 +104,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => controller.
  *                 totalPages:
  *                   type: integer
  *               example:
- *                 results:
+ *                 data:
  *                   - title: 'Oshi no Ko'
  *                     type: 'TV'
  *                     episodes: 11
@@ -193,6 +189,17 @@ router.get('/search', (req, res, next) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Anime'
+ *       400:
+ *         description: Bad Request - The ID parameter must be a number.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               missingTitle:
+ *                 value:
+ *                   code: 400
+ *                   message: "The ID parameter must be a number."
  *       404:
  *         description: Anime not found
  *         content:

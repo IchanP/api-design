@@ -3,14 +3,13 @@ declare interface IAuthService {
     refreshToken: (refreshToken: string) => string;
 }
 
-declare interface IAnimeService {
-
-}
-
 declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
-    getOneMatching: (matcher: string) => Promise<T>;
+    getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
+    getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    getTotalPages: (limit?: number) => Promise<number>;
+    getTotalCount: () => Promise<number>;
 }
 
 declare interface IUser {
@@ -72,4 +71,17 @@ declare interface RequestBody {
 declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
     updateField: (info: RequestBody, field: string) => Promise<void>;
+}
+
+declare interface ListOfAnimeResponseSchema {
+    currentPage: number;
+    totalPages: number;
+    data: IAnime[];
+    totalAnime: number;
+}
+
+declare interface AnimeQueryResultSchema {
+    data: IAnime[];
+    totalPages: number;
+    currentPage: number;
 }
