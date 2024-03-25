@@ -3,6 +3,7 @@ import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
+import { tokenIdMatchesPathId } from 'service/ValidatorUtil.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -217,6 +218,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  */
 router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) =>
   validateAuthScheme(req, res, next),
+(req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
 (req, res, next) => controller.addAnime(req, res, next));
 
 /**
