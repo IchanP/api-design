@@ -4,7 +4,7 @@ import { BaseRepository } from './BaseRepository.ts';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 
 @injectable()
-export class AnimeListRepository extends BaseRepository<IAnimeList> implements ExtendedRepository<IAnimeList, IUser> {
+export class AnimeListRepository extends BaseRepository<IAnimeList> implements Repository<IAnimeList, IUser> {
   constructor () {
     super(AnimeListModel);
   }
