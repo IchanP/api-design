@@ -3,7 +3,7 @@ import validator from 'validator';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
-import { BASE_SCHEMA } from './BaseSchema.ts';
+import { BASE_SCHEMA } from './baseSchema.ts';
 import { Counter } from './Counter.ts';
 
 interface ExtendedUser extends Model<IUser> {

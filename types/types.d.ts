@@ -10,7 +10,7 @@ declare type LoginCredentials = {
     password: string;
 }
 
-type ValidDataType = User | IAnimeList | IAnime
+type ValidDataType = User | IAnimeList | IAnime | IWebhookStore
 
 declare type RefreshRequestSchema = {
     refreshToken: string;
@@ -46,4 +46,19 @@ declare type AnimeQueryResultSchema = {
     data: IAnime[];
     totalPages: number;
     currentPage: number;
+}
+
+declare type WebhookData = {
+    URL: URLstring;
+    secret: string;
+    ownerId: number;
+}
+
+declare type WebhookMessage = {
+    message: string;
+    data: MinimizedAnime;
+}
+declare type WebhookSubscribeSchema = {
+    subscribed: boolean;
+    data: URLstring[];
 }

@@ -25,7 +25,7 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
     return list?.toObject();
   }
 
-  async getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
+  async getPaginatedResult (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
     const pagesToSkip = (page - 1) * limit;
     const docsToStrip = await AnimeListModel.find().skip(pagesToSkip).limit(limit);
     return docsToStrip.map((doc) => doc?.toObject());
@@ -39,9 +39,9 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
     await AnimeListModel.findOneAndUpdate({ userId: identifier }, { [field]: value });
   }
 
-  async deleteOneValue (field: string, value: string, identifier: string | number) {
+  async deleteOneValue (field: string, value: string, filter: { [key: string]: string | number }) {
     const animeToRemove = JSON.parse(value) as MinimizedAnime;
-    const animeList = await AnimeListModel.findOne({ userId: identifier });
+    const animeList = await AnimeListModel.findOne(filter);
     const updatedList = animeList.list.filter((anime) => {
       return anime.animeId !== animeToRemove.animeId;
     });

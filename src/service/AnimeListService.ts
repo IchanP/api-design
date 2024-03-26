@@ -1,15 +1,19 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
-import { animeExists, animeListExists } from './ValidatorUtil.ts';
+import { animeExists, verifyAnimeListExists } from './ValidatorUtil.ts';
+import { WebhookRepository } from 'repositories/WebhookRepository.ts';
+import { createHash } from '../../Utils/index.ts';
+import fetch from 'node-fetch';
 
 @injectable()
 export class AnimeListService {
     @inject(TYPES.AnimeListRepository) private animeListRepo: Repository<IAnimeList, IUser>;
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
+    @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
     async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
-      const animeList = await this.animeListRepo.getMany(page);
+      const animeList = await this.animeListRepo.getPaginatedResult(page);
       const data = this.#constructAnimeListUrl(animeList);
       const totalPages = await this.animeListRepo.getTotalPages();
       const { next, previous } = this.#constructNextAndPreviousPageUrl(page, totalPages);
@@ -27,24 +31,41 @@ export class AnimeListService {
     async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
       const fieldToAddTo = 'list';
 
-      await this.#verifyAnimeListExists(animeListId);
+      await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
       const minimzedAnime = this.#stripAnime(animeToAdd);
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
-      return this.getOneById(animeListId);
+      const updatedList = await this.getOneById(animeListId);
+      await this.#postAnimeWebhooks(minimzedAnime, updatedList.username, updatedList.userId);
+      return updatedList;
     }
 
     async removeAnime (animeListId: string, animeId: string) {
-      await this.#verifyAnimeListExists(animeListId);
+      await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
       const minimzedAnime = this.#stripAnime(animeToAdd);
-      await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), animeListId);
+      await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), { userId: Number(animeListId) });
     }
 
-    async #verifyAnimeListExists (animeListId: string): Promise<void> {
-      const animeList = await this.getOneById(animeListId);
-      animeListExists(animeList);
+    async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {
+      const webhooks = await this.webhookRepo.getOneMatching({ userId });
+
+      webhooks.webhooks.forEach((webhook) => {
+        const message = `New anime added to ${username}'s list: ${anime.title} - ${anime.type}`;
+        const payload: WebhookMessage = { message, data: anime };
+        const hash = createHash(webhook.secret, JSON.stringify(payload));
+
+        // Don't bother doing it async, we don't care about the response.
+        fetch(webhook.URL, {
+          method: 'post',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-AniApiiList-Signature': hash
+          }
+        }).catch(); // Just continue executing if it fails.
+      });
     }
 
     async #verifyAnimeExists (animeId: string): Promise<IAnime> {

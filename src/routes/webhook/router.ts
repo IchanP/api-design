@@ -2,13 +2,15 @@ import express from 'express';
 import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { AnimeListController } from 'controller/AnimeListController.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
+import { validateId } from 'service/ValidatorUtil.ts';
 
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
 export const router = express.Router();
 
 /**
  * @swagger
- * webhook/anime-list/{user-id}:
+ * /webhook/anime-list/{user-id}:
  *   get:
  *     tags:
  *       - webhook
@@ -18,20 +20,20 @@ export const router = express.Router();
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id
  *         required: true
  *         schema:
  *           type: integer
  *         description: The ID of the anime list.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
- *       200:
- *         description: Subscription status retrieved successfully.
+ *       201:
+ *         description: Subscription status updated successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -40,15 +42,17 @@ export const router = express.Router();
  *                 subscribed:
  *                   type: boolean
  *                   description: Indicates whether the user is subscribed to the anime list.
- *                 url:
- *                   type: string
- *                   format: uri
- *                   description: The callback URL for the subscription.
- *             examples:
- *               subscriptionStatus:
- *                 value:
- *                   subscribed: true
- *                   url: "http://localhost:3000/callback-url"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     format: uri
+ *                   description: An array of callback URLs for the subscription.
+ *               example:
+ *                 subscribed: true
+ *                 data:
+ *                   - "http://localhost:3000/callback-url"
+ *                   - "http://localhost:3000/alternative-callback-url"
  *       400:
  *         description: Bad Request - The provided ID is invalid.
  *         content:
@@ -83,7 +87,7 @@ export const router = express.Router();
  *                   code: 404
  *                   message: "Anime list not found."
  *       500:
- *         description: Internal Server Error
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             schema:
@@ -94,7 +98,11 @@ export const router = express.Router();
  *                   code: 500
  *                   message: "Something went wrong on the server."
  */
-router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(req, res, next));
+
+router.get('/anime-list/:id',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.showSubscription(req, res, next));
 
 /**
  * @swagger
@@ -149,7 +157,7 @@ router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(re
  *               invalidRequest:
  *                 value:
  *                   code: 400
- *                   message: "Invalid 'url', 'id' or 'secret'. All fields are required and must be valid."
+ *                   message: "Invalid 'url' or 'secret'. All fields are required and must be valid."
  *       401:
  *         description: Unauthorized - JWT is invalid.
  *         content:
@@ -182,7 +190,10 @@ router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(re
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribeToList(req, res, next));
+router.post('/anime-list/:id/subscribe',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.subcribeToList(req, res, next));
 
 /**
  * @swagger
@@ -191,7 +202,7 @@ router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribe
  *     tags:
  *       - webhook
  *     summary: Unsubscribe from an Anime List
- *     description: Removes the subscription from an anime list by its ID.
+ *     description: Removes the subscription from an anime list by its ID. Will silently ignore and return a 204 status code if the webhook is not registered.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -233,7 +244,7 @@ router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribe
  *               invalidInput:
  *                 value:
  *                   code: 400
- *                   message: "Invalid ID or URL provided."
+ *                   message: "URL is required to unsubscribe."
  *       401:
  *         description: Unauthorized - JWT Bearer token is invalid.
  *         content:
@@ -268,4 +279,7 @@ router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribe
  *                   code: 500
  *                   message: "Something else went wrong."
  */
-router.delete('/anime-list/:id/subscribe', (req, res, next) => controller.unSubscribeFromList(req, res, next));
+router.delete('/anime-list/:id/subscribe',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.unSubscribeFromList(req, res, next));

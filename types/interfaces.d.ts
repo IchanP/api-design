@@ -7,8 +7,9 @@ declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
     getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
-    getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
-    deleteOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
+    getPaginatedResult?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    getMany?: (filter: { [key: string]: string | number }) => Promise<T[]>;
+    deleteOneValue?(field: string, value: string, filter: { [key: string]: string | number }): Promise<void>;
     getTotalPages: (limit?: number) => Promise<number>;
     getTotalCount: () => Promise<number>;
 }
@@ -72,4 +73,15 @@ declare interface RequestBody {
 declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
     updateField: (info: RequestBody, field: string) => Promise<void>;
+}
+
+declare interface IWebhookStore {
+    userId: number,
+    webhooks: WebhookData[]
+}
+
+declare interface IWebhookService {
+    addWebhook: (userId: string, webhookData: WebhookData) => Promise<void>;
+    removeWebhook: (userId: string, ownerId: string, resource: string) => Promise<void>;
+    getWebhooks: (subscribptionId: string, userId: string) => Promise<WebhookSubscribeSchema>;
 }

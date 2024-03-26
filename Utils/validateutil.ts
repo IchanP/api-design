@@ -1,5 +1,3 @@
-import { BadDataError } from './BadDataError.ts';
-
 export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[]): typeToValidate is Type {
   const actualKeys = Object.keys(typeToValidate);
 
