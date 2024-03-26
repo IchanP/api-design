@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/types.ts';
-import { isValidType } from '../../Utils/index.ts';
+import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 
 @injectable()
@@ -20,7 +20,9 @@ export class UserService implements IUserService {
       if (!isValidType(info, [`${field}`, 'token'])) {
         throw new BadDataError();
       }
+      // TODO make sure something is returned in the future ?
       await this.userRepo.updateOneValue(field, info[field].toString(), payload.userId);
+      await this.animeListRepo.updateOneValue(field, info[field].toString(), payload.userId);
     }
 
     #validateUserInfo (userInfo: RequestBody): User {

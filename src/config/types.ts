@@ -10,5 +10,6 @@ export const TYPES = {
   UserController: Symbol.for('UserController'),
   IUserService: Symbol.for('IUserService'),
   AnimeService: Symbol.for('AnimeService'),
-  AnimeRepository: Symbol.for('AnimeRepository')
+  AnimeRepository: Symbol.for('AnimeRepository'),
+  AnimeListService: Symbol.for('AnimeListService')
 };

@@ -3,7 +3,6 @@ import { UserModel } from 'models/User.ts';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 import { Error } from 'mongoose';
 import { BadDataError } from '../../Utils/BadDataError.ts';
-import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 import { BaseRepository } from './BaseRepository.ts';
 
 @injectable()
@@ -34,7 +33,6 @@ export class UserRepository extends BaseRepository<IUser> implements Repository<
 
   async updateOneValue (field: string, value: string, id: number): Promise<void> {
     try {
-      console.log(id);
       await UserModel.findOneAndUpdate({ userId: id }, { [field]: value });
     } catch (e: unknown) {
       this.#handleError(e);
@@ -43,10 +41,7 @@ export class UserRepository extends BaseRepository<IUser> implements Repository<
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IUser> {
     const user = await UserModel.findOne(filter);
-    if (!user) {
-      throw new BadCredentialsError();
-    }
-    return user;
+    return user?.toObject();
   }
 
   #handleError (e: unknown): void {

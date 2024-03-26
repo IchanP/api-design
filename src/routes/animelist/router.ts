@@ -2,6 +2,8 @@ import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
+import { tokenIdMatchesPathId, validateId } from 'service/ValidatorUtil.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -13,7 +15,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *     tags:
  *       - animelist
  *     summary: Get anime lists
- *     description: Retrieves anime lists containing links to individual anime lists along with the owner's username.
+ *     description: Retrieves a paginated array containing links to individual anime lists along with the owner's username.
  *     parameters:
  *       - in: query
  *         name: page
@@ -36,7 +38,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *             schema:
  *               type: object
  *               properties:
- *                 results:
+ *                 data:
  *                   type: array
  *                   items:
  *                     type: object
@@ -46,7 +48,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                         format: uri
  *                         description: Link to the anime list for the owner
  *                         example: "http://localhost:3000/anime-list/1234"
- *                       ownerUsername:
+ *                       username:
  *                         type: string
  *                         description: Username of the owner of the anime list
  *                         example: "animefan123"
@@ -60,17 +62,14 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                   format: uri
  *                   description: Link to the previous page of anime lists
  *                   example: "http://localhost:3000/anime-list?page=1"
- *       400:
- *         description: Bad Request - Incorrect page value provided.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               badRequest:
- *                 value:
- *                   code: 400
- *                   message: "Incorrect page value. Page must be greater than 0."
+ *                 totalPages:
+ *                   type: number
+ *                   description: The total number of pages of anime lists
+ *                   example: 100
+ *                 currentPage:
+ *                   type: number
+ *                   description: The current page number
+ *                   example: 2
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -81,7 +80,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
+router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next));
 
 /**
  * @swagger
@@ -97,12 +96,13 @@ router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the owner of the anime list
+ *         description: The ID of the owner of the anime list. Must be a number.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
+ *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
  *         description: An anime list object
@@ -110,6 +110,17 @@ router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AnimeList'
+ *       400:
+ *         description: Bad Request - The user-id is not a number
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 value:
+ *                   code: 400
+ *                   message: "The id parameter must be a number."
  *       404:
  *         description: Anime list not found
  *         content:
@@ -129,46 +140,58 @@ router.get('/', (req, res, next) => controller.listAnimeLists(req, res, next));
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/:id', (req: Request, res: Response, next: NextFunction) => controller.displayAnimeList(req, res, next));
+
+router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
+  validateId(req.params.id, res, next),
+(req, res, next) => controller.displayAnimeList(req, res, next));
 
 /**
  * @swagger
- * anime-list/{user-id}/anime/{anime-id}:
+ * /anime-list/{user-id}/anime/{anime-id}:
  *   post:
  *     tags:
  *       - animelist
  *     summary: Add an anime to the specified anime list
- *     description: Adds an anime by its ID to the anime list of the user specified by user ID.
+ *     description: Adds an anime by its ID to the anime list of the user specified by user ID. If the anime is already in the list a 201 status code will be returned but no changes will be made to the list.
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the anime list owner
+ *         description: The ID of the anime list owner.
  *       - in: path
  *         name: anime-id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the anime to add to the list
+ *         description: The ID of the anime to add to the list.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       201:
- *         description: Anime successfully added to the anime list
+ *         description: Anime successfully added to the anime list.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AnimeList'
+ *       400:
+ *         description: Bad Request - Either of the IDs is invalid.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               badRequest:
+ *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       401:
- *         description: Unauthorized - No valid Bearer JWT provided or the requester is not the owner of the anime list
+ *         description: Unauthorized - No valid Bearer JWT provided or the requester is not the owner of the anime list.
  *         content:
  *           application/json:
  *             schema:
@@ -177,7 +200,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               unauthorized:
  *                 $ref: '#/components/schemas/Error/examples/unauthorized'
  *       404:
- *         description: Anime list or anime not found
+ *         description: Anime list or anime not found.
  *         content:
  *           application/json:
  *             schema:
@@ -186,7 +209,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               notFoundError:
  *                 $ref: '#/components/schemas/Error/examples/NotFoundError'
  *       500:
- *         description: Internal Server Error
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             schema:
@@ -195,7 +218,12 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/:id/add-anime/:anime-id', (req: Request, res: Response, next: NextFunction) => controller.addAnime(req, res, next));
+router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) =>
+  validateAuthScheme(req, res, next),
+(req, res, next) => validateId(req.params.id, res, next),
+(req, res, next) => validateId(req.params.animeId, res, next),
+(req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
+(req, res, next) => controller.addAnime(req, res, next));
 
 /**
  * @swagger
@@ -204,7 +232,7 @@ router.post('/:id/add-anime/:anime-id', (req: Request, res: Response, next: Next
  *     tags:
  *       - animelist
  *     summary: Delete an anime from the specified anime list
- *     description: Deletes an anime by its ID from the anime list of the user specified by user ID.
+ *     description: Deletes an anime by its ID from the anime list of the user specified by user ID. Will silently ignore and return a 204 status code if the anime is not in the list.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -257,4 +285,8 @@ router.post('/:id/add-anime/:anime-id', (req: Request, res: Response, next: Next
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.delete('/:id/anime/:anime-id', (req: Request, res: Response, next: NextFunction) => controller.deleteAnime(req, res, next));
+router.delete('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => validateId(req.params.animeId, res, next),
+  (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
+  (req, res, next) => controller.deleteAnime(req, res, next));

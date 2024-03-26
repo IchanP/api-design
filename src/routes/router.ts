@@ -156,15 +156,15 @@ export const router = express.Router();
  *     AnimeList:
  *       type: object
  *       required:
- *         - ownerId
- *         - ownerUsername
+ *         - userId
+ *         - username
  *         - list
  *       properties:
- *         ownerId:
+ *         userId:
  *           type: integer
  *           description: The unique identifier for the owner of the anime list
  *           example: 1
- *         ownerUsername:
+ *         username:
  *           type: string
  *           description: The username of the owner of the anime list
  *           example: 'AnimeFan123'

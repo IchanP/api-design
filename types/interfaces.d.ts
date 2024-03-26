@@ -8,6 +8,7 @@ declare interface Repository<T extends ValidDataType, U = T> {
     getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    deleteOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getTotalPages: (limit?: number) => Promise<number>;
     getTotalCount: () => Promise<number>;
 }
@@ -51,8 +52,8 @@ declare interface IAnime {
 }
 
 declare interface IAnimeList {
-    ownerId: number;
-    ownerUsername: string;
+    userId: number;
+    username: string;
     list: MinimizedAnime[];
 }
 
@@ -71,17 +72,4 @@ declare interface RequestBody {
 declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
     updateField: (info: RequestBody, field: string) => Promise<void>;
-}
-
-declare interface ListOfAnimeResponseSchema {
-    currentPage: number;
-    totalPages: number;
-    data: IAnime[];
-    totalAnime: number;
-}
-
-declare interface AnimeQueryResultSchema {
-    data: IAnime[];
-    totalPages: number;
-    currentPage: number;
 }
