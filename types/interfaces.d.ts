@@ -73,3 +73,8 @@ declare interface IUserService {
     register: (userData: RequestBody) => Promise<User>;
     updateField: (info: RequestBody, field: string) => Promise<void>;
 }
+
+declare interface IWebhookStore {
+    URL: URLstring,
+    secret: string
+}

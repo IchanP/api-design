@@ -2,6 +2,8 @@ import express from 'express';
 import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { AnimeListController } from 'controller/AnimeListController.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
+import { validateId } from 'service/ValidatorUtil.ts';
 
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
 export const router = express.Router();
@@ -94,7 +96,10 @@ export const router = express.Router();
  *                   code: 500
  *                   message: "Something went wrong on the server."
  */
-router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(req, res, next));
+router.get('/anime-list/:id',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.showSubscription(req, res, next));
 
 /**
  * @swagger
@@ -182,7 +187,10 @@ router.get('/anime-list/:id', (req, res, next) => controller.showSubscription(re
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribeToList(req, res, next));
+router.post('/anime-list/:id/subscribe',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.subcribeToList(req, res, next));
 
 /**
  * @swagger
@@ -268,4 +276,7 @@ router.post('/anime-list/:id/subscribe', (req, res, next) => controller.subcribe
  *                   code: 500
  *                   message: "Something else went wrong."
  */
-router.delete('/anime-list/:id/subscribe', (req, res, next) => controller.unSubscribeFromList(req, res, next));
+router.delete('/anime-list/:id/subscribe',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => controller.unSubscribeFromList(req, res, next));
