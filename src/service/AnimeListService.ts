@@ -45,7 +45,7 @@ export class AnimeListService {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
       const minimzedAnime = this.#stripAnime(animeToAdd);
-      await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), animeListId);
+      await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), { userId: Number(animeListId) });
     }
 
     async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {

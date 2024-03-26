@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
-import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { verifyAnimeListExists } from './ValidatorUtil.ts';
@@ -17,7 +16,11 @@ export class WebhookService implements IWebhookService {
       await this.webhookRepo.updateOneValue('webhooks', JSON.stringify(webhookData), subscriptionId);
     }
 
-    removeWebhook: (userId: number, webhookData: WebhookData) => Promise<void>;
+    async removeWebhook (userId: string, ownerId: string, resource: string): Promise<void> {
+      await verifyAnimeListExists(ownerId);
+      await this.webhookRepo.deleteOneValue('url', resource, { userId: Number(userId), 'webhooks.ownerId': Number(ownerId), 'webhooks.URL': resource });
+    }
+
     async getWebhooks (subcsriptionId: string, userId: string): Promise<WebhookSubscribeSchema> {
       await verifyAnimeListExists(subcsriptionId);
       const webhook = await this.webhookRepo.getMany({ userId: Number(userId), 'webhooks.ownerId': Number(subcsriptionId) });

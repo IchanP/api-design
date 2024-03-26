@@ -4,6 +4,7 @@ import { BadDataError } from '../../Utils/BadDataError.ts';
 import { Error } from 'mongoose';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 import { BaseRepository } from './BaseRepository.ts';
+import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 
 @injectable()
 export class WebhookRepository extends BaseRepository<IWebhookStore> implements Repository<IWebhookStore, number> {
@@ -31,6 +32,17 @@ export class WebhookRepository extends BaseRepository<IWebhookStore> implements 
   async getMany (filter: { [key: string]: string | number }): Promise<IWebhookStore[]> {
     const webhookLists = await WebhookModel.find(filter);
     return webhookLists.map((webhookList) => webhookList.toObject());
+  }
+
+  async deleteOneValue (field: string, value: string, filter: { [key: string]: string | number }): Promise<void> {
+    const webhook = await WebhookModel.findOne(filter);
+    if (!webhook) {
+      throw new NotFoundError();
+    }
+    webhook.webhooks = webhook.webhooks.filter((webhook) => {
+      return (webhook.URL !== value || webhook.ownerId !== filter['webhooks.ownerId']);
+    });
+    await webhook.save();
   }
 
   async updateOneValue (field: string, value: string, identifier: string | number) {

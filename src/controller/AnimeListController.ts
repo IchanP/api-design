@@ -81,8 +81,23 @@ export class AnimeListController {
     }
   }
 
-  unSubscribeFromList (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async unSubscribeFromList (req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.body.url) {
+        throw new BadDataError('URL is required to unsubscribe.');
+      }
+      const subscriptionId = req.params.id;
+      const userId = req.body.token.userId;
+      const url = req.body.url;
+      await this.webhookService.removeWebhook(subscriptionId, userId, url);
+      // TODO add links
+      return res.status(204).send();
+    } catch (e: unknown) {
+      if (e instanceof NotFoundError) {
+        e.message = 'The requested resource could not be found.';
+      }
+      this.#handleError(e, next);
+    }
   }
 
   async showSubscription (req: Request, res: Response, next: NextFunction) {

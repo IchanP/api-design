@@ -202,7 +202,7 @@ router.post('/anime-list/:id/subscribe',
  *     tags:
  *       - webhook
  *     summary: Unsubscribe from an Anime List
- *     description: Removes the subscription from an anime list by its ID.
+ *     description: Removes the subscription from an anime list by its ID. Will silently ignore and return a 204 status code if the webhook is not registered.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -244,7 +244,7 @@ router.post('/anime-list/:id/subscribe',
  *               invalidInput:
  *                 value:
  *                   code: 400
- *                   message: "Invalid 'url' or 'secret'. All fields are required and must be valid."
+ *                   message: "URL is required to unsubscribe."
  *       401:
  *         description: Unauthorized - JWT Bearer token is invalid.
  *         content:
