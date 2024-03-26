@@ -78,3 +78,9 @@ declare interface IWebhookStore {
     userId: number,
     webhooks: WebhookData[]
 }
+
+declare interface IWebhookService {
+    addWebhook: (userId: string, webhookData: WebhookData) => Promise<void>;
+    removeWebhook: (userId: number, webhookData: WebhookData) => Promise<void>;
+    getWebhooks: (userId: number) => Promise<IWebhookStore>;
+}

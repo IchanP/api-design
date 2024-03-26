@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { BASE_SCHEMA } from './BaseSchema.ts';
+import { BASE_SCHEMA } from './baseSchema.ts';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 
 const minimizedAnimeSchema = new Schema<MinimizedAnime>({

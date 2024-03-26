@@ -1,5 +1,5 @@
 import { Model, model, Schema } from 'mongoose';
-import { BASE_SCHEMA } from './BaseSchema.ts';
+import { BASE_SCHEMA } from './baseSchema.ts';
 import { Counter } from './Counter.ts';
 
 interface ExtendedAnimeModel extends Model<IAnime> {

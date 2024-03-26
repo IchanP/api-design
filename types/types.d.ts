@@ -51,6 +51,7 @@ declare type AnimeQueryResultSchema = {
 declare type WebhookData = {
     URL: URLstring;
     secret: string;
+    ownerId: number;
 }
 
 declare type WebhookMessage = {

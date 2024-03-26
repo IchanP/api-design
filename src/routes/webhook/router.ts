@@ -154,7 +154,7 @@ router.get('/anime-list/:id',
  *               invalidRequest:
  *                 value:
  *                   code: 400
- *                   message: "Invalid 'url', 'id' or 'secret'. All fields are required and must be valid."
+ *                   message: "Invalid 'url' or 'secret'. All fields are required and must be valid."
  *       401:
  *         description: Unauthorized - JWT is invalid.
  *         content:
@@ -241,7 +241,7 @@ router.post('/anime-list/:id/subscribe',
  *               invalidInput:
  *                 value:
  *                   code: 400
- *                   message: "Invalid ID or URL provided."
+ *                   message: "Invalid 'url' or 'secret'. All fields are required and must be valid."
  *       401:
  *         description: Unauthorized - JWT Bearer token is invalid.
  *         content:

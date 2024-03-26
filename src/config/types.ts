@@ -12,5 +12,6 @@ export const TYPES = {
   AnimeService: Symbol.for('AnimeService'),
   AnimeRepository: Symbol.for('AnimeRepository'),
   AnimeListService: Symbol.for('AnimeListService'),
-  WebhookRepository: Symbol.for('WebhookRepository')
+  WebhookRepository: Symbol.for('WebhookRepository'),
+  IWebhookService: Symbol.for('IWebhookService')
 };
