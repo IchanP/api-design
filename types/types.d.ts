@@ -47,3 +47,13 @@ declare type AnimeQueryResultSchema = {
     totalPages: number;
     currentPage: number;
 }
+
+declare type WebhookData = {
+    URL: URLstring;
+    secret: string;
+}
+
+declare type WebhookMessage = {
+    message: string;
+    data: MinimizedAnime;
+}

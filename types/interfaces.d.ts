@@ -75,6 +75,6 @@ declare interface IUserService {
 }
 
 declare interface IWebhookStore {
-    URL: URLstring,
-    secret: string
+    userId: number,
+    webhooks: WebhookData[]
 }

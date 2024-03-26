@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import createError from 'http-errors';
 export function validateAuthScheme (req: Request, res: Response, next: NextFunction) {
@@ -31,4 +32,10 @@ export function defaultToOne (providedValue: string): number {
   let result;
   Number(providedValue) > 0 ? result = Number(providedValue) : result = 1;
   return result;
+}
+
+export function createHash (secret: string, payload: string) {
+  const hmac = createHmac('sha256', secret);
+  hmac.update(payload);
+  return hmac.digest('hex');
 }

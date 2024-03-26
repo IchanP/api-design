@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import { BASE_SCHEMA } from './BaseSchema.ts';
 import validator from 'validator';
 
-const webhookSchema = new Schema<IWebhookStore>({
+const webhookSubSchema = new Schema <WebhookData>({
   URL: {
     type: String,
     required: true,
@@ -14,6 +14,13 @@ const webhookSchema = new Schema<IWebhookStore>({
     }
   },
   secret: { type: String, required: true }
+});
+
+webhookSubSchema.add(BASE_SCHEMA);
+
+const webhookSchema = new Schema<IWebhookStore>({
+  userId: { type: Number, required: true },
+  webhooks: { type: [webhookSubSchema], required: true }
 });
 
 webhookSchema.add(BASE_SCHEMA);
