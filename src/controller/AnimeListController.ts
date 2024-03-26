@@ -85,8 +85,14 @@ export class AnimeListController {
     // TODO implement
   }
 
-  showSubscription (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async showSubscription (req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const webhooks = await this.webhookService.getWebhooks(id, req.body.token.userId);
+      return res.status(200).json(webhooks);
+    } catch (e:unknown) {
+      this.#handleError(e, next);
+    }
   }
 
   #handleError (e: unknown, next: NextFunction) {

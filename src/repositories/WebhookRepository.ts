@@ -3,13 +3,19 @@ import { WebhookModel } from 'models/Webhook.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { Error } from 'mongoose';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { BaseRepository } from './BaseRepository.ts';
 
 @injectable()
-export class WebhookRepository {
-  async createDocument (userId: number): Promise<void> {
+export class WebhookRepository extends BaseRepository<IWebhookStore> implements Repository<IWebhookStore, number> {
+  constructor () {
+    super(WebhookModel);
+  }
+
+  async createDocument (userId: number): Promise<IWebhookStore> {
     try {
       const webhookStore = new WebhookModel({ userId, webhooks: [] });
       await webhookStore.save();
+      return webhookStore.toObject();
     } catch (e: unknown) {
       if (e instanceof Error.ValidationError) {
         throw new BadDataError();
@@ -17,9 +23,14 @@ export class WebhookRepository {
     }
   }
 
-  async getOneMatching (id: number): Promise<IWebhookStore> {
-    const webhookList = await WebhookModel.findOne({ userId: id });
+  async getOneMatching (filter: { [key: string]: string | number }): Promise<IWebhookStore> {
+    const webhookList = await WebhookModel.findOne(filter);
     return webhookList?.toObject();
+  }
+
+  async getMany (filter: { [key: string]: string | number }): Promise<IWebhookStore[]> {
+    const webhookLists = await WebhookModel.find(filter);
+    return webhookLists.map((webhookList) => webhookList.toObject());
   }
 
   async updateOneValue (field: string, value: string, identifier: string | number) {

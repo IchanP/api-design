@@ -25,7 +25,7 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
     return list?.toObject();
   }
 
-  async getMany (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
+  async getPaginatedResult (page: number, limit: number = this.defaultPageLimit): Promise<IAnimeList[]> {
     const pagesToSkip = (page - 1) * limit;
     const docsToStrip = await AnimeListModel.find().skip(pagesToSkip).limit(limit);
     return docsToStrip.map((doc) => doc?.toObject());

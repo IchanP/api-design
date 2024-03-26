@@ -10,7 +10,7 @@ export const router = express.Router();
 
 /**
  * @swagger
- * webhook/anime-list/{user-id}:
+ * /webhook/anime-list/{user-id}:
  *   get:
  *     tags:
  *       - webhook
@@ -20,20 +20,20 @@ export const router = express.Router();
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id
  *         required: true
  *         schema:
  *           type: integer
  *         description: The ID of the anime list.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
- *       200:
- *         description: Subscription status retrieved successfully.
+ *       201:
+ *         description: Subscription status updated successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -42,15 +42,17 @@ export const router = express.Router();
  *                 subscribed:
  *                   type: boolean
  *                   description: Indicates whether the user is subscribed to the anime list.
- *                 url:
- *                   type: string
- *                   format: uri
- *                   description: The callback URL for the subscription.
- *             examples:
- *               subscriptionStatus:
- *                 value:
- *                   subscribed: true
- *                   url: "http://localhost:3000/callback-url"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     format: uri
+ *                   description: An array of callback URLs for the subscription.
+ *               example:
+ *                 subscribed: true
+ *                 data:
+ *                   - "http://localhost:3000/callback-url"
+ *                   - "http://localhost:3000/alternative-callback-url"
  *       400:
  *         description: Bad Request - The provided ID is invalid.
  *         content:
@@ -85,7 +87,7 @@ export const router = express.Router();
  *                   code: 404
  *                   message: "Anime list not found."
  *       500:
- *         description: Internal Server Error
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             schema:
@@ -96,6 +98,7 @@ export const router = express.Router();
  *                   code: 500
  *                   message: "Something went wrong on the server."
  */
+
 router.get('/anime-list/:id',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),

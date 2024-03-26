@@ -7,7 +7,8 @@ declare interface Repository<T extends ValidDataType, U = T> {
     createDocument: (data: U) => Promise<T>;
     getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
-    getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    getPaginatedResult?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    getMany?: (filter: { [key: string]: string | number }) => Promise<T[]>;
     deleteOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getTotalPages: (limit?: number) => Promise<number>;
     getTotalCount: () => Promise<number>;
@@ -82,5 +83,5 @@ declare interface IWebhookStore {
 declare interface IWebhookService {
     addWebhook: (userId: string, webhookData: WebhookData) => Promise<void>;
     removeWebhook: (userId: number, webhookData: WebhookData) => Promise<void>;
-    getWebhooks: (userId: number) => Promise<IWebhookStore>;
+    getWebhooks: (subscribptionId: string, userId: string) => Promise<WebhookSubscribeSchema>;
 }

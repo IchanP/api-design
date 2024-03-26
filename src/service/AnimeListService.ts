@@ -13,7 +13,7 @@ export class AnimeListService {
     @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
     async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
-      const animeList = await this.animeListRepo.getMany(page);
+      const animeList = await this.animeListRepo.getPaginatedResult(page);
       const data = this.#constructAnimeListUrl(animeList);
       const totalPages = await this.animeListRepo.getTotalPages();
       const { next, previous } = this.#constructNextAndPreviousPageUrl(page, totalPages);
@@ -49,7 +49,7 @@ export class AnimeListService {
     }
 
     async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {
-      const webhooks = await this.webhookRepo.getOneMatching(userId);
+      const webhooks = await this.webhookRepo.getOneMatching({ userId });
 
       webhooks.webhooks.forEach((webhook) => {
         const message = `New anime added to ${username}'s list: ${anime.title} - ${anime.type}`;

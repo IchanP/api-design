@@ -18,7 +18,7 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
     return anime?.toObject();
   }
 
-  async getMany (page: number, limit: number = this.defaultPageLimit, filter: { [key: string]: string | number } = null): Promise<IAnime[]> {
+  async getPaginatedResult (page: number, limit: number = this.defaultPageLimit, filter: { [key: string]: string | number } = null): Promise<IAnime[]> {
     const pagesToSkip = (page - 1) * limit;
     if (filter) {
       AnimeModel.validateFilterKeys(filter);

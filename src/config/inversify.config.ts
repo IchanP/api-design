@@ -26,7 +26,6 @@ container.bind(TYPES.AnimeListController).to(AnimeListController);
 container.bind(TYPES.UserController).to(UserController);
 container.bind(TYPES.AnimeService).to(AnimeService);
 container.bind(TYPES.AnimeListService).to(AnimeListService).inSingletonScope();
-container.bind(TYPES.WebhookRepository).to(WebhookRepository);
 // Bind abstractions to concrete implementations
 container.bind<JWTFactory>(TYPES.JWTFactory).to(JWTCrafter).inSingletonScope();
 container.bind<Repository<User>>(TYPES.UserRepository).to(UserRepository).inSingletonScope();
@@ -35,4 +34,5 @@ container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScop
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
 container.bind<Repository<IAnime>>(TYPES.AnimeRepository).to(AnimeRepository).inSingletonScope();
 container.bind<IWebhookService>(TYPES.IWebhookService).to(WebhookService).inSingletonScope();
+container.bind<Repository<IWebhookStore, number>>(TYPES.WebhookRepository).to(WebhookRepository).inSingletonScope();
 export { container };

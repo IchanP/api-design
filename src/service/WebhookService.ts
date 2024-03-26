@@ -7,7 +7,7 @@ import { verifyAnimeListExists } from './ValidatorUtil.ts';
 
 @injectable()
 export class WebhookService implements IWebhookService {
-    @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
+    @inject(TYPES.WebhookRepository) private webhookRepo: Repository<IWebhookStore, number>;
 
     async addWebhook (subscriptionId: string, webhookData: WebhookData): Promise<void> {
       await verifyAnimeListExists(subscriptionId);
@@ -18,5 +18,21 @@ export class WebhookService implements IWebhookService {
     }
 
     removeWebhook: (userId: number, webhookData: WebhookData) => Promise<void>;
-    getWebhooks: (userId: number) => Promise<IWebhookStore>;
+    async getWebhooks (subcsriptionId: string, userId: string): Promise<WebhookSubscribeSchema> {
+      await verifyAnimeListExists(subcsriptionId);
+      const webhook = await this.webhookRepo.getMany({ userId: Number(userId), 'webhooks.ownerId': Number(subcsriptionId) });
+      if (this.#notValidWebhookData(webhook)) {
+        return { subscribed: false, data: [] };
+      }
+      const URLArray = this.#getUrlArray(webhook[0].webhooks);
+      return { subscribed: true, data: URLArray };
+    }
+
+    #getUrlArray (hookArray: WebhookData[]): string[] {
+      return hookArray.map((element) => element.URL);
+    }
+
+    #notValidWebhookData (webhookData: IWebhookStore[]): boolean {
+      return !webhookData || webhookData.length === 0 || !webhookData[0].webhooks || webhookData[0].webhooks.length === 0;
+    }
 }
