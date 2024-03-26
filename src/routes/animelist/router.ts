@@ -152,7 +152,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
  *     tags:
  *       - animelist
  *     summary: Add an anime to the specified anime list
- *     description: Adds an anime by its ID to the anime list of the user specified by user ID.
+ *     description: Adds an anime by its ID to the anime list of the user specified by user ID. If the anime is already in the list a 201 status code will be returned but no changes will be made to the list.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -232,7 +232,7 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
  *     tags:
  *       - animelist
  *     summary: Delete an anime from the specified anime list
- *     description: Deletes an anime by its ID from the anime list of the user specified by user ID.
+ *     description: Deletes an anime by its ID from the anime list of the user specified by user ID. Will silently ignore and return a 204 status code if the anime is not in the list.
  *     security:
  *       - bearerAuth: []
  *     parameters:
