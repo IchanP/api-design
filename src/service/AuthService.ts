@@ -12,8 +12,10 @@ export class AuthService implements IAuthService {
   @inject(TYPES.UserRepository) private repository: Repository<User>;
 
   async login (requestUser: { email: string, password: string}): Promise<{ accessToken: string; refreshToken: string, userId: number }> {
-    const matchingUser = await this.repository.getOneMatching(requestUser.email);
-
+    const matchingUser = await this.repository.getOneMatching({ email: requestUser.email });
+    if (!matchingUser) {
+      throw new BadCredentialsError();
+    }
     if (!(await this.bcrypt.matchPassword(matchingUser, requestUser.password))) {
       throw new BadCredentialsError();
     }

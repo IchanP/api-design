@@ -1,21 +1,63 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { NextFunction, Request, Response } from 'express';
+import { defaultToOne } from '../../Utils/index.ts';
+import { TYPES } from 'config/types.ts';
+import { AnimeListService } from 'service/AnimeListService.ts';
+import { BadDataError } from '../../Utils/BadDataError.ts';
+import createError from 'http-errors';
+import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 @injectable()
 export class AnimeListController {
-  listAnimeLists (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  @inject(TYPES.AnimeListService) private service: AnimeListService;
+
+  async displayAnimeLists (req: Request, res: Response, next: NextFunction) {
+    try {
+      const page = defaultToOne(req.query.page as string);
+      const repsonse = await this.service.getAnimeLists(page);
+      return res.status(200).json(repsonse);
+    } catch (e: unknown) {
+      next(e);
+    }
   }
 
-  displayAnimeList (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async displayAnimeList (req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const response = await this.service.getOneById(id);
+      return res.status(200).json(response);
+    } catch (e: unknown) {
+      let err = e;
+      if (e instanceof BadDataError) {
+        err = createError(400, e.message);
+      }
+      if (e instanceof NotFoundError) {
+        err = createError(404, e.message);
+      }
+      next(err);
+    }
   }
 
-  addAnime (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async addAnime (req: Request, res: Response, next: NextFunction) {
+    try {
+      const animelistId = req.params.id;
+      const animeId = req.params.animeId;
+      const response = await this.service.addAnime(animelistId, animeId);
+      return res.status(201).json(response);
+    } catch (e: unknown) {
+      this.#handleError(e, next);
+    }
   }
 
-  deleteAnime (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async deleteAnime (req: Request, res: Response, next: NextFunction) {
+    try {
+      const animelistId = req.params.id;
+      const animeId = req.params.animeId;
+      await this.service.removeAnime(animelistId, animeId);
+      // TODO should return links
+      return res.status(204).send();
+    } catch (e: unknown) {
+      this.#handleError(e, next);
+    }
   }
 
   subcribeToList (req: Request, res: Response, next: NextFunction) {
@@ -28,5 +70,15 @@ export class AnimeListController {
 
   showSubscription (req: Request, res: Response, next: NextFunction) {
     // TODO implement
+  }
+
+  #handleError (e: unknown, next: NextFunction) {
+    let err = e;
+    if (e instanceof BadDataError) {
+      err = createError(400, e.message);
+    } else if (e instanceof NotFoundError) {
+      err = createError(404, e.message);
+    }
+    next(err);
   }
 }

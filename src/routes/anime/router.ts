@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeController } from 'controller/AnimeController.ts';
+import { validateId } from 'service/ValidatorUtil.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeController>(TYPES.AnimeController);
@@ -219,4 +220,6 @@ router.get('/search', (req, res, next) => {
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/:id', (req: Request, res: Response, next: NextFunction) => controller.displayAnimeById(req, res, next));
+router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
+  validateId(req.params.id, res, next),
+(req, res, next) => controller.displayAnimeById(req, res, next));

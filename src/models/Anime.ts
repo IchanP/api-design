@@ -11,12 +11,16 @@ const animeSeasonSchema = new Schema({
   year: { type: Number }
 });
 
+animeSeasonSchema.add(BASE_SCHEMA);
+
 const broadcastSchema = new Schema({
   day: { type: String },
   time: { type: String },
   timezone: { type: String },
   string: { type: String }
 }, { _id: false });
+
+broadcastSchema.add(BASE_SCHEMA);
 
 const animeSchema = new Schema<IAnime, ExtendedAnimeModel>({
   animeId: { type: Number },

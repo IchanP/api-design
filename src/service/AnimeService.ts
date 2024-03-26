@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { animeExists } from './ValidatorUtil.ts';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
@@ -20,9 +20,7 @@ export class AnimeService {
 
     async getOneById (id: string): Promise<IAnime> {
       const anime = await this.animeRepo.getOneMatching({ animeId: Number(id) });
-      if (!anime) {
-        throw new NotFoundError();
-      }
+      animeExists(anime);
       return anime;
     }
 }

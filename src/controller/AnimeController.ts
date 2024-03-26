@@ -6,13 +6,14 @@ import { AnimeService } from 'service/AnimeService.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { defaultToOne } from '../../Utils/index.ts';
 @injectable()
 export class AnimeController {
   @inject(TYPES.AnimeService) private service: AnimeService;
 
   async displayAnime (req: Request, res: Response, next: NextFunction) {
     try {
-      const page = this.#defaultToPageOne(req.query.page as string);
+      const page = defaultToOne(req.query.page as string);
       const response = await this.service.getListOfAnime(page);
       return res.status(200).json(response);
     } catch (e: unknown) {
@@ -23,9 +24,6 @@ export class AnimeController {
   async displayAnimeById (req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id;
-      if (isNaN(Number(id))) {
-        throw new BadDataError('The id parameter must be a number.');
-      }
       const response = await this.service.getOneById(id);
       return res.status(200).json(response);
     } catch (e: unknown) {
@@ -41,19 +39,13 @@ export class AnimeController {
         throw new BadDataError('The title query parameter is missing.');
       }
 
-      const page = this.#defaultToPageOne(req.query.page as string);
+      const page = defaultToOne(req.query.page as string);
       const response = await this.service.getListWithQuery({ title: query }, page);
       console.log(response);
       return res.status(200).json(response);
     } catch (e: unknown) {
       this.#handleError(e, next);
     }
-  }
-
-  #defaultToPageOne (requestedPage: string): number {
-    let page;
-    Number(requestedPage) > 0 ? page = Number(requestedPage) : page = 1;
-    return page;
   }
 
   #handleError (e: unknown, next: NextFunction): void {

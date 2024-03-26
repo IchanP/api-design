@@ -27,14 +27,8 @@ function setPayloadToRequest (req: Request, token: string) {
   req.body.token = payload;
 }
 
-export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[]): typeToValidate is Type {
-  const actualKeys = Object.keys(typeToValidate);
-
-  if (actualKeys.length !== expectedKeys.length) {
-    return false;
-  }
-
-  // Check for the same keys (ignoring type)
-  return expectedKeys.length === actualKeys.length &&
-           expectedKeys.every(key => actualKeys.includes(key));
+export function defaultToOne (providedValue: string): number {
+  let result;
+  Number(providedValue) > 0 ? result = Number(providedValue) : result = 1;
+  return result;
 }
