@@ -3,7 +3,7 @@ import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { tokenIdMatchesPathId } from 'service/ValidatorUtil.ts';
+import { tokenIdMatchesPathId, validateId } from 'service/ValidatorUtil.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -141,7 +141,9 @@ router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next)
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
 
-router.get('/:id', (req: Request, res: Response, next: NextFunction) => controller.displayAnimeList(req, res, next));
+router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
+  validateId(req.params.id, res, next),
+(req, res, next) => controller.displayAnimeList(req, res, next));
 
 /**
  * @swagger
@@ -218,6 +220,8 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => controll
  */
 router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) =>
   validateAuthScheme(req, res, next),
+(req, res, next) => validateId(req.params.id, res, next),
+(req, res, next) => validateId(req.params.animeId, res, next),
 (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
 (req, res, next) => controller.addAnime(req, res, next));
 
@@ -281,4 +285,8 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.delete('/:id/anime/:anime-id', (req: Request, res: Response, next: NextFunction) => controller.deleteAnime(req, res, next));
+router.delete('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunction) => validateAuthScheme(req, res, next),
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => validateId(req.params.animeId, res, next),
+  (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
+  (req, res, next) => controller.deleteAnime(req, res, next));

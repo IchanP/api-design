@@ -7,7 +7,6 @@ import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 import { defaultToOne } from '../../Utils/index.ts';
-import { validateId } from 'service/ValidatorUtil.ts';
 @injectable()
 export class AnimeController {
   @inject(TYPES.AnimeService) private service: AnimeService;
@@ -25,7 +24,6 @@ export class AnimeController {
   async displayAnimeById (req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id;
-      validateId(id);
       const response = await this.service.getOneById(id);
       return res.status(200).json(response);
     } catch (e: unknown) {

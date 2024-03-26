@@ -5,11 +5,15 @@ import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 import createError from 'http-errors';
+import { Response } from 'express';
 
-export function validateId (id: string): void {
+export function validateId (id: string, res: Response, next: NextFunction): void {
   if (isNaN(Number(id))) {
-    throw new BadDataError('The id parameter must be a number.');
+    const error = new BadDataError('The id parameter must be a number.');
+    const err = createError(400, error.message);
+    next(err);
   }
+  next();
 }
 
 export function animeExists (anime: IAnime | undefined): void {

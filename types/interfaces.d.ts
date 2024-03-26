@@ -8,6 +8,7 @@ declare interface Repository<T extends ValidDataType, U = T> {
     getOneMatching: (filter: { [key: string]: string | number }) => Promise<T>;
     updateOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getMany?: (page: number, limit?: number, filter?: { [key: string]: string | number }) => Promise<T[]>;
+    deleteOneValue?: (field: string, value: string, identifier: string | number) => Promise<void>;
     getTotalPages: (limit?: number) => Promise<number>;
     getTotalCount: () => Promise<number>;
 }

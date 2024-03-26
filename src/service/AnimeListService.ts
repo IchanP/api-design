@@ -27,13 +27,30 @@ export class AnimeListService {
     async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
       const fieldToAddTo = 'list';
 
-      const animeToAdd = await this.animeRepo.getOneMatching({ animeId: Number(animeId) });
-      animeExists(animeToAdd);
-      const animeList = await this.getOneById(animeListId);
-      animeListExists(animeList);
+      await this.#verifyAnimeListExists(animeListId);
+      const animeToAdd = await this.#verifyAnimeExists(animeId);
+
       const minimzedAnime = this.#stripAnime(animeToAdd);
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       return this.getOneById(animeListId);
+    }
+
+    async removeAnime (animeListId: string, animeId: string) {
+      await this.#verifyAnimeListExists(animeListId);
+      const animeToAdd = await this.#verifyAnimeExists(animeId);
+      const minimzedAnime = this.#stripAnime(animeToAdd);
+      await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), animeListId);
+    }
+
+    async #verifyAnimeListExists (animeListId: string): Promise<void> {
+      const animeList = await this.getOneById(animeListId);
+      animeListExists(animeList);
+    }
+
+    async #verifyAnimeExists (animeId: string): Promise<IAnime> {
+      const anime = await this.animeRepo.getOneMatching({ animeId: Number(animeId) });
+      animeExists(anime);
+      return anime;
     }
 
     #stripAnime (anime: IAnime): MinimizedAnime {

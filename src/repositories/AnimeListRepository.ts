@@ -4,7 +4,7 @@ import { BaseRepository } from './BaseRepository.ts';
 import { DuplicateError } from '../../Utils/DuplicateError.ts';
 
 @injectable()
-export class AnimeListRepository extends BaseRepository<IAnimeList> implements Repository<IAnimeList, IUser> {
+export class AnimeListRepository extends BaseRepository<IAnimeList> implements ExtendedRepository<IAnimeList, IUser> {
   constructor () {
     super(AnimeListModel);
   }
@@ -37,6 +37,16 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
       return;
     }
     await AnimeListModel.findOneAndUpdate({ userId: identifier }, { [field]: value });
+  }
+
+  async deleteOneValue (field: string, value: string, identifier: string | number) {
+    const animeToRemove = JSON.parse(value) as MinimizedAnime;
+    const animeList = await AnimeListModel.findOne({ userId: identifier });
+    const updatedList = animeList.list.filter((anime) => {
+      return anime.animeId !== animeToRemove.animeId;
+    });
+    animeList.list = updatedList;
+    await animeList.save();
   }
 
   async #addNewAnimeToList (ownerId: number, anime: IAnime): Promise<IAnimeList> {
