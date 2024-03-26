@@ -2,16 +2,19 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/types.ts';
 import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
+import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 
 @injectable()
 export class UserService implements IUserService {
     @inject(TYPES.UserRepository) private userRepo: Repository<User>;
     @inject(TYPES.AnimeListRepository) private animeListRepo: Repository<IAnimeList, IUser>;
+    @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
     async register (userInfo: RequestBody): Promise<User> {
       const validUserInfo = this.#validateUserInfo(userInfo);
       const userData = await this.userRepo.createDocument(validUserInfo);
       await this.animeListRepo.createDocument(userData);
+      await this.webhookRepo.createDocument(userData.userId);
       return userData;
     }
 

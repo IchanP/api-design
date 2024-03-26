@@ -6,6 +6,9 @@ import { BadDataError } from '../../Utils/BadDataError.ts';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
 import createError from 'http-errors';
 import { Response } from 'express';
+import { container } from 'config/inversify.config.ts';
+import { TYPES } from 'config/types.ts';
+import { AnimeListService } from './AnimeListService.ts';
 
 export function validateId (id: string, res: Response, next: NextFunction): void {
   if (isNaN(Number(id))) {
@@ -14,6 +17,12 @@ export function validateId (id: string, res: Response, next: NextFunction): void
     next(err);
   }
   next();
+}
+
+export async function verifyAnimeListExists (animeListId: string): Promise<void> {
+  const service = container.get<AnimeListService>(TYPES.AnimeListService);
+  const animeList = await service.getOneById(animeListId);
+  animeListExists(animeList);
 }
 
 export function animeExists (anime: IAnime | undefined): void {

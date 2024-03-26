@@ -6,10 +6,11 @@ import { AnimeListService } from 'service/AnimeListService.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { DuplicateError } from '../../Utils/DuplicateError.ts';
 @injectable()
 export class AnimeListController {
   @inject(TYPES.AnimeListService) private service: AnimeListService;
-
+  @inject(TYPES.IWebhookService) private webhookService: IWebhookService;
   async displayAnimeLists (req: Request, res: Response, next: NextFunction) {
     try {
       const page = defaultToOne(req.query.page as string);
@@ -60,21 +61,58 @@ export class AnimeListController {
     }
   }
 
-  subcribeToList (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async subcribeToList (req: Request, res: Response, next: NextFunction) {
+    try {
+      const toSubscribeTo = req.params.id;
+      if (!req.body.url || !req.body.secret) {
+        throw new BadDataError();
+      }
+      const payloadData: WebhookData = { URL: req.body?.url, secret: req.body?.secret, ownerId: req.body?.token?.userId };
+      await this.webhookService.addWebhook(toSubscribeTo, payloadData);
+      // TODO add response body
+      return res.status(201).send();
+    } catch (e: unknown) {
+      if (e instanceof BadDataError) {
+        e.message = 'Invalid \'url\', or \'secret\'. All fields are required and must be valid.';
+      } if (e instanceof DuplicateError) {
+        e.message = 'URL already exists for this resource.';
+      }
+      this.#handleError(e, next);
+    }
   }
 
-  unSubscribeFromList (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async unSubscribeFromList (req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.body.url) {
+        throw new BadDataError('URL is required to unsubscribe.');
+      }
+      const subscriptionId = req.params.id;
+      const userId = req.body.token.userId;
+      const url = req.body.url;
+      await this.webhookService.removeWebhook(subscriptionId, userId, url);
+      // TODO add links
+      return res.status(204).send();
+    } catch (e: unknown) {
+      if (e instanceof NotFoundError) {
+        e.message = 'The requested resource could not be found.';
+      }
+      this.#handleError(e, next);
+    }
   }
 
-  showSubscription (req: Request, res: Response, next: NextFunction) {
-    // TODO implement
+  async showSubscription (req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const webhooks = await this.webhookService.getWebhooks(id, req.body.token.userId);
+      return res.status(200).json(webhooks);
+    } catch (e:unknown) {
+      this.#handleError(e, next);
+    }
   }
 
   #handleError (e: unknown, next: NextFunction) {
     let err = e;
-    if (e instanceof BadDataError) {
+    if (e instanceof BadDataError || e instanceof DuplicateError) {
       err = createError(400, e.message);
     } else if (e instanceof NotFoundError) {
       err = createError(404, e.message);
