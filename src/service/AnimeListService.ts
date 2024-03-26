@@ -1,10 +1,11 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { NotFoundError } from '../../Utils/NotFoudnError.ts';
-import { animeExists, verifyAnimeListExists } from './ValidatorUtil.ts';
+import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
+import { constructNextAndPreviousPageLink, findAndTransformToSelf, generateAlwaysAccessibleLinks, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 
 @injectable()
 export class AnimeListService {
@@ -14,10 +15,14 @@ export class AnimeListService {
 
     async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
       const animeList = await this.animeListRepo.getPaginatedResult(page);
-      const data = this.#constructAnimeListUrl(animeList);
       const totalPages = await this.animeListRepo.getTotalPages();
-      const { next, previous } = this.#constructNextAndPreviousPageUrl(page, totalPages);
-      return { data, next, previous, totalPages, currentPage: page };
+
+      const data = this.#constructAnimeListUrl(animeList);
+      const nextAndPrevious = constructNextAndPreviousPageLink('anime-list', page, totalPages);
+      const alwaysAccessible = generateAlwaysAccessibleLinks();
+      findAndTransformToSelf(alwaysAccessible, 'animelists');
+      const links = [...alwaysAccessible, ...nextAndPrevious];
+      return { data, links, totalPages, currentPage: page };
     }
 
     async getOneById (id: string): Promise<IAnimeList> {
@@ -82,19 +87,12 @@ export class AnimeListService {
       };
     }
 
-    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{link: string, username: string}> {
+    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{username: string, links: Array<LinkStructure>}> {
       return animeList.map((list) => {
         return {
-          link: `${process.env.BASE_URL}/anime-list/${list.userId}`,
-          username: list.username
+          username: list.username,
+          links: [generateUserAnimeListLink(list.userId, 'owner')] // Made into an array for consistency
         };
       });
-    }
-
-    #constructNextAndPreviousPageUrl (page: number, totalPages: number): {next: string, previous: string} {
-      return {
-        next: page !== totalPages ? `${process.env.BASE_URL}/anime-list?page=${page + 1}` : `${process.env.BASE_URL}/anime-list?page=${page}`,
-        previous: page !== 1 ? `${process.env.BASE_URL}/anime-list?page=${page - 1}` : `${process.env.BASE_URL}/anime-list?page=${page}`
-      };
     }
 }

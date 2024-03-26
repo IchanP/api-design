@@ -1,14 +1,14 @@
 // A utility module more specific to the project
 
 import { NextFunction } from 'express-serve-static-core';
-import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { BadCredentialsError } from './BadCredentialsError.ts';
+import { BadDataError } from './BadDataError.ts';
+import { NotFoundError } from './NotFoudnError.ts';
 import createError from 'http-errors';
 import { Response } from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
-import { AnimeListService } from './AnimeListService.ts';
+import { AnimeListService } from '../src/service/AnimeListService.ts';
 
 export function validateId (id: string, res: Response, next: NextFunction): void {
   if (isNaN(Number(id))) {

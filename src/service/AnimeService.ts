@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
-import { animeExists } from './ValidatorUtil.ts';
+import { animeExists } from '../../Utils/ValidatorUtil.ts';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;

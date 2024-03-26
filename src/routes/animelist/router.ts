@@ -3,7 +3,8 @@ import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { tokenIdMatchesPathId, validateId } from 'service/ValidatorUtil.ts';
+import { tokenIdMatchesPathId, validateId } from '../../../Utils/ValidatorUtil.ts';
+import { generateAuthLinks } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -32,7 +33,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
- *         description: An array of links to different anime lists.
+ *         description: An array of links to different anime lists along with general navigation links.
  *         content:
  *           application/json:
  *             schema:
@@ -43,25 +44,54 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                   items:
  *                     type: object
  *                     properties:
- *                       link:
- *                         type: string
- *                         format: uri
- *                         description: Link to the anime list for the owner
- *                         example: "http://localhost:3000/anime-list/1234"
  *                       username:
  *                         type: string
  *                         description: Username of the owner of the anime list
  *                         example: "animefan123"
- *                 next:
- *                   type: string
- *                   format: uri
- *                   description: Link to the next page of anime lists
- *                   example: "http://localhost:3000/anime-list?page=2"
- *                 previous:
- *                   type: string
- *                   format: uri
- *                   description: Link to the previous page of anime lists
- *                   example: "http://localhost:3000/anime-list?page=1"
+ *                       links:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             rel:
+ *                               type: string
+ *                               example: "animelist-profile"
+ *                             href:
+ *                               type: string
+ *                               format: uri
+ *                               description: Link to the anime list for the owner
+ *                               example: "/anime-list/1234"
+ *                             method:
+ *                               type: string
+ *                               example: "GET"
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                         format: uri
+ *                       method:
+ *                         type: string
+ *                   example:
+ *                     - rel: "self"
+ *                       href: "/anime-lists?page=1"
+ *                       method: "GET"
+ *                     - rel: "next"
+ *                       href: "/anime-list?page=2"
+ *                       method: "GET"
+ *                     - rel: "prev"
+ *                       href: "/anime-list?page=1"
+ *                       method: "GET"
+ *                     - rel: "anime"
+ *                       href: "/anime"
+ *                       method: "GET"
+ *                     - rel: "search-anime"
+ *                       href: "/anime/search{?title}"
+ *                       method: "GET"
  *                 totalPages:
  *                   type: number
  *                   description: The total number of pages of anime lists
@@ -69,7 +99,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                 currentPage:
  *                   type: number
  *                   description: The current page number
- *                   example: 2
+ *                   example: 1
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -80,7 +110,11 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/', (req, res, next) => controller.displayAnimeLists(req, res, next));
+router.get('/',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => controller.displayAnimeLists(req, res, next),
+  (req, res, next) => generateAuthLinks(req, res, next)
+);
 
 /**
  * @swagger

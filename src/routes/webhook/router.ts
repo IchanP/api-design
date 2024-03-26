@@ -3,7 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { validateId } from 'service/ValidatorUtil.ts';
+import { validateId } from '../../../Utils/ValidatorUtil.ts';
 
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
 export const router = express.Router();

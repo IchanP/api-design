@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
-import { verifyAnimeListExists } from './ValidatorUtil.ts';
+import { verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 
 @injectable()
 export class WebhookService implements IWebhookService {

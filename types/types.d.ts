@@ -10,6 +10,16 @@ declare type LoginCredentials = {
     password: string;
 }
 
+type URLstring = string;
+
+declare type ValidMethods = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+declare type LinkStructure = {
+    rel: string;
+    href: URLstring;
+    method: ValidMethods;
+}
+
 type ValidDataType = User | IAnimeList | IAnime | IWebhookStore
 
 declare type RefreshRequestSchema = {
@@ -22,15 +32,12 @@ declare type MinimizedAnime = {
     type: string;
 }
 
-type URLstring = string;
-
 declare type AnimeListsResponseSchema = {
     data: Array<{
-        link: URLstring;
-        username: string;}>;
-
-    next: URLstring;
-    previous: URLstring;
+        username: string;
+        links: Array<LinkStructure>;
+    }>;
+    links: Array<LinkStructure>;
     totalPages: number;
     currentPage: number;
 }

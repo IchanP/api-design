@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response, response } from 'express';
 import { defaultToOne } from '../../Utils/index.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeListService } from 'service/AnimeListService.ts';
@@ -11,11 +11,14 @@ import { DuplicateError } from '../../Utils/DuplicateError.ts';
 export class AnimeListController {
   @inject(TYPES.AnimeListService) private service: AnimeListService;
   @inject(TYPES.IWebhookService) private webhookService: IWebhookService;
+
   async displayAnimeLists (req: Request, res: Response, next: NextFunction) {
     try {
       const page = defaultToOne(req.query.page as string);
-      const repsonse = await this.service.getAnimeLists(page);
-      return res.status(200).json(repsonse);
+      const response = await this.service.getAnimeLists(page);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       next(e);
     }
