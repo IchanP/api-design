@@ -3,6 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
+import { generateAuthLinks } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -100,9 +101,8 @@ export const router = express.Router();
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/register', (req, res, next) => {
-  controller.register(req, res, next);
-});
+router.post('/register', (req, res, next) => controller.register(req, res, next),
+  (req, res) => generateAuthLinks(req, res));
 
 /**
  * @swagger

@@ -42,6 +42,11 @@ declare type AnimeListsResponseSchema = {
     currentPage: number;
 }
 
+declare type UserResponseSchema = {
+    userData: User;
+    links: LinkStructure[];
+}
+
 declare type ListOfAnimeResponseSchema = {
     currentPage: number;
     totalPages: number;

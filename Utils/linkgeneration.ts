@@ -67,10 +67,13 @@ export function constructNextAndPreviousPageLink (endpoint: string, page: number
   ];
 }
 
-export function generateAuthLinks (req: Request, res: Response, next: NextFunction) {
+export function generateAuthLinks (req: Request, res: Response) {
   if (req.body.token) {
     const links = req.body.responseData.links;
     links.push(...generateLoggedInLinks(req.body.token.userId));
+  } else {
+    const links = req.body.responseData.links;
+    links.push(generateLoginLink());
   }
   res.status(req.body.status).json(req.body.responseData);
 }

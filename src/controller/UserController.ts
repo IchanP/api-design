@@ -13,7 +13,9 @@ export class UserController {
     async register (req: Request, res: Response, next: NextFunction) {
       try {
         const userData = await this.service.register(req.body);
-        return res.status(201).json({ userData });
+        req.body.status = 201;
+        req.body.responseData = userData;
+        next();
       } catch (e: unknown) {
         this.#handleError(e, next);
       }

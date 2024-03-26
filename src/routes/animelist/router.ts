@@ -33,7 +33,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
- *         description: An array of links to different anime lists along with general navigation links.
+ *         description: An array of links to different anime lists along with general navigation links, customized based on user authentication.
  *         content:
  *           application/json:
  *             schema:
@@ -55,15 +55,15 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                           properties:
  *                             rel:
  *                               type: string
- *                               example: "animelist-profile"
  *                             href:
  *                               type: string
  *                               format: uri
- *                               description: Link to the anime list for the owner
- *                               example: "/anime-list/1234"
  *                             method:
  *                               type: string
- *                               example: "GET"
+ *                         example:
+ *                           - rel: "animelist-profile"
+ *                             href: "/anime-list/21"
+ *                             method: "GET"
  *                 links:
  *                   type: array
  *                   items:
@@ -92,6 +92,15 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                     - rel: "search-anime"
  *                       href: "/anime/search{?title}"
  *                       method: "GET"
+ *                     - rel: "profile"
+ *                       href: "/user/username"
+ *                       method: "PUT"
+ *                     - rel: "update-username"
+ *                       href: "/anime-list/2"
+ *                       method: "GET"
+ *                     - rel: "refresh-login"
+ *                       href: "/auth/refresh"
+ *                       method: "POST"
  *                 totalPages:
  *                   type: number
  *                   description: The total number of pages of anime lists
@@ -110,10 +119,11 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
+
 router.get('/',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => controller.displayAnimeLists(req, res, next),
-  (req, res, next) => generateAuthLinks(req, res, next)
+  (req, res) => generateAuthLinks(req, res)
 );
 
 /**
@@ -174,7 +184,6 @@ router.get('/',
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-
 router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
   validateId(req.params.id, res, next),
 (req, res, next) => controller.displayAnimeList(req, res, next));
