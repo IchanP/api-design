@@ -78,7 +78,7 @@ export function constructNextAndPreviousPageLink (endpoint: string, page: number
 export function generateAuthLinks (req: Request, res: Response) {
   if (req.body.token) {
     const links = req.body.responseData.links;
-    links.push(...generateLoggedInLinks(req.body.token.userId));
+    links.push(...generateLoggedInLinks(req.body.token.userId, req));
   } else {
     const links = req.body.responseData.links;
     links.push(generateLoginLink());
@@ -86,9 +86,9 @@ export function generateAuthLinks (req: Request, res: Response) {
   res.status(req.body.status).json(req.body.responseData);
 }
 
-export function generateEntryPointLinks (req: Request, res: Response) {
+export function generateEntryPointLinks (req: Request, res: Response, next: NextFunction) {
   const links = generateAlwaysAccessibleLinks();
-  links.push(generateSelf(req.url, req.method as ValidMethods));
+  links.push(generateSelfLink(req, next));
   links.push(generateRegisterLink());
   links.push(generateLoginLink());
   links.push(generateDocsLink());
@@ -101,20 +101,30 @@ export function findAndTransformToSelf (links: Array<LinkStructure>, relation: s
   return links;
 }
 
-export function generateSelf (href: string, method: ValidMethods): LinkStructure {
-  return {
-    rel: 'self',
-    href,
-    method
-  };
+export function generateSelfLink (req: Request, next: NextFunction): LinkStructure {
+  if (req.url === '/') {
+    return {
+      rel: 'self',
+      href: '/',
+      method: 'GET'
+    };
+  } else {
+    req.body.responseData.links.unshift({
+      rel: 'self',
+      href: req.url,
+      method: req.method
+    });
+    next();
+  }
 }
 
-function generateLoggedInLinks (userId: number): LinkStructure[] {
+function generateLoggedInLinks (userId: number, req: Request): LinkStructure[] {
+  const fullUrl = req.baseUrl + req.url;
   return [
     generateUserAnimeListLink(userId),
-    generateUsernameUpdateLink(),
-    generateRefreshTokenLink()
-  ];
+    fullUrl === '/user/username' ? null : generateUsernameUpdateLink(),
+    fullUrl === '/auth/refresh' ? null : generateRefreshTokenLink()
+  ].filter(Boolean);
 }
 
 function generateUsernameUpdateLink (): LinkStructure {

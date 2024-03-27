@@ -278,6 +278,6 @@ router.use('/webhook', webHookRouter);
  *                   code: 500
  *                   message: "Something went wrong on the server."
  */
-router.use('/', (req, res) => generateEntryPointLinks(req, res));
+router.use('/', (req, res, next) => generateEntryPointLinks(req, res, next));
 
 router.use('*', (req, res, next) => next(createError(404)));

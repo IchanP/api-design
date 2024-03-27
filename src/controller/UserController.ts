@@ -24,7 +24,9 @@ export class UserController {
     async updateUsername (req: Request, res: Response, next: NextFunction) {
       try {
         await this.service.updateField(req.body, 'username');
-        return res.status(204).send();
+        req.body.responseData = { links: [] };
+        req.body.status = 200;
+        next();
       } catch (e: unknown) {
         this.#handleError(e, next);
       }

@@ -60,6 +60,13 @@ declare type AnimeQueryResultSchema = {
     currentPage: number;
 }
 
+declare type LoginResponseScheme = {
+    accessToken: string;
+    refreshToken: string;
+    userId: number;
+    links: LinkStructure[];
+}
+
 declare type WebhookData = {
     URL: URLstring;
     secret: string;

@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
+import { generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AuthController>(TYPES.AuthController);
@@ -44,6 +45,37 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *                 userId:
  *                  type: number
  *                  example: 1234
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                         format: uri
+ *                       method:
+ *                         type: string
+ *                   example:
+ *                     - rel: "self"
+ *                       href: "/login"
+ *                       method: "POST"
+ *                     - rel: "anime"
+ *                       href: "/anime"
+ *                       method: "GET"
+ *                     - rel: "search-anime"
+ *                       href: "/anime/search{?title}"
+ *                       method: "GET"
+ *                     - rel: "profile"
+ *                       href: "/anime-list/3"
+ *                       method: "GET"
+ *                     - rel: "refresh-login"
+ *                       href: "/auth/refresh"
+ *                       method: "POST"
+ *                     - rel: "update-username"
+ *                       href: "/user/username"
+ *                       method: "PUT"
  *       401:
  *         description: The credentials provided are invalid
  *         content:
@@ -65,9 +97,10 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/login', (req, res, next) => {
-  controller.login(req, res, next);
-});
+router.post('/login',
+  (req, res, next) => controller.login(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res) => generateAuthLinks(req, res));
 
 /**
  * @swagger

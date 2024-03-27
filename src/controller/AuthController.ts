@@ -10,8 +10,10 @@ export class AuthController {
 
         async login (req: Request, res: Response, next: NextFunction) {
           try {
-            const { accessToken, refreshToken, userId } = await this.service.login(req.body);
-            return res.status(200).json({ accessToken, refreshToken, userId });
+            const response = await this.service.login(req.body);
+            req.body.responseData = response;
+            req.body.status = 200;
+            next();
           } catch (e: unknown) {
             let err = e;
             if (e instanceof BadCredentialsError) {

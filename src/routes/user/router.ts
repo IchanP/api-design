@@ -3,7 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { generateAuthLinks } from '../../../Utils/linkgeneration.ts';
+import { generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -58,6 +58,9 @@ export const router = express.Router();
  *                   email: "mallie.lang@hotmail.com"
  *                   username: "Loma.Lubowitz"
  *                 links:
+ *                   - rel: "self"
+ *                     href: "/user/register"
+ *                     method: "POST"
  *                   - rel: "login"
  *                     href: "/auth/login"
  *                     method: "POST"
@@ -102,6 +105,7 @@ export const router = express.Router();
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
 router.post('/register', (req, res, next) => controller.register(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
   (req, res) => generateAuthLinks(req, res));
 
 /**
@@ -135,8 +139,45 @@ router.post('/register', (req, res, next) => controller.register(req, res, next)
  *                 description: The new username to be updated to.
  *                 example: 'newUsername123'
  *     responses:
- *       204:
- *         description: Username successfully updated. No content in the response body.
+ *       200:
+ *         description: Username successfully updated along with navigational links.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username successfully updated.
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 message: Username successfully updated.
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "anime"
+ *                     href: "/anime"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title}"
+ *                     method: "GET"
+ *                   - rel: "animelist-profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - Request body does not match the expected format.
  *         content:
@@ -174,7 +215,8 @@ router.post('/register', (req, res, next) => controller.register(req, res, next)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-
-router.put('/username', (req, res, next) =>
-  validateAuthScheme(req, res, next),
-(req, res, next) => controller.updateUsername(req, res, next));
+router.put('/username',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => controller.updateUsername(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res) => generateAuthLinks(req, res));
