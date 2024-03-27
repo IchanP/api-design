@@ -26,8 +26,10 @@ export class AnimeController {
   async displayAnimeById (req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id;
-      const response = await this.service.getOneById(id);
-      return res.status(200).json(response);
+      const response = await this.service.getOneById(id, req.body?.token?.userId);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       this.#handleError(e, next);
     }

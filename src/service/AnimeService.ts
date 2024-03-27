@@ -1,11 +1,13 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { animeExists } from '../../Utils/ValidatorUtil.ts';
-import { stripAnime } from './serviceUtility.ts';
+import { attachUserSpecificDataToAnime, stripAnime } from './serviceUtility.ts';
 import { constructNextAndPreviousPageLink } from '../../Utils/linkgeneration.ts';
+import { response } from 'express';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
+    @inject(TYPES.AnimeListRepository) private animeListRepo: Repository<IAnimeList, IUser>;
 
     async getListOfAnime (page: number, userId?: number): Promise<ListOfAnimeResponseSchema> {
       const animeList = await this.animeRepo.getPaginatedResult(page);
@@ -29,9 +31,29 @@ export class AnimeService {
       return { data: strippedAnime, totalPages, currentPage: page, links };
     }
 
-    async getOneById (id: string): Promise<IAnime> {
+    async getOneById (id: string, userId?: number): Promise<OneAnimeByIdSchema> {
       const anime = await this.animeRepo.getOneMatching({ animeId: Number(id) });
       animeExists(anime);
-      return anime;
+      const links: Array<LinkStructure> = [];
+      if (userId) {
+        const inUserList = await this.#isInAnimeList(userId, anime.animeId);
+        links.push(...this.#attachUserSpecificLinks(userId, anime.animeId, inUserList));
+      }
+      const response = anime as OneAnimeByIdSchema;
+      response.links = links;
+      return response;
+    }
+
+    async #isInAnimeList (userId: number, idToFind: number) {
+      const found = await this.animeListRepo.getOneMatching({ userId });
+      const foundAnime = found.list.find((listAnime) => listAnime.animeId === idToFind);
+      return Boolean(foundAnime);
+    }
+
+    #attachUserSpecificLinks (userId: number, animeId: number, inList: boolean): Array<LinkStructure> {
+      return [
+        { rel: 'add-to-list', href: `/users/${userId}/anime-list/${animeId}`, method: 'POST' as ValidMethods },
+        inList === true ? { rel: 'delete-from-list', href: `/users/${userId}/anime-list/${animeId}`, method: 'DELETE' as ValidMethods } : null
+      ].filter(Boolean);
     }
 }

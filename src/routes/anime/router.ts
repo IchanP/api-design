@@ -321,7 +321,7 @@ router.get('/search',
  *                 synonyms: ['Shingeki no Kyojin', 'AoT']
  *                 relatedAnime: ['https://anidb.net/anime/10234', 'https://anidb.net/anime/20482']
  *                 tags: ['Action', 'Fantasy', 'Military', 'Survival', 'Titans']
- *                 animeId: 101
+ *                 animeId: 1869
  *                 broadcast:
  *                   day: 'Sunday'
  *                   time: '23:00'
@@ -329,10 +329,31 @@ router.get('/search',
  *                   string: 'Sundays at 23:00 (JST)'
  *                 links:
  *                   - rel: "self"
- *                     href: "/anime/101"
+ *                     href: "/anime/1869"
  *                     method: "GET"
  *                   - rel: "add-to-list"
- *                     href: "/anime-list/{user-id}/anime/101"
+ *                     href: "/anime-list/3/anime/1869"
+ *                     method: "POST"
+ *                   - rel: "delete-from-list"
+ *                     href: "/anime-list/3/anime/1869"
+ *                     method: "DEL"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "animelist-profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
  *                     method: "POST"
  *       400:
  *         description: Bad Request - The ID parameter must be a number.
@@ -367,5 +388,8 @@ router.get('/search',
 router.get('/:id',
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => checkLoginStatus(req, res, next),
-  (req, res, next) => controller.displayAnimeById(req, res, next)
+  (req, res, next) => controller.displayAnimeById(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
 );

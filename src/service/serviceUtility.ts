@@ -10,3 +10,7 @@ export function stripAnime (anime: IAnime, userId?: number): MinimizedAnime {
     ].filter(Boolean)
   };
 }
+
+export function attachUserSpecificDataToAnime (anime: IAnime, userId: number, inList?: boolean = false) {
+  console.log('yeppers');
+}
