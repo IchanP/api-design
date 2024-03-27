@@ -23,7 +23,15 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
     if (filter) {
       AnimeModel.validateFilterKeys(filter);
     }
+    if (filter.title) {
+      return this.#handleTitleSearchQuery(filter.title as string);
+    }
     const listOfAnime = await AnimeModel.find(filter || {}).skip(pagesToSkip).limit(limit);
+    return listOfAnime.map((anime) => anime?.toObject());
+  }
+
+  async #handleTitleSearchQuery (query: string): Promise<IAnime[]> {
+    const listOfAnime = await AnimeModel.find({ title: { $regex: query, $options: 'i' } });
     return listOfAnime.map((anime) => anime?.toObject());
   }
 }

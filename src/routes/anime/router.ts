@@ -285,17 +285,55 @@ router.get('/search',
  *           type: integer
  *         description: The anime's ID
  *       - in: header
- *         name: Bearer
+ *         name: Authorization
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
- *         description: A single anime object
+ *         description: A single anime object with navigation links
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Anime'
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Anime'
+ *                 - type: object
+ *                   properties:
+ *                     links:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           rel:
+ *                             type: string
+ *                           href:
+ *                             type: string
+ *                           method:
+ *                             type: string
+ *               example:
+ *                 title: 'Attack on Titan'
+ *                 type: 'TV'
+ *                 episodes: 59
+ *                 status: 'FINISHED'
+ *                 animeSeason:
+ *                   season: 'SPRING'
+ *                   year: 2013
+ *                 synonyms: ['Shingeki no Kyojin', 'AoT']
+ *                 relatedAnime: ['https://anidb.net/anime/10234', 'https://anidb.net/anime/20482']
+ *                 tags: ['Action', 'Fantasy', 'Military', 'Survival', 'Titans']
+ *                 animeId: 101
+ *                 broadcast:
+ *                   day: 'Sunday'
+ *                   time: '23:00'
+ *                   timezone: 'JST'
+ *                   string: 'Sundays at 23:00 (JST)'
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/anime/101"
+ *                     method: "GET"
+ *                   - rel: "add-to-list"
+ *                     href: "/anime-list/{user-id}/anime/101"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - The ID parameter must be a number.
  *         content:
@@ -326,6 +364,8 @@ router.get('/search',
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
-  validateId(req.params.id, res, next),
-(req, res, next) => controller.displayAnimeById(req, res, next));
+router.get('/:id',
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => checkLoginStatus(req, res, next),
+  (req, res, next) => controller.displayAnimeById(req, res, next)
+);

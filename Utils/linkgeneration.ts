@@ -39,7 +39,7 @@ export function generateRegisterLink (): LinkStructure {
     method: 'POST'
   };
 }
-export function generateAddToListLink (animeId: number, userId: string): LinkStructure {
+export function generateAddToListLink (animeId: number, userId: number): LinkStructure {
   return {
     rel: 'add-to-list',
     href: `/anime-list/${userId}/anime/${animeId}`,
@@ -174,9 +174,13 @@ function generateAnimeResourceLinks (fullUrl: string): LinkStructure[] {
   console.log(fullUrl);
   const links: LinkStructure[] = [
     isAnimePageEndPoint(fullUrl) ? null : generateAnimeResourceLink(),
-    fullUrl === '/anime/search' ? null : generateSearchAnimeLink()
+    isAnimeSearchEndPoint(fullUrl) ? null : generateSearchAnimeLink()
   ].filter(Boolean);
   return links;
+}
+
+function isAnimeSearchEndPoint (url: string) {
+  return url === '/anime/search' || url.includes('/anime/search') || url === '/anime/search/';
 }
 
 function isAnimePageEndPoint (url: string) {
