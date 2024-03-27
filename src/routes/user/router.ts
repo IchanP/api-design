@@ -3,7 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -68,7 +68,7 @@ export const router = express.Router();
  *                     href: "/anime-list/8"
  *                     method: "GET"
  *                   - rel: "search-anime"
- *                     href: "/anime/search{?title}"
+ *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
  *                   - rel: "anime"
  *                     href: "/anime"
@@ -106,6 +106,7 @@ export const router = express.Router();
  */
 router.post('/register', (req, res, next) => controller.register(req, res, next),
   (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
   (req, res) => generateAuthLinks(req, res));
 
 /**
@@ -169,8 +170,11 @@ router.post('/register', (req, res, next) => controller.register(req, res, next)
  *                   - rel: "anime"
  *                     href: "/anime"
  *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list"
+ *                     method: "GET"
  *                   - rel: "search-anime"
- *                     href: "/anime/search{?title}"
+ *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
  *                   - rel: "animelist-profile"
  *                     href: "/anime-list/3"
@@ -219,4 +223,5 @@ router.put('/username',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => controller.updateUsername(req, res, next),
   (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
   (req, res) => generateAuthLinks(req, res));

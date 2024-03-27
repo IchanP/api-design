@@ -13,6 +13,7 @@ export class AuthController {
             const response = await this.service.login(req.body);
             req.body.responseData = response;
             req.body.status = 200;
+            req.body.token = { userId: response.userId }; // Simulate login for middleware
             next();
           } catch (e: unknown) {
             let err = e;

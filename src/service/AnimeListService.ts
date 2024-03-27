@@ -5,7 +5,7 @@ import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
-import { constructNextAndPreviousPageLink, findAndTransformToSelf, generateAlwaysAccessibleLinks, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { constructNextAndPreviousPageLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 
 @injectable()
 export class AnimeListService {
@@ -19,9 +19,7 @@ export class AnimeListService {
 
       const data = this.#constructAnimeListUrl(animeList);
       const nextAndPrevious = constructNextAndPreviousPageLink('anime-list', page, totalPages);
-      const alwaysAccessible = generateAlwaysAccessibleLinks();
-      findAndTransformToSelf(alwaysAccessible, 'animelists');
-      const links = [...alwaysAccessible, ...nextAndPrevious];
+      const links = [...nextAndPrevious];
       return { data, links, totalPages, currentPage: page };
     }
 

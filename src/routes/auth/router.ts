@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AuthController>(TYPES.AuthController);
@@ -65,7 +65,10 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *                       href: "/anime"
  *                       method: "GET"
  *                     - rel: "search-anime"
- *                       href: "/anime/search{?title}"
+ *                       href: "/anime/search{?title,page}"
+ *                       method: "GET"
+ *                     - rel: "animelists"
+ *                       href: "/anime-list"
  *                       method: "GET"
  *                     - rel: "profile"
  *                       href: "/anime-list/3"
@@ -100,6 +103,7 @@ const controller = container.get<AuthController>(TYPES.AuthController);
 router.post('/login',
   (req, res, next) => controller.login(req, res, next),
   (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
   (req, res) => generateAuthLinks(req, res));
 
 /**

@@ -1,20 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 
-export function generateAnimeResourceLinks (): LinkStructure[] {
-  const links: LinkStructure[] = [
-    {
-      rel: 'anime',
-      href: '/anime{?page}',
-      method: 'GET'
-    }, {
-      rel: 'search-anime',
-      href: '/anime/search{?title,page}',
-      method: 'GET'
-    }
-  ];
-  return links;
-}
-
 export function generateAnimeIdLink (id: number): LinkStructure {
   return {
     rel: 'view-anime-info',
@@ -55,9 +40,18 @@ export function generateRegisterLink (): LinkStructure {
   };
 }
 
-export function generateAlwaysAccessibleLinks (): LinkStructure[] {
-  const links: LinkStructure[] = [...generateAnimeResourceLinks(), generateAnimeListResourceLink()];
-  return links;
+export function generateAlwaysAccessibleLinks (req: Request, next: NextFunction): LinkStructure[] {
+  const fullUrl = req.baseUrl + req.url;
+  console.log(fullUrl);
+  const links: LinkStructure[] = [
+    ...generateAnimeResourceLinks(fullUrl),
+    isAnimeListPageEndpoint(fullUrl) ? null : generateAnimeListResourceLink()
+  ].filter(Boolean);
+  if (fullUrl === '/') {
+    return links;
+  }
+  req.body.responseData.links.push(...links);
+  next();
 }
 
 export function constructNextAndPreviousPageLink (endpoint: string, page: number, totalPages: number):LinkStructure[] {
@@ -87,7 +81,7 @@ export function generateAuthLinks (req: Request, res: Response) {
 }
 
 export function generateEntryPointLinks (req: Request, res: Response, next: NextFunction) {
-  const links = generateAlwaysAccessibleLinks();
+  const links = generateAlwaysAccessibleLinks(req, next);
   links.push(generateSelfLink(req, next));
   links.push(generateRegisterLink());
   links.push(generateLoginLink());
@@ -102,7 +96,8 @@ export function findAndTransformToSelf (links: Array<LinkStructure>, relation: s
 }
 
 export function generateSelfLink (req: Request, next: NextFunction): LinkStructure {
-  if (req.url === '/') {
+  const fullUrl = req.baseUrl + req.url;
+  if (fullUrl === '/') {
     return {
       rel: 'self',
       href: '/',
@@ -111,7 +106,7 @@ export function generateSelfLink (req: Request, next: NextFunction): LinkStructu
   } else {
     req.body.responseData.links.unshift({
       rel: 'self',
-      href: req.url,
+      href: fullUrl,
       method: req.method
     });
     next();
@@ -149,4 +144,32 @@ function generateDocsLink (): LinkStructure {
     href: '/api-docs',
     method: 'GET'
   };
+}
+
+function generateSearchAnimeLink (): LinkStructure {
+  return {
+    rel: 'search-anime',
+    href: '/anime/search{?title,page}',
+    method: 'GET'
+  };
+}
+
+function generateAnimeResourceLink (): LinkStructure {
+  return {
+    rel: 'anime',
+    href: '/anime{?page}',
+    method: 'GET'
+  };
+}
+
+function generateAnimeResourceLinks (fullUrl: string): LinkStructure[] {
+  const links: LinkStructure[] = [
+    fullUrl === '/anime/search' ? null : generateSearchAnimeLink(),
+    fullUrl === '/anime' ? null : generateAnimeResourceLink()
+  ].filter(Boolean);
+  return links;
+}
+
+function isAnimeListPageEndpoint (url: string) {
+  return url === '/anime-list' || url.includes('/anime-list/?page') || url === '/anime-list/';
 }

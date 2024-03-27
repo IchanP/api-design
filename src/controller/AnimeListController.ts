@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { NextFunction, Request, Response, response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { defaultToOne } from '../../Utils/index.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeListService } from 'service/AnimeListService.ts';

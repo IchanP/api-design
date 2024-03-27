@@ -3,7 +3,7 @@ import { TYPES } from '../config/types.ts';
 import { isValidType } from '../../Utils/validateutil.ts';
 import { BadDataError } from '../../Utils/BadDataError.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
-import { generateAlwaysAccessibleLinks, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 
 @injectable()
 export class UserService implements IUserService {
@@ -16,11 +16,9 @@ export class UserService implements IUserService {
       const userData = await this.userRepo.createDocument(validUserInfo);
       await this.animeListRepo.createDocument(userData);
       await this.webhookRepo.createDocument(userData.userId);
-
-      const alwaysAccessible = generateAlwaysAccessibleLinks();
       const profileLink = generateUserAnimeListLink(userData.userId, 'profile');
 
-      const links = [profileLink, ...alwaysAccessible];
+      const links = [profileLink];
       return { userData, links };
     }
 

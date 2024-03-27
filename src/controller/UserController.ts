@@ -24,7 +24,7 @@ export class UserController {
     async updateUsername (req: Request, res: Response, next: NextFunction) {
       try {
         await this.service.updateField(req.body, 'username');
-        req.body.responseData = { links: [] };
+        req.body.responseData = { links: [], message: 'Username successfully updated.' };
         req.body.status = 200;
         next();
       } catch (e: unknown) {

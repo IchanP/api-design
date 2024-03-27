@@ -4,7 +4,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
 import { tokenIdMatchesPathId, validateId } from '../../../Utils/ValidatorUtil.ts';
-import { generateAuthLinks } from '../../../Utils/linkgeneration.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -90,7 +90,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                       href: "/anime"
  *                       method: "GET"
  *                     - rel: "search-anime"
- *                       href: "/anime/search{?title}"
+ *                       href: "/anime/search{?title,page}"
  *                       method: "GET"
  *                     - rel: "animelist-profile"
  *                       href: "/anime-list/3"
@@ -123,6 +123,8 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
 router.get('/',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => controller.displayAnimeLists(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
   (req, res) => generateAuthLinks(req, res)
 );
 

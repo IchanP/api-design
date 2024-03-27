@@ -4,7 +4,6 @@ import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
 import { TYPES } from 'config/types.ts';
 import { JwtPayload } from 'jsonwebtoken';
 import 'dotenv/config';
-import { generateAlwaysAccessibleLinks } from '../../Utils/linkgeneration.ts';
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -24,8 +23,7 @@ export class AuthService implements IAuthService {
     const accessToken = this.jwtCrafter.createAccessToken({ email: matchingUser.email, username: matchingUser.username, userId: matchingUser.userId });
     const refreshToken = this.jwtCrafter.createRefreshToken({ email: matchingUser.email, username: matchingUser.username });
 
-    const alwaysAccessible = generateAlwaysAccessibleLinks();
-    const links = [...alwaysAccessible];
+    const links: Array<LinkStructure> = [];
     return { accessToken, refreshToken, userId: matchingUser.userId, links };
   }
 
