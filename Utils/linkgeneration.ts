@@ -47,6 +47,14 @@ export function generateAnimeListResourceLink (): LinkStructure {
   };
 }
 
+export function generateRegisterLink (): LinkStructure {
+  return {
+    rel: 'register',
+    href: '/auth/register',
+    method: 'POST'
+  };
+}
+
 export function generateAlwaysAccessibleLinks (): LinkStructure[] {
   const links: LinkStructure[] = [...generateAnimeResourceLinks(), generateAnimeListResourceLink()];
   return links;
@@ -78,10 +86,27 @@ export function generateAuthLinks (req: Request, res: Response) {
   res.status(req.body.status).json(req.body.responseData);
 }
 
+export function generateEntryPointLinks (req: Request, res: Response) {
+  const links = generateAlwaysAccessibleLinks();
+  links.push(generateSelf(req.url, req.method as ValidMethods));
+  links.push(generateRegisterLink());
+  links.push(generateLoginLink());
+  links.push(generateDocsLink());
+  res.status(200).json({ links });
+}
+
 export function findAndTransformToSelf (links: Array<LinkStructure>, relation: string): Array<LinkStructure> {
   const self = links.find((link) => link.rel === relation);
   self.rel = 'self';
   return links;
+}
+
+export function generateSelf (href: string, method: ValidMethods): LinkStructure {
+  return {
+    rel: 'self',
+    href,
+    method
+  };
 }
 
 function generateLoggedInLinks (userId: number): LinkStructure[] {
@@ -105,5 +130,13 @@ function generateRefreshTokenLink (): LinkStructure {
     rel: 'refresh-login',
     href: '/auth/refresh',
     method: 'POST'
+  };
+}
+
+function generateDocsLink (): LinkStructure {
+  return {
+    rel: 'documentation',
+    href: '/api-docs',
+    method: 'GET'
   };
 }
