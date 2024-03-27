@@ -39,6 +39,13 @@ export function generateRegisterLink (): LinkStructure {
     method: 'POST'
   };
 }
+export function generateAddToListLink (animeId: number, userId: string): LinkStructure {
+  return {
+    rel: 'add-to-list',
+    href: `/anime-list/${userId}/anime/${animeId}`,
+    method: 'POST'
+  };
+}
 
 export function generateAlwaysAccessibleLinks (req: Request, next: NextFunction): LinkStructure[] {
   const fullUrl = req.baseUrl + req.url;

@@ -2,7 +2,7 @@ import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
-import { validateAuthScheme } from '../../../Utils/index.ts';
+import { checkLoginStatus, validateAuthScheme } from '../../../Utils/index.ts';
 import { tokenIdMatchesPathId, validateId } from '../../../Utils/ValidatorUtil.ts';
 import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
@@ -121,7 +121,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  */
 
 router.get('/',
-  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeLists(req, res, next),
   (req, res, next) => generateSelfLink(req, next),
   (req, res, next) => generateAlwaysAccessibleLinks(req, next),

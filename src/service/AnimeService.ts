@@ -2,19 +2,19 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { animeExists } from '../../Utils/ValidatorUtil.ts';
 import { stripAnime } from './serviceUtility.ts';
-import { constructNextAndPreviousPageLink, generateAnimeIdLink } from '../../Utils/linkgeneration.ts';
+import { constructNextAndPreviousPageLink } from '../../Utils/linkgeneration.ts';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
 
-    async getListOfAnime (page: number): Promise<ListOfAnimeResponseSchema> {
+    async getListOfAnime (page: number, userId?: number): Promise<ListOfAnimeResponseSchema> {
+      console.log(userId);
       const animeList = await this.animeRepo.getPaginatedResult(page);
       const totalPages = await this.animeRepo.getTotalPages();
       const totalAnime = await this.animeRepo.getTotalCount();
-      const strippedAnime = animeList.map((anime) => stripAnime(anime));
+      const strippedAnime = animeList.map((anime) => stripAnime(anime, userId));
 
       const nextAndPrevious = constructNextAndPreviousPageLink('anime', page, totalPages);
-      this.#addLinksToStrippedAnime(strippedAnime);
       const links = [...nextAndPrevious];
 
       return { currentPage: page, totalPages, totalAnime, data: strippedAnime, links };
@@ -30,9 +30,5 @@ export class AnimeService {
       const anime = await this.animeRepo.getOneMatching({ animeId: Number(id) });
       animeExists(anime);
       return anime;
-    }
-
-    #addLinksToStrippedAnime (strippedAnime: MinimizedAnime[]): void {
-      strippedAnime.forEach((anime) => anime.links.push(generateAnimeIdLink(anime.animeId, 'self')));
     }
 }
