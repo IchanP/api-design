@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/types.ts';
-import { isValidType } from '../../Utils/validateutil.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { isValidType } from '../../Utils/ValidatorUtil.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 

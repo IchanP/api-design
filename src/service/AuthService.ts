@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { BcryptWrapper } from '../../Utils/BcryptWrapper.ts';
-import { BadCredentialsError } from '../../Utils/BadCredentialsError.ts';
+import { BadCredentialsError } from '../../Utils/Errors/BadCredentialsError.ts';
 import { TYPES } from 'config/types.ts';
 import { JwtPayload } from 'jsonwebtoken';
 import 'dotenv/config';
@@ -27,12 +27,13 @@ export class AuthService implements IAuthService {
     return { accessToken, refreshToken, userId: matchingUser.userId, links };
   }
 
-  refreshToken (refreshToken: string): string {
+  refreshToken (refreshToken: string): RefreshResponseSchema {
     const decoded = this.jwtCrafter.verifyRefresh(refreshToken) as JwtPayload;
     if (!decoded.email) {
       throw new Error();
     }
-    const newAccessToken = this.jwtCrafter.createAccessToken({ email: decoded.email });
-    return newAccessToken;
+    const accessToken = this.jwtCrafter.createAccessToken({ email: decoded.email });
+    const links: Array<LinkStructure> = [];
+    return { accessToken, links };
   }
 }

@@ -87,7 +87,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                       href: "/anime-list?page=1"
  *                       method: "GET"
  *                     - rel: "anime"
- *                       href: "/anime"
+ *                       href: "/anime{?page}"
  *                       method: "GET"
  *                     - rel: "search-anime"
  *                       href: "/anime/search{?title,page}"

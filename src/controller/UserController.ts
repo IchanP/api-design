@@ -1,5 +1,5 @@
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { Request, NextFunction } from 'express';
 import { Response } from 'express-serve-static-core';
 import createError from 'http-errors';

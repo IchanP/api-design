@@ -1,9 +1,9 @@
 // A utility module more specific to the project
 
 import { NextFunction } from 'express-serve-static-core';
-import { BadCredentialsError } from './BadCredentialsError.ts';
-import { BadDataError } from './BadDataError.ts';
-import { NotFoundError } from './NotFoudnError.ts';
+import { BadCredentialsError } from './Errors/BadCredentialsError.ts';
+import { BadDataError } from './Errors/BadDataError.ts';
+import { NotFoundError } from './Errors/NotFoudnError.ts';
 import createError from 'http-errors';
 import { Response } from 'express';
 import { container } from 'config/inversify.config.ts';
@@ -44,4 +44,15 @@ export function tokenIdMatchesPathId (token: TokenPayload, id: string, next: Nex
     next(err);
   }
   next();
+}
+export function isValidType<Type> (typeToValidate: Type, expectedKeys: string[]): typeToValidate is Type {
+  const actualKeys = Object.keys(typeToValidate);
+
+  if (actualKeys.length !== expectedKeys.length) {
+    return false;
+  }
+
+  // Check for the same keys (ignoring type)
+  return expectedKeys.length === actualKeys.length &&
+             expectedKeys.every(key => actualKeys.includes(key));
 }

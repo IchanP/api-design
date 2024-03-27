@@ -1,11 +1,12 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
 import { constructNextAndPreviousPageLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { stripAnime } from './serviceUtility.ts';
 
 @injectable()
 export class AnimeListService {
@@ -37,7 +38,7 @@ export class AnimeListService {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
-      const minimzedAnime = this.#stripAnime(animeToAdd);
+      const minimzedAnime = stripAnime(animeToAdd);
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
       await this.#postAnimeWebhooks(minimzedAnime, updatedList.username, updatedList.userId);
@@ -47,7 +48,7 @@ export class AnimeListService {
     async removeAnime (animeListId: string, animeId: string) {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
-      const minimzedAnime = this.#stripAnime(animeToAdd);
+      const minimzedAnime = stripAnime(animeToAdd);
       await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), { userId: Number(animeListId) });
     }
 
@@ -75,14 +76,6 @@ export class AnimeListService {
       const anime = await this.animeRepo.getOneMatching({ animeId: Number(animeId) });
       animeExists(anime);
       return anime;
-    }
-
-    #stripAnime (anime: IAnime): MinimizedAnime {
-      return {
-        animeId: anime.animeId,
-        title: anime.title,
-        type: anime.type
-      };
     }
 
     #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{username: string, links: Array<LinkStructure>}> {

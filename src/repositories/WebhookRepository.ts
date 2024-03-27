@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import { WebhookModel } from 'models/Webhook.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { Error } from 'mongoose';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 import { BaseRepository } from './BaseRepository.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 
 @injectable()
 export class WebhookRepository extends BaseRepository<IWebhookStore> implements Repository<IWebhookStore, number> {

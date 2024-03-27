@@ -30,6 +30,7 @@ declare type MinimizedAnime = {
     animeId: number;
     title: string;
     type: string;
+    links: LinkStructure[];
 }
 
 declare type AnimeListsResponseSchema = {
@@ -50,8 +51,9 @@ declare type UserResponseSchema = {
 declare type ListOfAnimeResponseSchema = {
     currentPage: number;
     totalPages: number;
-    data: IAnime[];
+    data: MinimizedAnime[];
     totalAnime: number;
+    links: LinkStructure[];
 }
 
 declare type AnimeQueryResultSchema = {
@@ -64,6 +66,11 @@ declare type LoginResponseScheme = {
     accessToken: string;
     refreshToken: string;
     userId: number;
+    links: LinkStructure[];
+}
+
+declare type RefreshResponseSchema = {
+    accessToken: string;
     links: LinkStructure[];
 }
 

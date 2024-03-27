@@ -3,9 +3,9 @@ import { NextFunction, Request } from 'express';
 import { Response } from 'express-serve-static-core';
 import { inject, injectable } from 'inversify';
 import { AnimeService } from 'service/AnimeService.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import createError from 'http-errors';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { defaultToOne } from '../../Utils/index.ts';
 @injectable()
 export class AnimeController {
@@ -15,7 +15,9 @@ export class AnimeController {
     try {
       const page = defaultToOne(req.query.page as string);
       const response = await this.service.getListOfAnime(page);
-      return res.status(200).json(response);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       next(e);
     }

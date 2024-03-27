@@ -3,10 +3,10 @@ import { NextFunction, Request, Response } from 'express';
 import { defaultToOne } from '../../Utils/index.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeListService } from 'service/AnimeListService.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import createError from 'http-errors';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 @injectable()
 export class AnimeListController {
   @inject(TYPES.AnimeListService) private service: AnimeListService;

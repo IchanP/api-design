@@ -3,6 +3,8 @@ import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeController } from 'controller/AnimeController.ts';
 import { validateId } from '../../../Utils/ValidatorUtil.ts';
+import { validateAuthScheme } from '../../../Utils/index.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeController>(TYPES.AnimeController);
@@ -30,7 +32,7 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
  *       200:
- *         description: A list of anime
+ *         description: A list of anime along with navigation links
  *         content:
  *           application/json:
  *             schema:
@@ -42,14 +44,80 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *                 totalPages:
  *                   type: integer
  *                   example: 10
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Anime'
- *                   description: An array of anime objects, up to 20 per page.
  *                 totalAnime:
  *                   type: integer
  *                   example: 200
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     allOf:
+ *                       - $ref: '#/components/schemas/MinimizedAnime'
+ *                       - type: object
+ *                         properties:
+ *                           links:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 rel:
+ *                                   type: string
+ *                                   example: self
+ *                                 href:
+ *                                   type: string
+ *                                   format: uri
+ *                                   example: '/anime/1'
+ *                                 method:
+ *                                   type: string
+ *                                   example: GET
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                         format: uri
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 currentPage: 1
+ *                 totalPages: 1675
+ *                 totalAnime: 33485
+ *                 data:
+ *                   - animeId: 101
+ *                     title: 'Naruto'
+ *                     type: 'TV'
+ *                     links:
+ *                       - rel: 'self'
+ *                         href: '/anime/101'
+ *                         method: 'GET'
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/anime?page=1"
+ *                     method: "GET"
+ *                   - rel: "next"
+ *                     href: "/anime?page=2"
+ *                     method: "GET"
+ *                   - rel: "prev"
+ *                     href: "/anime?page=1"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelist-profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -60,7 +128,13 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *               internalServerError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/', (req: Request, res: Response, next: NextFunction) => controller.displayAnime(req, res, next));
+router.get('/',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => controller.displayAnime(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);
 
 /**
  * @swagger
