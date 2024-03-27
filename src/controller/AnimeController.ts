@@ -42,9 +42,10 @@ export class AnimeController {
       }
 
       const page = defaultToOne(req.query.page as string);
-      const response = await this.service.getListWithQuery({ title: query }, page);
-      console.log(response);
-      return res.status(200).json(response);
+      const response = await this.service.getListWithQuery({ title: query }, page, req.body?.token?.userId);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       this.#handleError(e, next);
     }

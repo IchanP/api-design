@@ -57,9 +57,10 @@ declare type ListOfAnimeResponseSchema = {
 }
 
 declare type AnimeQueryResultSchema = {
-    data: IAnime[];
+    data: MinimizedAnime[];
     totalPages: number;
     currentPage: number;
+    links: LinkStructure[];
 }
 
 declare type LoginResponseScheme = {

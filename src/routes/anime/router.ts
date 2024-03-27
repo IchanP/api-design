@@ -173,7 +173,7 @@ router.get('/',
  *             schema:
  *               type: object
  *               properties:
- *                 results:
+ *                 data:
  *                   type: array
  *                   items:
  *                     allOf:
@@ -261,9 +261,13 @@ router.get('/',
  *                   code: 500
  *                   message: "Something else went wrong."
  */
-router.get('/search', (req, res, next) => {
-  controller.searchAnime(req, res, next);
-});
+router.get('/search',
+  (req, res, next) => checkLoginStatus(req, res, next),
+  (req, res, next) => controller.searchAnime(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);
 
 /**
  * @swagger
