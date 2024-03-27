@@ -1,9 +1,9 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeController } from 'controller/AnimeController.ts';
 import { validateId } from '../../../Utils/ValidatorUtil.ts';
-import { checkLoginStatus, validateAuthScheme } from '../../../Utils/index.ts';
+import { checkLoginStatus } from '../../../Utils/index.ts';
 import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
@@ -112,7 +112,7 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
  *                   - rel: "search-anime"
  *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
- *                   - rel: "animelist-profile"
+ *                   - rel: "profile"
  *                     href: "/anime-list/3"
  *                     method: "GET"
  *                   - rel: "update-username"
@@ -229,7 +229,7 @@ router.get('/',
  *                     - rel: "anime"
  *                       href: "/anime{?page}"
  *                       method: "GET"
- *                     - rel: "animelist-profile"
+ *                     - rel: "profile"
  *                       href: "/anime-list/3"
  *                       method: "GET"
  *                     - rel: "update-username"
@@ -338,7 +338,7 @@ router.get('/search',
  *                     href: "/anime-list/3/anime/1869"
  *                     method: "DEL"
  *                   - rel: "search-anime"
- *                     href: "/anime/search{?title}"
+ *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
  *                   - rel: "animelists"
  *                     href: "/anime-list{?page}"

@@ -15,7 +15,7 @@ export class AnimeListController {
   async displayAnimeLists (req: Request, res: Response, next: NextFunction) {
     try {
       const page = defaultToOne(req.query.page as string);
-      const response = await this.service.getAnimeLists(page);
+      const response = await this.service.getAnimeLists(page, req.body?.token?.userId);
       req.body.responseData = response;
       req.body.status = 200;
       next();

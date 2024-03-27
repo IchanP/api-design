@@ -176,7 +176,7 @@ router.post('/register', (req, res, next) => controller.register(req, res, next)
  *                   - rel: "search-anime"
  *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
- *                   - rel: "animelist-profile"
+ *                   - rel: "profile"
  *                     href: "/anime-list/3"
  *                     method: "GET"
  *                   - rel: "refresh-login"

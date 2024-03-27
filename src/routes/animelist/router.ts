@@ -61,9 +61,15 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                             method:
  *                               type: string
  *                         example:
- *                           - rel: "animelist-profile"
+ *                           - rel: "owner"
  *                             href: "/anime-list/21"
  *                             method: "GET"
+ *                           - rel: "subscribe"
+ *                             href: "/webhook/anime-list/3/subscribe"
+ *                             method: "POST"
+ *                           - rel: "unsubscribe"
+ *                             href: "/webhook/anime-list/3/subscribe"
+ *                             method: "DELETE"
  *                 links:
  *                   type: array
  *                   items:
@@ -92,7 +98,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *                     - rel: "search-anime"
  *                       href: "/anime/search{?title,page}"
  *                       method: "GET"
- *                     - rel: "animelist-profile"
+ *                     - rel: "profile"
  *                       href: "/anime-list/3"
  *                       method: "GET"
  *                     - rel: "update-username"
@@ -119,7 +125,6 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-
 router.get('/',
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeLists(req, res, next),

@@ -5,7 +5,7 @@ import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
-import { constructNextAndPreviousPageLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { constructNextAndPreviousPageLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 import { stripAnime } from './serviceUtility.ts';
 
 @injectable()
@@ -14,11 +14,13 @@ export class AnimeListService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
     @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
-    async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
+    async getAnimeLists (page: number, userId?: string): Promise<AnimeListsResponseSchema> {
       const animeList = await this.animeListRepo.getPaginatedResult(page);
       const totalPages = await this.animeListRepo.getTotalPages();
 
-      const data = this.#constructAnimeListUrl(animeList);
+      const subscriptionsIds = await this.#getSubscriptionIds(userId);
+
+      const data = this.#constructAnimeListUrl(animeList, subscriptionsIds);
       const nextAndPrevious = constructNextAndPreviousPageLink('anime-list', page, totalPages);
       const links = [...nextAndPrevious];
       return { data, links, totalPages, currentPage: page };
@@ -78,12 +80,23 @@ export class AnimeListService {
       return anime;
     }
 
-    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{username: string, links: Array<LinkStructure>}> {
+    #constructAnimeListUrl (animeList: Array<IAnimeList>, subscriptionsIds: number[]): Array<{username: string, links: Array<LinkStructure>}> {
       return animeList.map((list) => {
         return {
           username: list.username,
-          links: [generateUserAnimeListLink(list.userId, 'owner')] // Made into an array for consistency
+          links: [
+            generateUserAnimeListLink(list.userId, 'owner'),
+            subscriptionsIds.includes(list.userId) ? generateUnsubscribeToWebhookLink(list.userId) : generateSubscribeToWebhookLink(list.userId)
+          ].filter(Boolean)
         };
       });
+    }
+
+    async #getSubscriptionIds (userId: string | undefined): Promise<Array<number>> {
+      if (userId) {
+        const subscriptions = await this.webhookRepo.getMany({ 'webhooks.ownerId': Number(userId) });
+        return subscriptions.map((sub) => sub.userId);
+      }
+      return [];
     }
 }

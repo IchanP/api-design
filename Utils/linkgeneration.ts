@@ -18,7 +18,7 @@ export function generateLoginLink (): LinkStructure {
 
 export function generateUserAnimeListLink (userId: number, relation?: string): LinkStructure {
   return {
-    rel: relation || 'animelist-profile',
+    rel: relation || 'profile',
     href: `/anime-list/${userId}`,
     method: 'GET'
   };
@@ -68,7 +68,7 @@ export function constructNextAndPreviousPageLink (endpoint: string, page: number
       method: 'GET'
     },
     {
-      rel: 'previous',
+      rel: 'prev',
       href: page !== 1 ? `/${endpoint}?page=${page - 1}` : `/${endpoint}?page=${page}`,
       method: 'GET'
     }
@@ -118,6 +118,22 @@ export function generateSelfLink (req: Request, next: NextFunction): LinkStructu
     });
     next();
   }
+}
+
+export function generateSubscribeToWebhookLink (userId: number): LinkStructure {
+  return {
+    rel: 'subscribe',
+    href: `/webhook/anime-list/${userId}/subscribe`,
+    method: 'POST'
+  };
+}
+
+export function generateUnsubscribeToWebhookLink (userId: number): LinkStructure {
+  return {
+    rel: 'unsubscribe',
+    href: `/webhook/anime-list/${userId}/subscribe`,
+    method: 'DELETE'
+  };
 }
 
 function generateLoggedInLinks (userId: number, req: Request): LinkStructure[] {

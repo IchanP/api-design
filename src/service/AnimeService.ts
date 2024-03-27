@@ -1,9 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { animeExists } from '../../Utils/ValidatorUtil.ts';
-import { attachUserSpecificDataToAnime, stripAnime } from './serviceUtility.ts';
+import { stripAnime } from './serviceUtility.ts';
 import { constructNextAndPreviousPageLink } from '../../Utils/linkgeneration.ts';
-import { response } from 'express';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
@@ -52,8 +51,8 @@ export class AnimeService {
 
     #attachUserSpecificLinks (userId: number, animeId: number, inList: boolean): Array<LinkStructure> {
       return [
-        { rel: 'add-to-list', href: `/users/${userId}/anime-list/${animeId}`, method: 'POST' as ValidMethods },
-        inList === true ? { rel: 'delete-from-list', href: `/users/${userId}/anime-list/${animeId}`, method: 'DELETE' as ValidMethods } : null
+        { rel: 'add-to-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'POST' as ValidMethods },
+        inList === true ? { rel: 'delete-from-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'DELETE' as ValidMethods } : null
       ].filter(Boolean);
     }
 }

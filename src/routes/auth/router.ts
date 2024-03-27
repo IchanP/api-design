@@ -161,7 +161,7 @@ router.post('/login',
  *                   - rel: "search-anime"
  *                     href: "/anime/search{?title,page}"
  *                     method: "GET"
- *                   - rel: "animelist-profile"
+ *                   - rel: "profile"
  *                     href: "/anime-list/3"
  *                     method: "GET"
  *                   - rel: "update-username"
