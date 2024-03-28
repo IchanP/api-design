@@ -101,4 +101,5 @@ declare type WebhookMessage = {
 declare type WebhookSubscribeSchema = {
     subscribed: boolean;
     data: URLstring[];
+    links: LinkStructure[];
 }

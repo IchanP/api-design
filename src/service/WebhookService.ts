@@ -2,17 +2,19 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { isValidType, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
+import { AnimeListService } from './AnimeListService.ts';
 
 @injectable()
-export class WebhookService implements IWebhookService {
+export class WebhookService implements IWebhookService<AnimeListService, OneAnimeListResponseSchema> {
     @inject(TYPES.WebhookRepository) private webhookRepo: Repository<IWebhookStore, number>;
 
-    async addWebhook (subscriptionId: string, webhookData: WebhookData): Promise<void> {
+    async addWebhook (subscriptionId: string, webhookData: WebhookData, listService: AnimeListService): Promise<OneAnimeListResponseSchema> {
       await verifyAnimeListExists(subscriptionId);
       if (!isValidType(webhookData, ['URL', 'secret', 'ownerId'])) {
         throw new BadDataError();
       }
-      await this.webhookRepo.updateOneValue('webhooks', JSON.stringify(webhookData), subscriptionId);
+      this.webhookRepo.updateOneValue('webhooks', JSON.stringify(webhookData), subscriptionId);
+      return listService.getOneById(subscriptionId, webhookData.ownerId.toString());
     }
 
     async removeWebhook (userId: string, ownerId: string, resource: string): Promise<void> {
@@ -24,10 +26,10 @@ export class WebhookService implements IWebhookService {
       await verifyAnimeListExists(subcsriptionId);
       const webhook = await this.webhookRepo.getMany({ userId: Number(subcsriptionId), 'webhooks.ownerId': Number(userId) });
       if (this.#notValidWebhookData(webhook)) {
-        return { subscribed: false, data: [] };
+        return { subscribed: false, data: [], links: [] };
       }
       const URLArray = this.#getUrlArray(webhook[0].webhooks, Number(userId));
-      return { subscribed: true, data: URLArray };
+      return { subscribed: true, data: URLArray, links: [] };
     }
 
     #getUrlArray (hookArray: WebhookData[], requester: number): string[] {

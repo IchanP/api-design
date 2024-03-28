@@ -80,8 +80,8 @@ declare interface IWebhookStore {
     webhooks: WebhookData[]
 }
 
-declare interface IWebhookService {
-    addWebhook: (userId: string, webhookData: WebhookData) => Promise<void>;
+declare interface IWebhookService<T, Resource = T> {
+    addWebhook: (userId: string, webhookData: WebhookData, service: T) => Promise<Resource>;
     removeWebhook: (userId: string, ownerId: string, resource: string) => Promise<void>;
     getWebhooks: (subscribptionId: string, userId: string) => Promise<WebhookSubscribeSchema>;
 }
