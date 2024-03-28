@@ -12,6 +12,7 @@ import { connectDB } from 'config/mongoose.ts';
 import 'dotenv/config';
 import swaggerUi from 'swagger-ui-express';
 import { initSwagger } from '../swagger.ts';
+import { generateEntryPointLink } from '../Utils/linkgeneration.ts';
 try {
   const app = express();
   await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING);
@@ -46,7 +47,8 @@ try {
         .status(err.status)
         .json({
           status: err.status,
-          message: err.message
+          message: err.message,
+          links: [generateEntryPointLink()]
         });
     }
 
@@ -62,10 +64,12 @@ try {
           ? {
               status: err.cause.status,
               message: err.cause.message,
-              stack: err.cause.stack
+              stack: err.cause.stack,
+              links: [generateEntryPointLink()]
             }
           : null,
-        stack: err.stack
+        stack: err.stack,
+        links: [generateEntryPointLink()]
       });
   });
 } catch (e: unknown) {

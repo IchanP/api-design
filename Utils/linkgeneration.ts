@@ -140,6 +140,14 @@ export function generateUnsubscribeToWebhookLink (userId: number): LinkStructure
   };
 }
 
+export function generateEntryPointLink () {
+  return {
+    rel: 'entry-point',
+    href: '/',
+    method: 'GET'
+  };
+}
+
 function generateLoggedInLinks (userId: number, req: Request): LinkStructure[] {
   const fullUrl = req.baseUrl + req.url;
   return [
