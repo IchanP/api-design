@@ -102,8 +102,9 @@ export class AnimeListController {
       const userId = req.body.token.userId;
       const url = req.body.url;
       await this.webhookService.removeWebhook(subscriptionId, userId, url);
-      // TODO add links
-      return res.status(204).send();
+      req.body.responseData = { message: 'Successfully unsubscribed from the anime list.', links: [] };
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       if (e instanceof NotFoundError) {
         e.message = 'The requested resource could not be found.';

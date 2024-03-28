@@ -6,7 +6,7 @@ import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
 import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
-import { generateAddOrRemoveAnimeLink, isInAnimeList, isInAnimeList, stripAnime } from './serviceUtility.ts';
+import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
 import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
 @injectable()
