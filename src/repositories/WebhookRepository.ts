@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import { WebhookModel } from 'models/Webhook.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { Error } from 'mongoose';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 import { BaseRepository } from './BaseRepository.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 
 @injectable()
 export class WebhookRepository extends BaseRepository<IWebhookStore> implements Repository<IWebhookStore, number> {
@@ -31,6 +31,7 @@ export class WebhookRepository extends BaseRepository<IWebhookStore> implements 
 
   async getMany (filter: { [key: string]: string | number }): Promise<IWebhookStore[]> {
     const webhookLists = await WebhookModel.find(filter);
+    console.log(webhookLists);
     return webhookLists.map((webhookList) => webhookList.toObject());
   }
 

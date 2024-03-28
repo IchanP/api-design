@@ -1,8 +1,9 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/types.ts';
-import { isValidType } from '../../Utils/validateutil.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { isValidType } from '../../Utils/ValidatorUtil.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
+import { generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 
 @injectable()
 export class UserService implements IUserService {
@@ -10,12 +11,15 @@ export class UserService implements IUserService {
     @inject(TYPES.AnimeListRepository) private animeListRepo: Repository<IAnimeList, IUser>;
     @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
-    async register (userInfo: RequestBody): Promise<User> {
+    async register (userInfo: RequestBody): Promise<UserResponseSchema> {
       const validUserInfo = this.#validateUserInfo(userInfo);
       const userData = await this.userRepo.createDocument(validUserInfo);
       await this.animeListRepo.createDocument(userData);
       await this.webhookRepo.createDocument(userData.userId);
-      return userData;
+      const profileLink = generateUserAnimeListLink(userData.userId, 'profile');
+
+      const links = [profileLink];
+      return { userData, links };
     }
 
     async updateField (info: RequestBody, field: string) {

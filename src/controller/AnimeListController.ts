@@ -3,19 +3,22 @@ import { NextFunction, Request, Response } from 'express';
 import { defaultToOne } from '../../Utils/index.ts';
 import { TYPES } from 'config/types.ts';
 import { AnimeListService } from 'service/AnimeListService.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import createError from 'http-errors';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 @injectable()
 export class AnimeListController {
-  @inject(TYPES.AnimeListService) private service: AnimeListService;
-  @inject(TYPES.IWebhookService) private webhookService: IWebhookService;
+  @inject(TYPES.AnimeListService) private animeListService: AnimeListService;
+  @inject(TYPES.IWebhookService) private webhookService: IWebhookService<AnimeListService, OneAnimeListResponseSchema>;
+
   async displayAnimeLists (req: Request, res: Response, next: NextFunction) {
     try {
       const page = defaultToOne(req.query.page as string);
-      const repsonse = await this.service.getAnimeLists(page);
-      return res.status(200).json(repsonse);
+      const response = await this.animeListService.getAnimeLists(page, req.body?.token?.userId);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       next(e);
     }
@@ -24,8 +27,10 @@ export class AnimeListController {
   async displayAnimeList (req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id;
-      const response = await this.service.getOneById(id);
-      return res.status(200).json(response);
+      const response = await this.animeListService.getOneById(id, req.body?.token?.userId);
+      req.body.responseData = response;
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       let err = e;
       if (e instanceof BadDataError) {
@@ -42,9 +47,14 @@ export class AnimeListController {
     try {
       const animelistId = req.params.id;
       const animeId = req.params.animeId;
-      const response = await this.service.addAnime(animelistId, animeId);
-      return res.status(201).json(response);
+      const response = await this.animeListService.addAnime(animelistId, animeId);
+      req.body.responseData = response;
+      req.body.status = 201;
+      next();
     } catch (e: unknown) {
+      if (e instanceof DuplicateError) {
+        e.message = 'The anime is already in the list.';
+      }
       this.#handleError(e, next);
     }
   }
@@ -53,9 +63,10 @@ export class AnimeListController {
     try {
       const animelistId = req.params.id;
       const animeId = req.params.animeId;
-      await this.service.removeAnime(animelistId, animeId);
-      // TODO should return links
-      return res.status(204).send();
+      await this.animeListService.removeAnime(animelistId, animeId);
+      req.body.responseData = { message: 'Anime successfully deleted from the list.', links: [] };
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       this.#handleError(e, next);
     }
@@ -68,9 +79,10 @@ export class AnimeListController {
         throw new BadDataError();
       }
       const payloadData: WebhookData = { URL: req.body?.url, secret: req.body?.secret, ownerId: req.body?.token?.userId };
-      await this.webhookService.addWebhook(toSubscribeTo, payloadData);
-      // TODO add response body
-      return res.status(201).send();
+      const response = await this.webhookService.addWebhook(toSubscribeTo, payloadData, this.animeListService);
+      req.body.responseData = response;
+      req.body.status = 201;
+      next();
     } catch (e: unknown) {
       if (e instanceof BadDataError) {
         e.message = 'Invalid \'url\', or \'secret\'. All fields are required and must be valid.';
@@ -90,8 +102,9 @@ export class AnimeListController {
       const userId = req.body.token.userId;
       const url = req.body.url;
       await this.webhookService.removeWebhook(subscriptionId, userId, url);
-      // TODO add links
-      return res.status(204).send();
+      req.body.responseData = { message: 'Successfully unsubscribed from the anime list.', links: [] };
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       if (e instanceof NotFoundError) {
         e.message = 'The requested resource could not be found.';
@@ -104,7 +117,9 @@ export class AnimeListController {
     try {
       const id = req.params.id;
       const webhooks = await this.webhookService.getWebhooks(id, req.body.token.userId);
-      return res.status(200).json(webhooks);
+      req.body.responseData = webhooks;
+      req.body.status = 200;
+      next();
     } catch (e:unknown) {
       this.#handleError(e, next);
     }

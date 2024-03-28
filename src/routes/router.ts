@@ -5,8 +5,10 @@ import { router as animeRouter } from './anime/router.ts';
 import { router as animeListRouter } from './animelist/router.ts';
 import { router as userRouter } from './user/router.ts';
 import { router as webHookRouter } from './webhook/router.ts';
+import { generateEntryPointLinks } from '../../Utils/linkgeneration.ts';
 export const router = express.Router();
 
+// TODO move this to a separate file
 /**
  * @swagger
  * components:
@@ -78,6 +80,7 @@ export const router = express.Router();
  *         - relatedAnime
  *         - tags
  *         - animeId
+ *         - links
  *       properties:
  *         title:
  *           type: string
@@ -134,12 +137,34 @@ export const router = express.Router();
  *             string:
  *               type: string
  *               example: 'Saturdays at 23:00 (JST)'
+ *         links:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required:
+ *               - rel
+ *               - href
+ *               - method
+ *             properties:
+ *               rel:
+ *                 type: string
+ *                 description: The relationship of the link to the current resource.
+ *                 example: 'add-to-list'
+ *               href:
+ *                 type: string
+ *                 description: The relative link to the resource.
+ *                 example: '/anime-list/1/anime/101'
+ *               method:
+ *                 type: string
+ *                 description: The HTTP method used to access the resource.
+ *                 example: 'POST'
  *     MinimizedAnime:
  *       type: object
  *       required:
  *         - animeId
  *         - title
  *         - type
+ *         - links
  *       properties:
  *         animeId:
  *           type: integer
@@ -153,26 +178,71 @@ export const router = express.Router();
  *           type: string
  *           description: The type of the anime (e.g., TV, Movie, OVA)
  *           example: 'TV'
+ *         links:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required:
+ *               - rel
+ *               - href
+ *               - method
+ *             properties:
+ *               rel:
+ *                 type: string
+ *                 description: The relationship of the link to the current resource.
+ *                 example: 'add-to-list'
+ *               href:
+ *                 type: string
+ *                 description: The relative link to the resource.
+ *                 example: '/anime-list/1/anime/101'
+ *               method:
+ *                 type: string
+ *                 description: The HTTP method used to access the resource.
+ *                 example: 'POST'
  *     AnimeList:
  *       type: object
  *       required:
  *         - userId
  *         - username
  *         - list
+ *         - links
  *       properties:
  *         userId:
  *           type: integer
- *           description: The unique identifier for the owner of the anime list
+ *           description: The unique identifier for the owner of the anime list.
  *           example: 1
  *         username:
  *           type: string
- *           description: The username of the owner of the anime list
+ *           description: The username of the owner of the anime list.
  *           example: 'AnimeFan123'
  *         list:
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/MinimizedAnime'
- *           description: A list of minimized anime objects
+ *           description: A list of minimized anime objects.
+ *         links:
+ *           $ref: '#/components/schemas/Links'
+ *     Links:
+ *       type: array
+ *       items:
+ *         type: object
+ *         required:
+ *           - rel
+ *           - href
+ *           - method
+ *         properties:
+ *           rel:
+ *             type: string
+ *             description: The relationship of the link to the current resource.
+ *             example: 'subscribe'
+ *           href:
+ *             type: string
+ *             description: The relative link to the resource.
+ *             example: '/webhook/anime-list/1/subscribe'
+ *           method:
+ *             type: string
+ *             description: The HTTP method used to access the resource.
+ *             example: 'POST'
  */
 
 /**
@@ -209,5 +279,73 @@ router.use('/anime-list', animeListRouter);
  *  name: webhook
  */
 router.use('/webhook', webHookRouter);
+
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     tags:
+ *       - Entry Point
+ *     summary: Get API root with links to other resources
+ *     description: Provides a list of available API endpoints and actions.
+ *     responses:
+ *       200:
+ *         description: A list of available API links and actions.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                         example: "anime"
+ *                       href:
+ *                         type: string
+ *                         format: uri
+ *                         example: "/anime{?page}"
+ *                       method:
+ *                         type: string
+ *                         example: "GET"
+ *               example:
+ *                 links:
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "self"
+ *                     href: "/"
+ *                     method: "GET"
+ *                   - rel: "register"
+ *                     href: "/auth/register"
+ *                     method: "POST"
+ *                   - rel: "login"
+ *                     href: "/auth/login"
+ *                     method: "POST"
+ *                   - rel: "documentation"
+ *                     href: "/api-docs"
+ *                     method: "GET"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   code: 500
+ *                   message: "Something went wrong on the server."
+ */
+router.use('/', (req, res, next) => generateEntryPointLinks(req, res, next));
 
 router.use('*', (req, res, next) => next(createError(404)));
