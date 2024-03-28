@@ -80,6 +80,7 @@ export const router = express.Router();
  *         - relatedAnime
  *         - tags
  *         - animeId
+ *         - links
  *       properties:
  *         title:
  *           type: string
@@ -136,12 +137,34 @@ export const router = express.Router();
  *             string:
  *               type: string
  *               example: 'Saturdays at 23:00 (JST)'
+ *         links:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required:
+ *               - rel
+ *               - href
+ *               - method
+ *             properties:
+ *               rel:
+ *                 type: string
+ *                 description: The relationship of the link to the current resource.
+ *                 example: 'add-to-list'
+ *               href:
+ *                 type: string
+ *                 description: The relative link to the resource.
+ *                 example: '/anime-list/1/anime/101'
+ *               method:
+ *                 type: string
+ *                 description: The HTTP method used to access the resource.
+ *                 example: 'POST'
  *     MinimizedAnime:
  *       type: object
  *       required:
  *         - animeId
  *         - title
  *         - type
+ *         - links
  *       properties:
  *         animeId:
  *           type: integer
@@ -155,26 +178,71 @@ export const router = express.Router();
  *           type: string
  *           description: The type of the anime (e.g., TV, Movie, OVA)
  *           example: 'TV'
+ *         links:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required:
+ *               - rel
+ *               - href
+ *               - method
+ *             properties:
+ *               rel:
+ *                 type: string
+ *                 description: The relationship of the link to the current resource.
+ *                 example: 'add-to-list'
+ *               href:
+ *                 type: string
+ *                 description: The relative link to the resource.
+ *                 example: '/anime-list/1/anime/101'
+ *               method:
+ *                 type: string
+ *                 description: The HTTP method used to access the resource.
+ *                 example: 'POST'
  *     AnimeList:
  *       type: object
  *       required:
  *         - userId
  *         - username
  *         - list
+ *         - links
  *       properties:
  *         userId:
  *           type: integer
- *           description: The unique identifier for the owner of the anime list
+ *           description: The unique identifier for the owner of the anime list.
  *           example: 1
  *         username:
  *           type: string
- *           description: The username of the owner of the anime list
+ *           description: The username of the owner of the anime list.
  *           example: 'AnimeFan123'
  *         list:
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/MinimizedAnime'
- *           description: A list of minimized anime objects
+ *           description: A list of minimized anime objects.
+ *         links:
+ *           $ref: '#/components/schemas/Links'
+ *     Links:
+ *       type: array
+ *       items:
+ *         type: object
+ *         required:
+ *           - rel
+ *           - href
+ *           - method
+ *         properties:
+ *           rel:
+ *             type: string
+ *             description: The relationship of the link to the current resource.
+ *             example: 'subscribe'
+ *           href:
+ *             type: string
+ *             description: The relative link to the resource.
+ *             example: '/webhook/anime-list/1/subscribe'
+ *           method:
+ *             type: string
+ *             description: The HTTP method used to access the resource.
+ *             example: 'POST'
  */
 
 /**

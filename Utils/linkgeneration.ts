@@ -56,7 +56,11 @@ export function generateAlwaysAccessibleLinks (req: Request, next: NextFunction)
   if (fullUrl === '/') {
     return links;
   }
-  req.body.responseData.links.push(...links);
+  if (req.body.responseData) {
+    req.body.responseData.links.push(...links);
+  } else {
+    req.body.responseData = { links };
+  }
   next();
 }
 

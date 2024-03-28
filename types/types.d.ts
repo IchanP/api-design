@@ -85,6 +85,11 @@ declare type OneAnimeByIdSchema = IAnime & {
     links: LinkStructure[];
 }
 
+declare type IAnimeListWithLinks = {
+    animeList: IAnimeList;
+    links: LinkStructure[];
+}
+
 declare type WebhookMessage = {
     message: string;
     data: MinimizedAnime;

@@ -11,6 +11,14 @@ export function stripAnime (anime: IAnime, userId?: number): MinimizedAnime {
   };
 }
 
-export function attachUserSpecificDataToAnime (anime: IAnime, userId: number, inList?: boolean = false) {
-  console.log('yeppers');
+export async function isInAnimeList (userId: number, idToFind: number, animeListRepo: Repository<IAnimeList, IUser>) {
+  const found = await animeListRepo.getOneMatching({ userId });
+  const foundAnime = found.list.find((listAnime) => listAnime.animeId === idToFind);
+  return Boolean(foundAnime);
+}
+
+export function generateAddOrRemoveAnimeLink (userId: number, animeId: number, inList: boolean): Array<LinkStructure> {
+  return [
+    inList === true ? { rel: 'delete-from-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'DELETE' as ValidMethods } : { rel: 'add-to-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'POST' as ValidMethods }
+  ];
 }

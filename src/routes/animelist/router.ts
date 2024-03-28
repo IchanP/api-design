@@ -154,15 +154,82 @@ router.get('/',
  *         schema:
  *           type: string
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
- *     responses:
+*     responses:
  *       200:
- *         description: An anime list object
+ *         description: An anime list object along with navigation and interaction links.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AnimeList'
+ *               type: object
+ *               properties:
+ *                 animeList:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/MinimizedAnime'
+ *                     links:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           rel:
+ *                             type: string
+ *                           href:
+ *                             type: string
+ *                           method:
+ *                             type: string
+ *               example:
+ *                 animeList:
+ *                   username: "Justen79"
+ *                   list:
+ *                     - animeId: 101
+ *                       title: 'Naruto'
+ *                       type: 'TV'
+ *                       links:
+ *                         - rel: 'self'
+ *                           href: '/anime/101'
+ *                           method: 'GET'
+ *                         - rel: 'add-to-list'
+ *                           href: '/anime-list/34/anime/101'
+ *                           method: 'POST'
+ *                   links:
+ *                     - rel: "owner"
+ *                       href: "/anime-list/34"
+ *                       method: "GET"
+ *                     - rel: "unsubscribe"
+ *                       href: "/webhook/anime-list/34/subscribe"
+ *                       method: "DELETE"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/anime-list/{user-id}"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "animelist-profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
+ *                   - rel: "subscribe"
+ *                     href: "/webhook/anime-list/{user-id}/subscribe"
+ *                     method: "POST"
  *       400:
- *         description: Bad Request - The user-id is not a number
+ *         description: Bad Request - The user-id is not a number.
  *         content:
  *           application/json:
  *             schema:
@@ -171,9 +238,9 @@ router.get('/',
  *               badRequest:
  *                 value:
  *                   code: 400
- *                   message: "The id parameter must be a number."
+ *                   message: "The user-id parameter must be a number."
  *       404:
- *         description: Anime list not found
+ *         description: Anime list not found.
  *         content:
  *           application/json:
  *             schema:
@@ -182,7 +249,7 @@ router.get('/',
  *               NotFoundError:
  *                 $ref: '#/components/schemas/Error/examples/NotFoundError'
  *       500:
- *         description: Internal Server Error
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             schema:
@@ -191,9 +258,14 @@ router.get('/',
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
-  validateId(req.params.id, res, next),
-(req, res, next) => controller.displayAnimeList(req, res, next));
+router.get('/:id',
+  (req, res, next) => validateId(req.params.id, res, next),
+  (req, res, next) => checkLoginStatus(req, res, next),
+  (req, res, next) => controller.displayAnimeList(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);
 
 /**
  * @swagger

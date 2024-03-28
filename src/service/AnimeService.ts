@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { animeExists } from '../../Utils/ValidatorUtil.ts';
-import { stripAnime } from './serviceUtility.ts';
+import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
 import { constructNextAndPreviousPageLink } from '../../Utils/linkgeneration.ts';
 @injectable()
 export class AnimeService {
@@ -35,24 +35,11 @@ export class AnimeService {
       animeExists(anime);
       const links: Array<LinkStructure> = [];
       if (userId) {
-        const inUserList = await this.#isInAnimeList(userId, anime.animeId);
-        links.push(...this.#attachUserSpecificLinks(userId, anime.animeId, inUserList));
+        const inUserList = await isInAnimeList(userId, anime.animeId, this.animeListRepo);
+        links.push(...generateAddOrRemoveAnimeLink(userId, anime.animeId, inUserList));
       }
       const response = anime as OneAnimeByIdSchema;
       response.links = links;
       return response;
-    }
-
-    async #isInAnimeList (userId: number, idToFind: number) {
-      const found = await this.animeListRepo.getOneMatching({ userId });
-      const foundAnime = found.list.find((listAnime) => listAnime.animeId === idToFind);
-      return Boolean(foundAnime);
-    }
-
-    #attachUserSpecificLinks (userId: number, animeId: number, inList: boolean): Array<LinkStructure> {
-      return [
-        { rel: 'add-to-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'POST' as ValidMethods },
-        inList === true ? { rel: 'delete-from-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'DELETE' as ValidMethods } : null
-      ].filter(Boolean);
     }
 }
