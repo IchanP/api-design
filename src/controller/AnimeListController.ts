@@ -50,6 +50,9 @@ export class AnimeListController {
       const response = await this.service.addAnime(animelistId, animeId);
       return res.status(201).json(response);
     } catch (e: unknown) {
+      if (e instanceof DuplicateError) {
+        e.message = 'The anime is already in the list.';
+      }
       this.#handleError(e, next);
     }
   }

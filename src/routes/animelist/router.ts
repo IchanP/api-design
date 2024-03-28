@@ -154,7 +154,7 @@ router.get('/',
  *         schema:
  *           type: string
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
-*     responses:
+ *     responses:
  *       200:
  *         description: An anime list object along with navigation and interaction links.
  *         content:
@@ -205,7 +205,7 @@ router.get('/',
  *                       method: "DELETE"
  *                 links:
  *                   - rel: "self"
- *                     href: "/anime-list/{user-id}"
+ *                     href: "/anime-list/34"
  *                     method: "GET"
  *                   - rel: "search-anime"
  *                     href: "/anime/search{?title,page}"
@@ -216,7 +216,7 @@ router.get('/',
  *                   - rel: "anime"
  *                     href: "/anime{?page}"
  *                     method: "GET"
- *                   - rel: "animelist-profile"
+ *                   - rel: "profile"
  *                     href: "/anime-list/3"
  *                     method: "GET"
  *                   - rel: "update-username"
@@ -302,16 +302,97 @@ router.get('/:id',
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AnimeList'
+ *               type: object
+ *               properties:
+ *                 animeList:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/MinimizedAnime'
+ *                     links:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           rel:
+ *                             type: string
+ *                           href:
+ *                             type: string
+ *                           method:
+ *                             type: string
+ *               example:
+ *                 animeList:
+ *                   username: "Justen79"
+ *                   list:
+ *                     - animeId: 101
+ *                       title: 'Naruto'
+ *                       type: 'TV'
+ *                       links:
+ *                         - rel: 'self'
+ *                           href: '/anime/101'
+ *                           method: 'GET'
+ *                         - rel: 'add-to-list'
+ *                           href: '/anime-list/34/anime/101'
+ *                           method: 'POST'
+ *                     - animeId: 2212
+ *                       title: 'Bakemonogatari'
+ *                       type: 'TV'
+ *                       links:
+ *                         - rel: 'self'
+ *                           href: '/anime/2212'
+ *                           method: 'GET'
+ *                         - rel: 'delete-from-list'
+ *                           href: '/anime-list/34/anime/2212'
+ *                           method: 'DELETE'
+ *                   links:
+ *                     - rel: "profile"
+ *                       href: "/anime-list/34"
+ *                       method: "GET"
+ *                     - rel: "unsubscribe"
+ *                       href: "/webhook/anime-list/34/subscribe"
+ *                       method: "DELETE"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
+ *                   - rel: "subscribe"
+ *                     href: "/webhook/anime-list/{user-id}/subscribe"
+ *                     method: "POST"
  *       400:
- *         description: Bad Request - Either of the IDs is invalid.
+ *         description: Bad Request - The request had invalid parameters or the anime is already in the list.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
- *             examples:
- *               badRequest:
- *                 $ref: '#/components/schemas/Error/examples/badRequest'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: The anime is already in the list.
  *       401:
  *         description: Unauthorized - No valid Bearer JWT provided or the requester is not the owner of the anime list.
  *         content:
@@ -345,7 +426,11 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
 (req, res, next) => validateId(req.params.id, res, next),
 (req, res, next) => validateId(req.params.animeId, res, next),
 (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
-(req, res, next) => controller.addAnime(req, res, next));
+(req, res, next) => controller.addAnime(req, res, next),
+(req, res, next) => generateSelfLink(req, next),
+(req, res, next) => generateAlwaysAccessibleLinks(req, next),
+(req, res) => generateAuthLinks(req, res)
+);
 
 /**
  * @swagger

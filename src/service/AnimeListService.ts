@@ -6,7 +6,8 @@ import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
 import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
-import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
+import { generateAddOrRemoveAnimeLink, isInAnimeList, isInAnimeList, stripAnime } from './serviceUtility.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
 @injectable()
 export class AnimeListService {
@@ -39,16 +40,20 @@ export class AnimeListService {
       return { animeList: animeListWithLinks, links: [] };
     }
 
-    async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
+    async addAnime (animeListId: string, animeId: string): Promise<OneAnimeListResponseSchema> {
       const fieldToAddTo = 'list';
 
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
       const minimzedAnime = stripAnime(animeToAdd);
+      const inList = await isInAnimeList(Number(animeListId), animeToAdd.animeId, this.animeListRepo);
+      if (inList) {
+        throw new DuplicateError();
+      }
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
-      await this.#postAnimeWebhooks(minimzedAnime, updatedList.username, updatedList.userId);
+      await this.#postAnimeWebhooks(minimzedAnime, updatedList.animeList.username, Number(animeListId));
       return updatedList;
     }
 
@@ -61,8 +66,7 @@ export class AnimeListService {
 
     async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {
       const webhooks = await this.webhookRepo.getOneMatching({ userId });
-
-      webhooks.webhooks.forEach((webhook) => {
+      webhooks?.webhooks.forEach((webhook) => {
         const message = `New anime added to ${username}'s list: ${anime.title} - ${anime.type}`;
         const payload: WebhookMessage = { message, data: anime };
         const hash = createHash(webhook.secret, JSON.stringify(payload));
