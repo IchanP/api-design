@@ -3,7 +3,8 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { validateId } from 'service/ValidatorUtil.ts';
+import { validateId } from '../../../Utils/ValidatorUtil.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
 export const router = express.Router();
@@ -32,8 +33,8 @@ export const router = express.Router();
  *           type: string
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
- *       201:
- *         description: Subscription status updated successfully.
+ *       200:
+ *         description: Returns the subscription status and a list of the URLs tied to the owner of the request.
  *         content:
  *           application/json:
  *             schema:
@@ -48,11 +49,44 @@ export const router = express.Router();
  *                     type: string
  *                     format: uri
  *                   description: An array of callback URLs for the subscription.
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
  *               example:
  *                 subscribed: true
  *                 data:
  *                   - "http://localhost:3000/callback-url"
  *                   - "http://localhost:3000/alternative-callback-url"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/webhook-list/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - The provided ID is invalid.
  *         content:
@@ -98,11 +132,13 @@ export const router = express.Router();
  *                   code: 500
  *                   message: "Something went wrong on the server."
  */
-
 router.get('/anime-list/:id',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
-  (req, res, next) => controller.showSubscription(req, res, next));
+  (req, res, next) => controller.showSubscription(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res));
 
 /**
  * @swagger
@@ -146,7 +182,78 @@ router.get('/anime-list/:id',
  *                 description: A secret key for verifying the subscription.
  *     responses:
  *       201:
- *         description: Successfully subscribed to the anime list.
+ *         description: Returns the animelist to which the user subscribed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 animeList:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/MinimizedAnime'
+ *                     links:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           rel:
+ *                             type: string
+ *                           href:
+ *                             type: string
+ *                           method:
+ *                             type: string
+ *               example:
+ *                 animeList:
+ *                   username: "Justen79"
+ *                   list:
+ *                     - animeId: 101
+ *                       title: 'Naruto'
+ *                       type: 'TV'
+ *                       links:
+ *                         - rel: 'self'
+ *                           href: '/anime/101'
+ *                           method: 'GET'
+ *                         - rel: 'add-to-list'
+ *                           href: '/anime-list/34/anime/101'
+ *                           method: 'POST'
+ *                   links:
+ *                     - rel: "owner"
+ *                       href: "/anime-list/34"
+ *                       method: "GET"
+ *                     - rel: "unsubscribe"
+ *                       href: "/webhook/anime-list/34/subscribe"
+ *                       method: "DELETE"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
+ *                   - rel: "subscribe"
+ *                     href: "/webhook/anime-list/{user-id}/subscribe"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - Missing or invalid 'url', 'id' or 'secret'.
  *         content:
@@ -193,7 +300,11 @@ router.get('/anime-list/:id',
 router.post('/anime-list/:id/subscribe',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
-  (req, res, next) => controller.subcribeToList(req, res, next));
+  (req, res, next) => controller.subcribeToList(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);
 
 /**
  * @swagger
@@ -207,17 +318,17 @@ router.post('/anime-list/:id/subscribe',
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id  # Updated to match the path parameter
  *         required: true
  *         schema:
  *           type: integer
  *         description: The ID of the anime list to unsubscribe from.
  *       - in: header
- *         name: Bearer
+ *         name: Authorization  # Updated for consistency
  *         required: true
  *         schema:
  *           type: string
- *         description: Bearer token for authorization.
+ *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     requestBody:
  *       required: true
  *       content:
@@ -232,8 +343,51 @@ router.post('/anime-list/:id/subscribe',
  *                 format: uri
  *                 description: The callback URL that will be removed from the subscription.
  *     responses:
- *       204:
- *         description: Successfully unsubscribed from the anime list. No content returned.
+ *       200:  # Changed from 204 to 200 to include content in the response
+ *         description: Successfully unsubscribed from the anime list. Links for further actions are provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Successfully unsubscribed from the anime list.
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 message: Successfully unsubscribed from the anime list.
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/webhook-list/anime-listanime/34"
+ *                     method: "DELETE"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/34"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - The provided ID or URL is faulty.
  *         content:
@@ -282,4 +436,8 @@ router.post('/anime-list/:id/subscribe',
 router.delete('/anime-list/:id/subscribe',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
-  (req, res, next) => controller.unSubscribeFromList(req, res, next));
+  (req, res, next) => controller.unSubscribeFromList(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);

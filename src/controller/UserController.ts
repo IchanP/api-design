@@ -1,5 +1,5 @@
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { Request, NextFunction } from 'express';
 import { Response } from 'express-serve-static-core';
 import createError from 'http-errors';
@@ -13,7 +13,9 @@ export class UserController {
     async register (req: Request, res: Response, next: NextFunction) {
       try {
         const userData = await this.service.register(req.body);
-        return res.status(201).json({ userData });
+        req.body.status = 201;
+        req.body.responseData = userData;
+        next();
       } catch (e: unknown) {
         this.#handleError(e, next);
       }
@@ -22,7 +24,9 @@ export class UserController {
     async updateUsername (req: Request, res: Response, next: NextFunction) {
       try {
         await this.service.updateField(req.body, 'username');
-        return res.status(204).send();
+        req.body.responseData = { links: [], message: 'Username successfully updated.' };
+        req.body.status = 200;
+        next();
       } catch (e: unknown) {
         this.#handleError(e, next);
       }

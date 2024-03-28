@@ -3,6 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -22,7 +23,7 @@ export const router = express.Router();
  *             $ref: '#/components/schemas/User'
  *     responses:
  *       201:
- *         description: Returns the user data after registration
+ *         description: Returns the user data after registration along with relevant links for further actions.
  *         content:
  *           application/json:
  *             schema:
@@ -40,13 +41,48 @@ export const router = express.Router();
  *                     username:
  *                       type: string
  *                       example: Loma.Lubowitz
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 userData:
+ *                   userId: 8
+ *                   email: "mallie.lang@hotmail.com"
+ *                   username: "Loma.Lubowitz"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/user/register"
+ *                     method: "POST"
+ *                   - rel: "login"
+ *                     href: "/auth/login"
+ *                     method: "POST"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/8"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "anime"
+ *                     href: "/anime"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list"
+ *                     method: "GET"
  *       400:
  *         description: Bad data was sent in the request
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             examples:    # Use this to reference specific examples
+ *             examples:
  *               badRequest:
  *                 $ref: '#/components/schemas/Error/examples/badRequest'
  *       409:
@@ -68,10 +104,10 @@ export const router = express.Router();
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-
-router.post('/register', (req, res, next) => {
-  controller.register(req, res, next);
-});
+router.post('/register', (req, res, next) => controller.register(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res));
 
 /**
  * @swagger
@@ -104,8 +140,48 @@ router.post('/register', (req, res, next) => {
  *                 description: The new username to be updated to.
  *                 example: 'newUsername123'
  *     responses:
- *       204:
- *         description: Username successfully updated. No content in the response body.
+ *       200:
+ *         description: Username successfully updated along with navigational links.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username successfully updated.
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 message: Username successfully updated.
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/user/username"
+ *                     method: "PUT"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "refresh-login"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
  *       400:
  *         description: Bad Request - Request body does not match the expected format.
  *         content:
@@ -143,7 +219,9 @@ router.post('/register', (req, res, next) => {
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-
-router.put('/username', (req, res, next) =>
-  validateAuthScheme(req, res, next),
-(req, res, next) => controller.updateUsername(req, res, next));
+router.put('/username',
+  (req, res, next) => validateAuthScheme(req, res, next),
+  (req, res, next) => controller.updateUsername(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res));

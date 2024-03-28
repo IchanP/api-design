@@ -1,10 +1,13 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
-import { NotFoundError } from '../../Utils/NotFoudnError.ts';
-import { animeExists, verifyAnimeListExists } from './ValidatorUtil.ts';
+import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
+import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
+import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
 @injectable()
 export class AnimeListService {
@@ -12,46 +15,58 @@ export class AnimeListService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
     @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
 
-    async getAnimeLists (page: number): Promise<AnimeListsResponseSchema> {
+    async getAnimeLists (page: number, userId?: string): Promise<AnimeListsResponseSchema> {
       const animeList = await this.animeListRepo.getPaginatedResult(page);
-      const data = this.#constructAnimeListUrl(animeList);
       const totalPages = await this.animeListRepo.getTotalPages();
-      const { next, previous } = this.#constructNextAndPreviousPageUrl(page, totalPages);
-      return { data, next, previous, totalPages, currentPage: page };
+
+      const subscriptionsIds = await this.#getSubscriptionIds(userId);
+
+      const data = this.#constructAnimeListUrl(animeList, subscriptionsIds, Number(userId));
+      const nextAndPrevious = constructNextAndPreviousPageLink('anime-list', page, totalPages);
+      const links = [...nextAndPrevious];
+      return { data, links, totalPages, currentPage: page };
     }
 
-    async getOneById (id: string): Promise<IAnimeList> {
+    async getOneById (id: string, userId?: string): Promise<OneAnimeListResponseSchema> {
       const animeList = await this.animeListRepo.getOneMatching({ userId: Number(id) });
       if (!animeList) {
         throw new NotFoundError();
       }
-      return animeList;
+      const subscriptionsIds = await this.#getSubscriptionIds(userId);
+      const userNameAndLink = this.#constructAnimeListUrl([animeList], subscriptionsIds, Number(userId))[0];
+      await this.#attachMinimizedAnimeLinks(animeList.list, Number(userId));
+      delete animeList.userId;
+      const animeListWithLinks: IAnimeListWithLinks = { ...animeList, ...userNameAndLink };
+      return { animeList: animeListWithLinks, links: [] };
     }
 
-    async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
+    async addAnime (animeListId: string, animeId: string): Promise<OneAnimeListResponseSchema> {
       const fieldToAddTo = 'list';
 
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
-      const minimzedAnime = this.#stripAnime(animeToAdd);
+      const minimzedAnime = stripAnime(animeToAdd);
+      const inList = await isInAnimeList(Number(animeListId), animeToAdd.animeId, this.animeListRepo);
+      if (inList) {
+        throw new DuplicateError();
+      }
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
-      await this.#postAnimeWebhooks(minimzedAnime, updatedList.username, updatedList.userId);
+      await this.#postAnimeWebhooks(minimzedAnime, updatedList.animeList.username, Number(animeListId));
       return updatedList;
     }
 
     async removeAnime (animeListId: string, animeId: string) {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
-      const minimzedAnime = this.#stripAnime(animeToAdd);
+      const minimzedAnime = stripAnime(animeToAdd);
       await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), { userId: Number(animeListId) });
     }
 
     async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {
       const webhooks = await this.webhookRepo.getOneMatching({ userId });
-
-      webhooks.webhooks.forEach((webhook) => {
+      webhooks?.webhooks.forEach((webhook) => {
         const message = `New anime added to ${username}'s list: ${anime.title} - ${anime.type}`;
         const payload: WebhookMessage = { message, data: anime };
         const hash = createHash(webhook.secret, JSON.stringify(payload));
@@ -74,27 +89,33 @@ export class AnimeListService {
       return anime;
     }
 
-    #stripAnime (anime: IAnime): MinimizedAnime {
-      return {
-        animeId: anime.animeId,
-        title: anime.title,
-        type: anime.type
-      };
-    }
-
-    #constructAnimeListUrl (animeList: Array<IAnimeList>): Array<{link: string, username: string}> {
+    #constructAnimeListUrl (animeList: Array<IAnimeList>, subscriptionsIds: number[], userId: number | undefined): Array<{username: string, links: Array<LinkStructure>}> {
       return animeList.map((list) => {
         return {
-          link: `${process.env.BASE_URL}/anime-list/${list.userId}`,
-          username: list.username
+          username: list.username,
+          links: [
+            list.userId === userId ? generateUserAnimeListLink(list.userId, 'profile') : generateUserAnimeListLink(list.userId, 'owner'),
+            subscriptionsIds.includes(list.userId) ? generateUnsubscribeToWebhookLink(list.userId) : generateSubscribeToWebhookLink(list.userId) // Self subscription is intentional
+          ].filter(Boolean)
         };
       });
     }
 
-    #constructNextAndPreviousPageUrl (page: number, totalPages: number): {next: string, previous: string} {
-      return {
-        next: page !== totalPages ? `${process.env.BASE_URL}/anime-list?page=${page + 1}` : `${process.env.BASE_URL}/anime-list?page=${page}`,
-        previous: page !== 1 ? `${process.env.BASE_URL}/anime-list?page=${page - 1}` : `${process.env.BASE_URL}/anime-list?page=${page}`
-      };
+    async #attachMinimizedAnimeLinks (animeList: Array<MinimizedAnime>, userId: number | undefined) {
+      for (const anime of animeList) {
+        anime.links = [generateAnimeIdLink(anime.animeId, 'self')];
+        if (userId) {
+          const inUserList = await isInAnimeList(userId, anime.animeId, this.animeListRepo);
+          anime.links.push(...generateAddOrRemoveAnimeLink(userId, anime.animeId, inUserList));
+        }
+      }
+    }
+
+    async #getSubscriptionIds (userId: string | undefined): Promise<Array<number>> {
+      if (userId) {
+        const subscriptions = await this.webhookRepo.getMany({ 'webhooks.ownerId': Number(userId) });
+        return subscriptions.map((sub) => sub.userId);
+      }
+      return [];
     }
 }

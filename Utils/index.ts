@@ -22,6 +22,20 @@ export function validateAuthScheme (req: Request, res: Response, next: NextFunct
   }
 }
 
+export function checkLoginStatus (req: Request, res: Response, next: NextFunction) {
+  if (!req.headers.authorization) {
+    next();
+    return;
+  }
+  const [authenticationScheme, token] = req.headers.authorization.split(' ');
+  if (authenticationScheme.toLowerCase() !== 'bearer') {
+    next();
+    return;
+  }
+  setPayloadToRequest(req, token);
+  next();
+}
+
 function setPayloadToRequest (req: Request, token: string) {
   const payload = JSON.parse(atob(token.split('.')[1]));
   payload.token = token;

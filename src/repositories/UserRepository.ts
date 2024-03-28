@@ -1,8 +1,8 @@
 import { injectable } from 'inversify';
 import { UserModel } from 'models/User.ts';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 import { Error } from 'mongoose';
-import { BadDataError } from '../../Utils/BadDataError.ts';
+import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import { BaseRepository } from './BaseRepository.ts';
 
 @injectable()

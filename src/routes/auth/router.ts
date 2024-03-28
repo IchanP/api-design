@@ -1,8 +1,9 @@
 import { AuthController } from 'controller/AuthController.ts';
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
+import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AuthController>(TYPES.AuthController);
@@ -44,6 +45,40 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *                 userId:
  *                  type: number
  *                  example: 1234
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                         format: uri
+ *                       method:
+ *                         type: string
+ *                   example:
+ *                     - rel: "self"
+ *                       href: "/login"
+ *                       method: "POST"
+ *                     - rel: "anime"
+ *                       href: "/anime{?page}"
+ *                       method: "GET"
+ *                     - rel: "search-anime"
+ *                       href: "/anime/search{?title,page}"
+ *                       method: "GET"
+ *                     - rel: "animelists{?page}"
+ *                       href: "/anime-list"
+ *                       method: "GET"
+ *                     - rel: "profile"
+ *                       href: "/anime-list/3"
+ *                       method: "GET"
+ *                     - rel: "refresh-login"
+ *                       href: "/auth/refresh"
+ *                       method: "POST"
+ *                     - rel: "update-username"
+ *                       href: "/user/username"
+ *                       method: "PUT"
  *       401:
  *         description: The credentials provided are invalid
  *         content:
@@ -65,9 +100,11 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/login', (req, res, next) => {
-  controller.login(req, res, next);
-});
+router.post('/login',
+  (req, res, next) => controller.login(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res));
 
 /**
  * @swagger
@@ -98,6 +135,38 @@ router.post('/login', (req, res, next) => {
  *                 accessToken:
  *                   type: string
  *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *               example:
+ *                 accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+ *                 links:
+ *                   - rel: "self"
+ *                     href: "/auth/refresh"
+ *                     method: "POST"
+ *                   - rel: "anime"
+ *                     href: "/anime{?page}"
+ *                     method: "GET"
+ *                   - rel: "animelists"
+ *                     href: "/anime-list{?page}"
+ *                     method: "GET"
+ *                   - rel: "search-anime"
+ *                     href: "/anime/search{?title,page}"
+ *                     method: "GET"
+ *                   - rel: "profile"
+ *                     href: "/anime-list/3"
+ *                     method: "GET"
+ *                   - rel: "update-username"
+ *                     href: "/user/username"
+ *                     method: "PUT"
  *       401:
  *         description: The token or authorization scheme is invalid or expired
  *         content:
@@ -117,7 +186,9 @@ router.post('/login', (req, res, next) => {
  *              serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/refresh', (req: Request, res: Response, next: NextFunction) =>
+router.post('/refresh', (req, res, next) =>
   validateAuthScheme(req, res, next),
-(req: Request, res: Response, next: NextFunction) => controller.refresh(req, res, next)
-);
+(req, res, next) => controller.refresh(req, res, next),
+(req, res, next) => generateSelfLink(req, next),
+(req, res, next) => generateAlwaysAccessibleLinks(req, next),
+(req, res) => generateAuthLinks(req, res));

@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { AnimeListModel } from 'models/AnimeList.ts';
 import { BaseRepository } from './BaseRepository.ts';
-import { DuplicateError } from '../../Utils/DuplicateError.ts';
+import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
 @injectable()
 export class AnimeListRepository extends BaseRepository<IAnimeList> implements Repository<IAnimeList, IUser> {
