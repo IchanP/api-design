@@ -26,16 +26,17 @@ export class AnimeListService {
       return { data, links, totalPages, currentPage: page };
     }
 
-    async getOneById (id: string, userId?: string): Promise<IAnimeListWithLinks> {
+    async getOneById (id: string, userId?: string): Promise<OneAnimeListResponseSchema> {
       const animeList = await this.animeListRepo.getOneMatching({ userId: Number(id) });
       if (!animeList) {
         throw new NotFoundError();
       }
       const subscriptionsIds = await this.#getSubscriptionIds(userId);
       const userNameAndLink = this.#constructAnimeListUrl([animeList], subscriptionsIds, Number(userId))[0];
-      animeList.list = await this.#attachMinimizedAnimeLinks(animeList.list, Number(userId));
-      const animeListWithLinks: IAnimeListWithLinks = { animeList, links: userNameAndLink.links };
-      return animeListWithLinks;
+      await this.#attachMinimizedAnimeLinks(animeList.list, Number(userId));
+      delete animeList.userId;
+      const animeListWithLinks: IAnimeListWithLinks = { ...animeList, ...userNameAndLink };
+      return { animeList: animeListWithLinks, links: [] };
     }
 
     async addAnime (animeListId: string, animeId: string): Promise<IAnimeList> {
@@ -104,7 +105,6 @@ export class AnimeListService {
           anime.links.push(...generateAddOrRemoveAnimeLink(userId, anime.animeId, inUserList));
         }
       }
-      console.log(animeList[0].links);
     }
 
     async #getSubscriptionIds (userId: string | undefined): Promise<Array<number>> {

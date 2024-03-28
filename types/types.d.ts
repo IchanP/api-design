@@ -20,6 +20,10 @@ declare type LinkStructure = {
     method: ValidMethods;
 }
 
+declare type IAnimeListWithLinks = IAnimeList & {
+    links: LinkStructure[];
+}
+
 type ValidDataType = User | IAnimeList | IAnime | IWebhookStore
 
 declare type RefreshRequestSchema = {
@@ -75,6 +79,11 @@ declare type RefreshResponseSchema = {
     links: LinkStructure[];
 }
 
+declare type OneAnimeListResponseSchema = {
+    animeList: IAnimeListWithLinks;
+    links: LinkStructure[];
+}
+
 declare type WebhookData = {
     URL: URLstring;
     secret: string;
@@ -82,11 +91,6 @@ declare type WebhookData = {
 }
 
 declare type OneAnimeByIdSchema = IAnime & {
-    links: LinkStructure[];
-}
-
-declare type IAnimeListWithLinks = {
-    animeList: IAnimeList;
     links: LinkStructure[];
 }
 
