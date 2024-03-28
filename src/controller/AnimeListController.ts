@@ -48,7 +48,9 @@ export class AnimeListController {
       const animelistId = req.params.id;
       const animeId = req.params.animeId;
       const response = await this.service.addAnime(animelistId, animeId);
-      return res.status(201).json(response);
+      req.body.responseData = response;
+      req.body.status = 201;
+      next();
     } catch (e: unknown) {
       if (e instanceof DuplicateError) {
         e.message = 'The anime is already in the list.';
@@ -62,8 +64,9 @@ export class AnimeListController {
       const animelistId = req.params.id;
       const animeId = req.params.animeId;
       await this.service.removeAnime(animelistId, animeId);
-      // TODO should return links
-      return res.status(204).send();
+      req.body.responseData = { message: 'Anime successfully deleted from the list.', links: [] };
+      req.body.status = 200;
+      next();
     } catch (e: unknown) {
       this.#handleError(e, next);
     }

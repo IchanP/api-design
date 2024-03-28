@@ -32,8 +32,8 @@ export const router = express.Router();
  *           type: string
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
- *       201:
- *         description: Subscription status updated successfully.
+ *       200:
+ *         description: Returns the subscription status and a list of the URLs tied to the owner of the requset.
  *         content:
  *           application/json:
  *             schema:

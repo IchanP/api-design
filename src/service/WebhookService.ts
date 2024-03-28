@@ -22,16 +22,16 @@ export class WebhookService implements IWebhookService {
 
     async getWebhooks (subcsriptionId: string, userId: string): Promise<WebhookSubscribeSchema> {
       await verifyAnimeListExists(subcsriptionId);
-      const webhook = await this.webhookRepo.getMany({ userId: Number(userId), 'webhooks.ownerId': Number(subcsriptionId) });
+      const webhook = await this.webhookRepo.getMany({ userId: Number(subcsriptionId), 'webhooks.ownerId': Number(userId) });
       if (this.#notValidWebhookData(webhook)) {
         return { subscribed: false, data: [] };
       }
-      const URLArray = this.#getUrlArray(webhook[0].webhooks);
+      const URLArray = this.#getUrlArray(webhook[0].webhooks, Number(userId));
       return { subscribed: true, data: URLArray };
     }
 
-    #getUrlArray (hookArray: WebhookData[]): string[] {
-      return hookArray.map((element) => element.URL);
+    #getUrlArray (hookArray: WebhookData[], requester: number): string[] {
+      return hookArray.filter((webhook) => webhook.ownerId === requester).map((element) => element.URL);
     }
 
     #notValidWebhookData (webhookData: IWebhookStore[]): boolean {

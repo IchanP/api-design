@@ -444,7 +444,7 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: user-id  # Correcting parameter name for clarity
  *         required: true
  *         schema:
  *           type: integer
@@ -462,8 +462,51 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
  *           type: string
  *         description: Bearer token for authorization. Prefix with 'Bearer ' followed by the token.
  *     responses:
- *       204:
- *         description: Anime successfully deleted from the anime list.
+ *       200:  # Updated response code
+ *         description: Anime successfully deleted from the anime list. Response includes useful navigation links.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Anime successfully deleted from the list."
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rel:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *             example:
+ *               message: "Anime successfully deleted from the list."
+ *               links:
+ *                 - rel: "self"
+ *                   href: "/anime-list/34/anime/101"
+ *                   method: "DELETE"
+ *                 - rel: "search-anime"
+ *                   href: "/anime/search{?title,page}"
+ *                   method: "GET"
+ *                 - rel: "animelists"
+ *                   href: "/anime-list{?page}"
+ *                   method: "GET"
+ *                 - rel: "anime"
+ *                   href: "/anime{?page}"
+ *                   method: "GET"
+ *                 - rel: "profile"
+ *                   href: "/anime-list/34"
+ *                   method: "GET"
+ *                 - rel: "update-username"
+ *                   href: "/user/username"
+ *                   method: "PUT"
+ *                 - rel: "refresh-login"
+ *                   href: "/auth/refresh"
+ *                   method: "POST"
  *       401:
  *         description: Unauthorized - No valid Bearer JWT provided
  *         content:
@@ -496,4 +539,8 @@ router.delete('/:id/anime/:animeId', (req: Request, res: Response, next: NextFun
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => validateId(req.params.animeId, res, next),
   (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
-  (req, res, next) => controller.deleteAnime(req, res, next));
+  (req, res, next) => controller.deleteAnime(req, res, next),
+  (req, res, next) => generateSelfLink(req, next),
+  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
+  (req, res) => generateAuthLinks(req, res)
+);
