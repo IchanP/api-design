@@ -31,7 +31,6 @@ export class WebhookRepository extends BaseRepository<IWebhookStore> implements 
 
   async getMany (filter: { [key: string]: string | number }): Promise<IWebhookStore[]> {
     const webhookLists = await WebhookModel.find(filter);
-    console.log(webhookLists);
     return webhookLists.map((webhookList) => webhookList.toObject());
   }
 

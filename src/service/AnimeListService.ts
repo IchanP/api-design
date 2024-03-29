@@ -3,7 +3,7 @@ import { TYPES } from 'config/types.ts';
 import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { WebhookRepository } from 'repositories/WebhookRepository.ts';
-import { createHash } from '../../Utils/index.ts';
+import { createHash, createUUID } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
 import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
@@ -13,7 +13,7 @@ import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 export class AnimeListService {
     @inject(TYPES.AnimeListRepository) private animeListRepo: Repository<IAnimeList, IUser>;
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
-    @inject(TYPES.WebhookRepository) private webhookRepo: WebhookRepository;
+    @inject(TYPES.WebhookRepository) private webhookRepo: Repository<IWebhookStore, number>;
 
     async getAnimeLists (page: number, userId?: string): Promise<AnimeListsResponseSchema> {
       const animeList = await this.animeListRepo.getPaginatedResult(page);
@@ -53,7 +53,8 @@ export class AnimeListService {
       }
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
-      await this.#postAnimeWebhooks(minimzedAnime, updatedList.animeList.username, Number(animeListId));
+      // UpdatedList has its userId stripped for the response already.
+      await this.#postAnimeWebhooks(minimzedAnime, animeListId, updatedList.animeList, 'anime-added');
       return updatedList;
     }
 
@@ -64,13 +65,11 @@ export class AnimeListService {
       await this.animeListRepo.deleteOneValue('list', JSON.stringify(minimzedAnime), { userId: Number(animeListId) });
     }
 
-    async #postAnimeWebhooks (anime: MinimizedAnime, username: string, userId: number) {
+    async #postAnimeWebhooks (anime: MinimizedAnime, userId: string, userData: IAnimeList, event: string) {
       const webhooks = await this.webhookRepo.getOneMatching({ userId });
       webhooks?.webhooks.forEach((webhook) => {
-        const message = `New anime added to ${username}'s list: ${anime.title} - ${anime.type}`;
-        const payload: WebhookMessage = { message, data: anime };
+        const payload = this.#createWebhookPayload(userData, anime, event);
         const hash = createHash(webhook.secret, JSON.stringify(payload));
-
         // Don't bother doing it async, we don't care about the response.
         fetch(webhook.URL, {
           method: 'post',
@@ -79,7 +78,7 @@ export class AnimeListService {
             'Content-Type': 'application/json',
             'X-AniApiiList-Signature': hash
           }
-        }).catch(); // Just continue executing if it fails.
+        }).catch(() => {}); // Just continue executing if it fails.
       });
     }
 
@@ -117,5 +116,12 @@ export class AnimeListService {
         return subscriptions.map((sub) => sub.userId);
       }
       return [];
+    }
+
+    #createWebhookPayload (userData: IAnimeList, anime: MinimizedAnime, event: string): WebhookMessage {
+      const message = `New anime added to ${userData.username}'s list: ${anime.title} - ${anime.type}`;
+      const animeListLink = generateUserAnimeListLink(userData.userId).href;
+      const eventId = createUUID();
+      return { message, userProfile: animeListLink, data: anime, eventType: event, eventId };
     }
 }

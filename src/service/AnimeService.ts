@@ -21,7 +21,6 @@ export class AnimeService {
     }
 
     async getListWithQuery (query: { [key: string]: string | number }, page: number, userId?: number): Promise<AnimeQueryResultSchema> {
-      console.log(query);
       const searchResults = await this.animeRepo.getPaginatedResult(page, 20, query);
       const totalPages = await this.animeRepo.getTotalPages();
       const strippedAnime = searchResults.map((anime) => stripAnime(anime, userId));

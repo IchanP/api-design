@@ -1,6 +1,6 @@
 declare interface IAuthService {
     login: (requestUser: { email: string, password: string}) => Promise<{ accessToken: string; refreshToken: string, userId: number }>;
-    refreshToken: (refreshToken: string) => ;
+    refreshToken: (refreshToken: string) => RefreshResponseSchema;
 }
 
 declare interface Repository<T extends ValidDataType, U = T> {

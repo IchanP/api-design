@@ -53,3 +53,7 @@ export function createHash (secret: string, payload: string) {
   hmac.update(payload);
   return hmac.digest('hex');
 }
+
+export function createUUID (): string {
+  return crypto.randomUUID().toString();
+}

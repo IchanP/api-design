@@ -80,7 +80,6 @@ export function constructNextAndPreviousPageLink (endpoint: string, page: number
 }
 
 export function generateAuthLinks (req: Request, res: Response) {
-  console.log('generateAuthLinks');
   if (req.body.token) {
     const links = req.body.responseData.links;
     links.push(...generateLoggedInLinks(req.body.token.userId, req));
@@ -198,8 +197,6 @@ function generateAnimeResourceLink (): LinkStructure {
 }
 
 function generateAnimeResourceLinks (fullUrl: string): LinkStructure[] {
-  console.log('animeresourcelinks');
-  console.log(fullUrl);
   const links: LinkStructure[] = [
     isAnimePageEndPoint(fullUrl) ? null : generateAnimeResourceLink(),
     isAnimeSearchEndPoint(fullUrl) ? null : generateSearchAnimeLink()
