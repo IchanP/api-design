@@ -22,7 +22,7 @@ export function validateId (id: string, res: Response, next: NextFunction): void
 export async function verifyAnimeListExists (animeListId: string): Promise<void> {
   const service = container.get<AnimeListService>(TYPES.AnimeListService);
   const animeList = await service.getOneById(animeListId);
-  animeListExists(animeList);
+  animeListExists(animeList.animeList);
 }
 
 export function animeExists (anime: IAnime | undefined): void {

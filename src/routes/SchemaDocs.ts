@@ -234,25 +234,25 @@
  *             example: 'POST'
  *     WebhookPayload:
  *       type: object
+ *       required:
+ *         - message
+ *         - data
+ *         - eventType
+ *         - eventId
  *       properties:
- *         eventId:
+ *         message:
  *           type: string
- *           description: Unique identifier for the event.
+ *           description: A message describing the event that occured.
+ *         userProfile:
+ *           type: string
+ *           description: If the event that occured is related to an animelist this will be the link to the user's animelist, else it may be omitted.
+ *         data:
+ *           $ref: '#/components/schemas/MinimizedAnime'
  *         eventType:
  *           type: string
  *           description: The type of event that triggered the webhook.
- *         data:
- *           type: object
- *           properties:
- *             itemId:
- *               type: string
- *               description: Unique identifier for the new item.
- *             itemName:
- *               type: string
- *               description: Name of the new item added.
- *             itemDescription:
- *               type: string
- *               description: Description of the new item.
- *           description: Details about the item that was added.
+ *         eventId:
+ *           type: string
+ *           description: Unique identifier for the event.
  *       description: Payload sent to the callback URL when a new item is added.
  */

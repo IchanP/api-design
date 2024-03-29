@@ -12,6 +12,34 @@ The anime data is sourced from [this repository](https://github.com/manami-proje
 - [API Documentation]() // TODO
 - [Postman Tests]() // TODO
 
+### Webhook
+
+The application offers the ability to subscribe to a specific users anime list. This is done through calling the POST method found under the webhook section in the [API Documentation](). When the specified user adds an anime to their list the application will send a POST request to the provided URL with information about the anime that was added.
+
+An example of what the webhook callback body may look like is as follows:
+
+```json
+{
+  
+  "message": "New anime added to Dedrick_Dooley's list: Otome Youkai Zakuro Picture Drama - SPECIAL",
+  "userProfile": "/anime-list/36",
+  "data": {
+    "animeId": 21349,
+    "title": "Otome Youkai Zakuro Picture Drama",
+    "type": "SPECIAL",
+    "links": [ 
+        { 
+            "rel": "self", 
+            "href": "/anime/25", 
+            "method": "GET" 
+        } 
+    ]
+  },
+  "eventType": "anime-added",
+  "eventId": "92a9b87c-94e6-465d-9d81-e45cc7976ad0"
+}
+```
+
 ### Clarifications on HATOEAS terminology
 
 The rel term ``profile``will **ALWAYS** refer to the user's own animelist. The rel term ``owner`` is only used to refer to animelists which are not the current user's animelist.

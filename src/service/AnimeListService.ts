@@ -2,7 +2,6 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from 'config/types.ts';
 import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
-import { WebhookRepository } from 'repositories/WebhookRepository.ts';
 import { createHash, createUUID } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
 import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
@@ -68,7 +67,7 @@ export class AnimeListService {
     async #postAnimeWebhooks (anime: MinimizedAnime, userId: string, userData: IAnimeList, event: string) {
       const webhooks = await this.webhookRepo.getOneMatching({ userId });
       webhooks?.webhooks.forEach((webhook) => {
-        const payload = this.#createWebhookPayload(userData, anime, event);
+        const payload = this.#createWebhookPayload(userId, userData, anime, event);
         const hash = createHash(webhook.secret, JSON.stringify(payload));
         // Don't bother doing it async, we don't care about the response.
         fetch(webhook.URL, {
@@ -118,9 +117,9 @@ export class AnimeListService {
       return [];
     }
 
-    #createWebhookPayload (userData: IAnimeList, anime: MinimizedAnime, event: string): WebhookMessage {
+    #createWebhookPayload (userId: string, userData: IAnimeList, anime: MinimizedAnime, event: string): WebhookMessage {
       const message = `New anime added to ${userData.username}'s list: ${anime.title} - ${anime.type}`;
-      const animeListLink = generateUserAnimeListLink(userData.userId).href;
+      const animeListLink = generateUserAnimeListLink(Number(userId)).href;
       const eventId = createUUID();
       return { message, userProfile: animeListLink, data: anime, eventType: event, eventId };
     }
