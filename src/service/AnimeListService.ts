@@ -4,7 +4,7 @@ import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { createHash, createUUID } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
-import { constructNextAndPreviousPageLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { constructNextAndPreviousPageLink, generateAddToListLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
 import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
 import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
@@ -45,7 +45,7 @@ export class AnimeListService {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
-      const minimzedAnime = stripAnime(animeToAdd);
+      const minimzedAnime = stripAnime(animeToAdd, Number(animeListId));
       const inList = await isInAnimeList(Number(animeListId), animeToAdd.animeId, this.animeListRepo);
       if (inList) {
         throw new DuplicateError();
@@ -54,6 +54,7 @@ export class AnimeListService {
       const updatedList = await this.getOneById(animeListId);
       // UpdatedList has its userId stripped for the response already.
       await this.#postAnimeWebhooks(minimzedAnime, animeListId, updatedList.animeList, 'anime-added');
+      updatedList.animeList.list.forEach(anime => anime.links.push(...generateAddOrRemoveAnimeLink(Number(animeListId), anime.animeId, true)));
       return updatedList;
     }
 
