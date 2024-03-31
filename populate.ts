@@ -3,6 +3,7 @@ import { AnimeModel } from './src/models/Anime.ts';
 import animeData from './anime-offline-database.json';
 import 'dotenv/config';
 
+console.log('Starting population');
 await connectDB(process.env.RESOURCE_DB_CONNECTION_STRING as string);
 const count = await AnimeModel.countDocuments({});
 // Will only populate the database if it's empty.
@@ -26,4 +27,5 @@ if (count === 0) {
 } else {
   console.log('Resource DB already populated, no action taken.');
 }
+console.log('something went wrong');
 process.exit(0);
