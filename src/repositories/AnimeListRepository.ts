@@ -21,6 +21,7 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnimeList> {
     // TODO add sanitazation to filter?
+    console.log(filter);
     const list = await AnimeListModel.findOne(filter);
     return list?.toObject();
   }
@@ -33,7 +34,7 @@ export class AnimeListRepository extends BaseRepository<IAnimeList> implements R
 
   async updateOneValue (field: string, value: string, identifier: string | number) {
     if (field === 'list') {
-      this.#addNewAnimeToList(identifier as number, JSON.parse(value));
+      await this.#addNewAnimeToList(identifier as number, JSON.parse(value));
       return;
     }
     await AnimeListModel.findOneAndUpdate({ userId: identifier }, { [field]: value });

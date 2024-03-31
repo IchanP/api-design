@@ -38,7 +38,7 @@ export function animeListExists (animeList: IAnimeList | undefined): void {
 }
 
 export function tokenIdMatchesPathId (token: TokenPayload, id: string, next: NextFunction): void {
-  if (token.userId.toString() !== id) {
+  if (token.userId !== Number(id)) {
     const error = new BadCredentialsError('You are not authorized to modify this resource.');
     const err = createError(401, error.message);
     next(err);

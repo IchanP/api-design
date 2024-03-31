@@ -4,8 +4,8 @@ import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { animeExists, verifyAnimeListExists } from '../../Utils/ValidatorUtil.ts';
 import { createHash, createUUID } from '../../Utils/index.ts';
 import fetch from 'node-fetch';
-import { constructNextAndPreviousPageLink, generateAddToListLink, generateAnimeIdLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
-import { generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
+import { constructNextAndPreviousPageLink, generateSubscribeToWebhookLink, generateUnsubscribeToWebhookLink, generateUserAnimeListLink } from '../../Utils/linkgeneration.ts';
+import { attachMinimizedAnimeLinks, generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
 import { DuplicateError } from '../../Utils/Errors/DuplicateError.ts';
 
 @injectable()
@@ -32,8 +32,9 @@ export class AnimeListService {
         throw new NotFoundError();
       }
       const subscriptionsIds = await this.#getSubscriptionIds(userId);
+
       const userNameAndLink = this.#constructAnimeListUrl([animeList], subscriptionsIds, Number(userId))[0];
-      await this.#attachMinimizedAnimeLinks(animeList.list, Number(userId));
+      await attachMinimizedAnimeLinks(animeList.list, Number(userId), this.animeListRepo);
       delete animeList.userId;
       const animeListWithLinks: IAnimeListWithLinks = { ...animeList, ...userNameAndLink };
       return { animeList: animeListWithLinks, links: [] };
@@ -45,13 +46,14 @@ export class AnimeListService {
       await verifyAnimeListExists(animeListId);
       const animeToAdd = await this.#verifyAnimeExists(animeId);
 
-      const minimzedAnime = stripAnime(animeToAdd, Number(animeListId));
+      const minimzedAnime = stripAnime(animeToAdd);
       const inList = await isInAnimeList(Number(animeListId), animeToAdd.animeId, this.animeListRepo);
       if (inList) {
         throw new DuplicateError();
       }
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
+      console.log(updatedList.animeList);
       // UpdatedList has its userId stripped for the response already.
       await this.#postAnimeWebhooks(minimzedAnime, animeListId, updatedList.animeList, 'anime-added');
       updatedList.animeList.list.forEach(anime => anime.links.push(...generateAddOrRemoveAnimeLink(Number(animeListId), anime.animeId, true)));
@@ -90,24 +92,19 @@ export class AnimeListService {
 
     #constructAnimeListUrl (animeList: Array<IAnimeList>, subscriptionsIds: number[], userId: number | undefined): Array<{username: string, links: Array<LinkStructure>}> {
       return animeList.map((list) => {
+        let subscriptionLink;
+        if (userId && !isNaN(userId)) {
+          subscriptionsIds.includes(list.userId) ? subscriptionLink = generateUnsubscribeToWebhookLink(list.userId) : subscriptionLink = generateSubscribeToWebhookLink(list.userId); // Self subscription is intentional
+        }
+
         return {
           username: list.username,
           links: [
             list.userId === userId ? generateUserAnimeListLink(list.userId, 'profile') : generateUserAnimeListLink(list.userId, 'owner'),
-            subscriptionsIds.includes(list.userId) ? generateUnsubscribeToWebhookLink(list.userId) : generateSubscribeToWebhookLink(list.userId) // Self subscription is intentional
+            subscriptionLink
           ].filter(Boolean)
         };
       });
-    }
-
-    async #attachMinimizedAnimeLinks (animeList: Array<MinimizedAnime>, userId: number | undefined) {
-      for (const anime of animeList) {
-        anime.links = [generateAnimeIdLink(anime.animeId, 'self')];
-        if (userId) {
-          const inUserList = await isInAnimeList(userId, anime.animeId, this.animeListRepo);
-          anime.links.push(...generateAddOrRemoveAnimeLink(userId, anime.animeId, inUserList));
-        }
-      }
     }
 
     async #getSubscriptionIds (userId: string | undefined): Promise<Array<number>> {

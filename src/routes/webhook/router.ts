@@ -4,7 +4,7 @@ import { TYPES } from '../../config/types.ts';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
 import { validateId } from '../../../Utils/ValidatorUtil.ts';
-import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateCommonLinks } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
 export const router = express.Router();
@@ -136,9 +136,7 @@ router.get('/anime-list/:id',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => controller.showSubscription(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res));
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -301,9 +299,7 @@ router.post('/anime-list/:id/subscribe',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => controller.subcribeToList(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
+  (req, res) => generateCommonLinks(req, res)
 );
 
 /**
@@ -437,7 +433,5 @@ router.delete('/anime-list/:id/subscribe',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => controller.unSubscribeFromList(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
+  (req, res) => generateCommonLinks(req, res)
 );

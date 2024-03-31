@@ -14,6 +14,7 @@ export class AnimeController {
   async displayAnime (req: Request, res: Response, next: NextFunction) {
     try {
       const page = defaultToOne(req.query.page as string);
+      console.log(req.body.token);
       const response = await this.service.getListOfAnime(page, req.body?.token?.userId);
       req.body.responseData = response;
       req.body.status = 200;

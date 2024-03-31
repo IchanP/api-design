@@ -28,6 +28,7 @@ export class UserController {
         req.body.status = 200;
         next();
       } catch (e: unknown) {
+        console.log('?');
         this.#handleError(e, next);
       }
     }

@@ -4,7 +4,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { AnimeListController } from 'controller/AnimeListController.ts';
 import { checkLoginStatus, validateAuthScheme } from '../../../Utils/index.ts';
 import { tokenIdMatchesPathId, validateId } from '../../../Utils/ValidatorUtil.ts';
-import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateCommonLinks } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeListController>(TYPES.AnimeListController);
@@ -128,10 +128,7 @@ const controller = container.get<AnimeListController>(TYPES.AnimeListController)
 router.get('/',
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeLists(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -262,10 +259,7 @@ router.get('/:id',
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeList(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -427,10 +421,7 @@ router.post('/:id/anime/:animeId', (req: Request, res: Response, next: NextFunct
 (req, res, next) => validateId(req.params.animeId, res, next),
 (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
 (req, res, next) => controller.addAnime(req, res, next),
-(req, res, next) => generateSelfLink(req, next),
-(req, res, next) => generateAlwaysAccessibleLinks(req, next),
-(req, res) => generateAuthLinks(req, res)
-);
+(req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -540,7 +531,4 @@ router.delete('/:id/anime/:animeId', (req: Request, res: Response, next: NextFun
   (req, res, next) => validateId(req.params.animeId, res, next),
   (req, res, next) => tokenIdMatchesPathId(req.body.token, req.params.id, next),
   (req, res, next) => controller.deleteAnime(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));

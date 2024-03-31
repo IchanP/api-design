@@ -27,7 +27,6 @@ export class UserService implements IUserService {
       if (!isValidType(info, [`${field}`, 'token'])) {
         throw new BadDataError();
       }
-      // TODO make sure something is returned in the future ?
       await this.userRepo.updateOneValue(field, info[field].toString(), payload.userId);
       await this.animeListRepo.updateOneValue(field, info[field].toString(), payload.userId);
     }

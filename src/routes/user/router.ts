@@ -3,7 +3,7 @@ import { container } from '../../config/inversify.config.ts';
 import { TYPES } from '../../config/types.ts';
 import { UserController } from '../../controller/UserController.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateCommonLinks } from '../../../Utils/linkgeneration.ts';
 
 const controller = container.get<UserController>(TYPES.UserController);
 export const router = express.Router();
@@ -104,10 +104,9 @@ export const router = express.Router();
  *               serverError:
  *                 $ref: '#/components/schemas/Error/examples/serverError'
  */
-router.post('/register', (req, res, next) => controller.register(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res));
+router.post('/register',
+  (req, res, next) => controller.register(req, res, next),
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -222,6 +221,4 @@ router.post('/register', (req, res, next) => controller.register(req, res, next)
 router.put('/username',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => controller.updateUsername(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res));
+  (req, res) => generateCommonLinks(req, res));

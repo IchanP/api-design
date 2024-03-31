@@ -4,7 +4,7 @@ import { TYPES } from 'config/types.ts';
 import { AnimeController } from 'controller/AnimeController.ts';
 import { validateId } from '../../../Utils/ValidatorUtil.ts';
 import { checkLoginStatus } from '../../../Utils/index.ts';
-import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateCommonLinks } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AnimeController>(TYPES.AnimeController);
@@ -134,10 +134,7 @@ const controller = container.get<AnimeController>(TYPES.AnimeController);
 router.get('/',
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnime(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -264,10 +261,7 @@ router.get('/',
 router.get('/search',
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.searchAnime(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -389,7 +383,4 @@ router.get('/:id',
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeById(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res)
-);
+  (req, res) => generateCommonLinks(req, res));

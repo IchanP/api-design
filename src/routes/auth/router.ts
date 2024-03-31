@@ -3,7 +3,7 @@ import express from 'express';
 import { container } from 'config/inversify.config.ts';
 import { TYPES } from 'config/types.ts';
 import { validateAuthScheme } from '../../../Utils/index.ts';
-import { generateAlwaysAccessibleLinks, generateAuthLinks, generateSelfLink } from '../../../Utils/linkgeneration.ts';
+import { generateCommonLinks } from '../../../Utils/linkgeneration.ts';
 
 export const router = express.Router();
 const controller = container.get<AuthController>(TYPES.AuthController);
@@ -102,9 +102,7 @@ const controller = container.get<AuthController>(TYPES.AuthController);
  */
 router.post('/login',
   (req, res, next) => controller.login(req, res, next),
-  (req, res, next) => generateSelfLink(req, next),
-  (req, res, next) => generateAlwaysAccessibleLinks(req, next),
-  (req, res) => generateAuthLinks(req, res));
+  (req, res) => generateCommonLinks(req, res));
 
 /**
  * @swagger
@@ -189,6 +187,4 @@ router.post('/login',
 router.post('/refresh', (req, res, next) =>
   validateAuthScheme(req, res, next),
 (req, res, next) => controller.refresh(req, res, next),
-(req, res, next) => generateSelfLink(req, next),
-(req, res, next) => generateAlwaysAccessibleLinks(req, next),
-(req, res) => generateAuthLinks(req, res));
+(req, res) => generateCommonLinks(req, res));

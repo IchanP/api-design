@@ -8,8 +8,7 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
     super(AnimeModel);
   }
 
-  // TODO - implement createDocument
-  // Currently not implemented due to only admins being able to add anime (not users)
+  // Not implemented due to only admins being able to add anime (not users)
   createDocument: (data: IAnime) => Promise<IAnime>;
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnime> {

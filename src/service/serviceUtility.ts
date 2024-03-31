@@ -1,13 +1,12 @@
-import { generateAddToListLink, generateAnimeIdLink } from '../../Utils/linkgeneration.ts';
+import { generateAnimeIdLink } from '../../Utils/linkgeneration.ts';
 
-export function stripAnime (anime: IAnime, userId?: number): MinimizedAnime {
+export function stripAnime (anime: IAnime): MinimizedAnime {
   return {
     animeId: anime.animeId,
     title: anime.title,
     type: anime.type,
-    links: [generateAnimeIdLink(anime.animeId, 'self'),
-      userId ? generateAddToListLink(anime.animeId, userId) : null
-    ].filter(Boolean)
+    links: [generateAnimeIdLink(anime.animeId, 'self')
+    ]
   };
 }
 
@@ -21,4 +20,14 @@ export function generateAddOrRemoveAnimeLink (userId: number, animeId: number, i
   return [
     inList === true ? { rel: 'delete-from-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'DELETE' as ValidMethods } : { rel: 'add-to-list', href: `/anime-list/${userId}/anime/${animeId}`, method: 'POST' as ValidMethods }
   ];
+}
+
+export async function attachMinimizedAnimeLinks (animeList: Array<MinimizedAnime>, userId: number | undefined, listRepo?: Repository<IAnimeList, IUser>) {
+  for (const anime of animeList) {
+    anime.links = [generateAnimeIdLink(anime.animeId, 'self')];
+    if (userId) {
+      const inUserList = await isInAnimeList(userId, anime.animeId, listRepo);
+      anime.links.push(...generateAddOrRemoveAnimeLink(userId, anime.animeId, inUserList));
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 export function generateAnimeIdLink (id: number, rel?: string): LinkStructure {
   return {
@@ -47,7 +47,7 @@ export function generateAddToListLink (animeId: number, userId: number): LinkStr
   };
 }
 
-export function generateAlwaysAccessibleLinks (req: Request, next: NextFunction): LinkStructure[] {
+export function generateAlwaysAccessibleLinks (req: Request): LinkStructure[] {
   const fullUrl = req.baseUrl + req.url;
   const links: LinkStructure[] = [
     ...generateAnimeResourceLinks(fullUrl),
@@ -61,7 +61,6 @@ export function generateAlwaysAccessibleLinks (req: Request, next: NextFunction)
   } else {
     req.body.responseData = { links };
   }
-  next();
 }
 
 export function constructNextAndPreviousPageLink (endpoint: string, page: number, totalPages: number):LinkStructure[] {
@@ -79,7 +78,7 @@ export function constructNextAndPreviousPageLink (endpoint: string, page: number
   ];
 }
 
-export function generateAuthLinks (req: Request, res: Response) {
+export function generateAuthLinks (req: Request) {
   if (req.body.token) {
     const links = req.body.responseData.links;
     links.push(...generateLoggedInLinks(req.body.token.userId, req));
@@ -87,12 +86,11 @@ export function generateAuthLinks (req: Request, res: Response) {
     const links = req.body.responseData.links;
     links.push(generateLoginLink());
   }
-  res.status(req.body.status).json(req.body.responseData);
 }
 
-export function generateEntryPointLinks (req: Request, res: Response, next: NextFunction) {
-  const links = generateAlwaysAccessibleLinks(req, next);
-  links.push(generateSelfLink(req, next));
+export function generateEntryPointLinks (req: Request, res: Response) {
+  const links = generateAlwaysAccessibleLinks(req);
+  links.unshift(generateSelfLink(req));
   links.push(generateRegisterLink());
   links.push(generateLoginLink());
   links.push(generateDocsLink());
@@ -105,7 +103,7 @@ export function findAndTransformToSelf (links: Array<LinkStructure>, relation: s
   return links;
 }
 
-export function generateSelfLink (req: Request, next: NextFunction): LinkStructure {
+export function generateSelfLink (req: Request): LinkStructure {
   const fullUrl = req.baseUrl + req.url;
   if (fullUrl === '/') {
     return {
@@ -114,12 +112,11 @@ export function generateSelfLink (req: Request, next: NextFunction): LinkStructu
       method: 'GET'
     };
   } else {
-    req.body.responseData.links.unshift({
+    return {
       rel: 'self',
       href: fullUrl,
-      method: req.method
-    });
-    next();
+      method: req.method as ValidMethods
+    };
   }
 }
 
@@ -145,6 +142,13 @@ export function generateEntryPointLink () {
     href: '/',
     method: 'GET'
   };
+}
+
+export function generateCommonLinks (req: Request, res: Response) {
+  req.body.responseData.links.unshift(generateSelfLink(req));
+  generateAlwaysAccessibleLinks(req);
+  generateAuthLinks(req);
+  return res.status(req.body.status).json(req.body.responseData);
 }
 
 function generateLoggedInLinks (userId: number, req: Request): LinkStructure[] {
