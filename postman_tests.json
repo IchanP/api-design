@@ -1,0 +1,3346 @@
+{
+	"info": {
+		"_postman_id": "cfefd6b4-77bc-4721-9b77-0bcb7972a1cf",
+		"name": "API Design Assignment",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Tests\" tab**\n\nTests help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/b5f280a7-4b09-48ec-857f-0a7ed99d7ef8/U2NyZWVuc2hvdCAyMDIzLTAzLTI3IGF0IDkuNDcuMjggUE0ucG5n\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) in \"Tests\" to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24585832"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "Register 201",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response must be valid and have a userId\", function () {\r",
+									"    pm.expect(jsonData).to.have.property('userData');\r",
+									"    pm.expect(jsonData.userData).to.have.property('userId').to.be.a('number');\r",
+									"});\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"search-anime\", \"animelists\", \"profile\", \"login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"POST\", \"Expected method for 'self' link is POST\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has email and username\", function () {\r",
+									"    pm.expect(jsonData.userData).to.have.property('email').to.be.a('string');\r",
+									"    pm.expect(jsonData.userData).to.have.property('username').to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"// Set variables for future requests if successful\r",
+									"pm.collectionVariables.set(\"currentUsername\", jsonData.userData.username);\r",
+									"pm.collectionVariables.set(\"currentEmail\", jsonData.userData.email);\r",
+									"\r",
+									"postman.setNextRequest('Register 409');\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"username\": \"{{$randomUserName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register 409",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Conflict should return status 409\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(409);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Duplicate data found, this data already exists.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest('Register 400')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{currentEmail}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"username\": \"{{currentUsername}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bad Request should return status 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Invalid data provided\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point'); \r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest('Login 200');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Username 204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 for successful username update\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response must include success message and links\", function () {\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Username successfully updated.\");\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach((link) => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"search-anime\", \"animelists\", \"profile\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"PUT\", \"Expected method for 'self' link is PUT\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{$randomUserName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/username",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"username"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Username 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401 when auth token is ommitted\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"No authorization header present.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{$randomUserName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/username",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"username"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Username 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 when body does not match expected schema\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Invalid data provided\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(null);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{$randomUserName}}\",\r\n    \"unknown\": \"whatever\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/username",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"username"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test to ensure the response has the correct status code for a successful login\r",
+									"pm.test(\"Successful login should return status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response must include access and refresh tokens and userId\", function () {\r",
+									"    pm.expect(jsonData).to.have.property('accessToken').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('refreshToken').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('userId').to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"search-anime\", \"animelists\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"POST\", \"Expected method for 'self' link is POST\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.collectionVariables.set('accessToken', jsonData.accessToken);\r",
+									"pm.collectionVariables.set('refreshToken', jsonData.refreshToken);\r",
+									"pm.collectionVariables.set('ownUserId', jsonData.userId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{currentEmail}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid credentials should return status 401\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The credentials provided are invalid\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest('List of anime 200');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{currentEmail}}\",\r\n    \"password\": \"incorrectPassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful token refresh should return status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response must include a new access token\", function () {\r",
+									"    pm.expect(jsonData).to.have.property('accessToken').to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response should have valid links for further actions\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach((link) => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set('accessToken', jsonData.accessToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{refreshToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Invalid or expired token should return status 401\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"No authorization header present.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest('Change Username 204');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "anime",
+			"item": [
+				{
+					"name": "List of anime 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and data structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalAnime').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"\r",
+									"    pm.test(\"Anime structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstAnime = jsonData.data[0];\r",
+									"            pm.expect(firstAnime).to.have.property('animeId').to.be.a('number');\r",
+									"            pm.expect(firstAnime).to.have.property('title').to.be.a('string');\r",
+									"            pm.expect(firstAnime).to.have.property('type').to.be.a('string');\r",
+									"\r",
+									"            if (firstAnime.links && Array.isArray(firstAnime.links)) {\r",
+									"                let addToListLinkPresent = false;\r",
+									"                let selfLinkPresent = false;\r",
+									"                firstAnime.links.forEach((link) => {\r",
+									"                    pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"                    if (link.rel === 'self') {\r",
+									"                        selfLinkPresent = true;\r",
+									"                    }\r",
+									"                    if (link.rel === 'add-to-list' || link.rel === 'delete-from-list') {\r",
+									"                        addToListLinkPresent = true;\r",
+									"                    }\r",
+									"                });\r",
+									"                pm.expect(selfLinkPresent, 'All anime should have a self link').to.be.true;\r",
+									"                pm.expect(addToListLinkPresent, 'The first anime should have an add-to-list link or a delete-from-list link').to.be.true;\r",
+									"            }\r",
+									"        };\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime?page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List of anime 200 No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and data structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalAnime').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"\r",
+									"    pm.test(\"Anime structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstAnime = jsonData.data[0];\r",
+									"            pm.expect(firstAnime).to.have.property('animeId').to.be.a('number');\r",
+									"            pm.expect(firstAnime).to.have.property('title').to.be.a('string');\r",
+									"            pm.expect(firstAnime).to.have.property('type').to.be.a('string');\r",
+									"\r",
+									"            if (firstAnime.links && Array.isArray(firstAnime.links)) {\r",
+									"                let addToListLinkPresent = false;\r",
+									"                let selfLinkPresent = false;\r",
+									"                firstAnime.links.forEach((link) => {\r",
+									"                    pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"                    if (link.rel === 'self') {\r",
+									"                        selfLinkPresent = true;\r",
+									"                    }\r",
+									"                    if (link.rel === 'add-to-list' || link.rel === 'delete-from-list') {\r",
+									"                        addToListLinkPresent = true;\r",
+									"                    }\r",
+									"                });\r",
+									"                pm.expect(selfLinkPresent, 'All anime should have a self link').to.be.true;\r",
+									"                pm.expect(addToListLinkPresent, 'The first anime should have an add-to-list link or a delete-from-list link').to.be.false;\r",
+									"            }\r",
+									"            pm.collectionVariables.set('animeId', firstAnime.animeId);\r",
+									"            pm.collectionVariables.set('animeTitle', firstAnime.title);\r",
+									"        };\r",
+									"    });\r",
+									"});\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"next\", \"prev\", \"animelists\", \"login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime?page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List of anime 200 Omitted Page value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and data structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalAnime').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"\r",
+									"    pm.test(\"Anime structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstAnime = jsonData.data[0];\r",
+									"            pm.expect(firstAnime).to.have.property('animeId').to.be.a('number');\r",
+									"            pm.expect(firstAnime).to.have.property('title').to.be.a('string');\r",
+									"            pm.expect(firstAnime).to.have.property('type').to.be.a('string');\r",
+									"\r",
+									"            if (firstAnime.links && Array.isArray(firstAnime.links)) {\r",
+									"                let addToListLinkPresent = false;\r",
+									"                let selfLinkPresent = false;\r",
+									"                firstAnime.links.forEach((link) => {\r",
+									"                    pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"                    if (link.rel === 'self') {\r",
+									"                        selfLinkPresent = true;\r",
+									"                    }\r",
+									"                    if (link.rel === 'add-to-list' || link.rel === 'delete-from-list') {\r",
+									"                        addToListLinkPresent = true;\r",
+									"                    }\r",
+									"                });\r",
+									"                pm.expect(selfLinkPresent, 'All anime should have a self link').to.be.true;\r",
+									"                pm.expect(addToListLinkPresent, 'The first anime should have an add-to-list link or a delete-from-list link').to.be.true;\r",
+									"            }\r",
+									"            pm.collectionVariables.set('animeId', firstAnime.animeId);\r",
+									"            pm.collectionVariables.set('animeTitle', firstAnime.title)\r",
+									"        };\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"next\", \"prev\", \"animelists\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime by id 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and a valid anime object\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('title').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('type').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('episodes').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('status').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('animeSeason').to.be.an('object');\r",
+									"    pm.expect(jsonData).to.have.property('synonyms').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('relatedAnime').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('tags').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('animeId').to.be.a('number');\r",
+									"\r",
+									"    pm.expect(jsonData.animeSeason).to.have.property('season').to.be.a('string');\r",
+									"    pm.expect(jsonData.animeSeason).to.have.property('year').to.be.a('number');\r",
+									"\r",
+									"    if (jsonData.hasOwnProperty('broadcast')) {\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('day').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('time').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('timezone').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('string').to.be.a('string');\r",
+									"    }\r",
+									"    pm.test('Anime object should have an add-to-list link', () => {\r",
+									"        const hasAddToListLink = jsonData.links.some(link => link.rel === 'add-to-list');\r",
+									"        pm.expect(hasAddToListLink, 'Should have an add-to-list link').to.be.true;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"search-anime\", \"animelists\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime by id 200 No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and a valid anime object\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('title').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('type').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('episodes').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('status').to.be.a('string');\r",
+									"    pm.expect(jsonData).to.have.property('animeSeason').to.be.an('object');\r",
+									"    pm.expect(jsonData).to.have.property('synonyms').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('relatedAnime').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('tags').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('animeId').to.be.a('number');\r",
+									"\r",
+									"    pm.expect(jsonData.animeSeason).to.have.property('season').to.be.a('string');\r",
+									"    pm.expect(jsonData.animeSeason).to.have.property('year').to.be.a('number');\r",
+									"\r",
+									"    if (jsonData.hasOwnProperty('broadcast')) {\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('day').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('time').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('timezone').to.be.a('string');\r",
+									"        pm.expect(jsonData.broadcast).to.have.property('string').to.be.a('string');\r",
+									"    }\r",
+									"\r",
+									"    pm.test('Should not have an add-to-list link', () => {\r",
+									"        const hasAddToListLink = jsonData.links.some(link => link.rel === 'add-to-list');\r",
+									"        pm.expect(hasAddToListLink, 'Should have an add-to-list link').to.be.false;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"search-anime\", \"animelists\", \"login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime by id 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime not found should return status 404\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Anime could not be found with that ID.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "animeId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime by id 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Non-numbers as animeId should return a 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "animeId",
+									"value": "adadad"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime search by title 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Search results should return status 200 and match the schema\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"\r",
+									"    pm.test(\"Anime structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstAnime = jsonData.data[0];\r",
+									"            pm.expect(firstAnime).to.have.property('animeId').to.be.a('number');\r",
+									"            pm.expect(firstAnime).to.have.property('title').to.be.a('string');\r",
+									"            pm.expect(firstAnime).to.have.property('type').to.be.a('string');\r",
+									"\r",
+									"            if (firstAnime.links && Array.isArray(firstAnime.links)) {\r",
+									"                let addToListLinkPresent = false;\r",
+									"                let selfLinkPresent = false;\r",
+									"                firstAnime.links.forEach((link) => {\r",
+									"                    pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"                    if (link.rel === 'self') {\r",
+									"                        selfLinkPresent = true;\r",
+									"                    }\r",
+									"                    if (link.rel === 'add-to-list') {\r",
+									"                        addToListLinkPresent = true;\r",
+									"                    }\r",
+									"                });\r",
+									"                pm.expect(selfLinkPresent, 'All anime should have a self link').to.be.true;\r",
+									"                pm.expect(addToListLinkPresent, 'The first anime should have an add-to-list link').to.be.true;\r",
+									"            }\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"next\", \"prev\", \"animelists\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/search?title=Attack on Titan",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Attack on Titan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime search by title 200 No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Search results should return status 200 and match the schema\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.test(\"Anime structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstAnime = jsonData.data[0];\r",
+									"            pm.expect(firstAnime).to.have.property('animeId').to.be.a('number');\r",
+									"            pm.expect(firstAnime).to.have.property('title').to.be.a('string');\r",
+									"            pm.expect(firstAnime).to.have.property('type').to.be.a('string');\r",
+									"\r",
+									"            if (firstAnime.links && Array.isArray(firstAnime.links)) {\r",
+									"                let addToListLinkPresent = false;\r",
+									"                let selfLinkPresent = false;\r",
+									"                firstAnime.links.forEach((link) => {\r",
+									"                    pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"                    pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"                    if (link.rel === 'self') {\r",
+									"                        selfLinkPresent = true;\r",
+									"                    }\r",
+									"                    if (link.rel === 'add-to-list') {\r",
+									"                        addToListLinkPresent = true;\r",
+									"                    }\r",
+									"                });\r",
+									"                pm.expect(selfLinkPresent, 'First anime should have a self link').to.be.true;\r",
+									"                pm.expect(addToListLinkPresent, 'The first anime should have an add-to-list link').to.be.false;\r",
+									"            }\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"anime\", \"next\", \"prev\", \"animelists\", \"login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/search?title={{animeTitle}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "{{animeTitle}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anime search by title 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing title query should return status 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The title query parameter is missing.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime/search",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "{{animeTitle}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "animelist",
+			"item": [
+				{
+					"name": "Lists of anime lists 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and valid structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"\r",
+									"    pm.test(\"Data structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstUser = jsonData.data[0];\r",
+									"            pm.expect(firstUser).to.have.property('username').to.be.a('string');\r",
+									"            pm.expect(firstUser).to.have.property('links').to.be.an('array');\r",
+									"\r",
+									"            if (firstUser.links.length > 0) {\r",
+									"                const firstLink = firstUser.links[0];\r",
+									"                pm.expect(firstLink).to.have.property('rel').to.be.a('string');\r",
+									"                pm.expect(firstLink).to.have.property('href').to.be.a('string');\r",
+									"                pm.expect(firstLink).to.have.property('method').to.be.a('string');\r",
+									"                pm.expect(firstLink.rel).to.eql('owner');\r",
+									"            }\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list?page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lists of anime lists 200 Omitted Page Query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and valid structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('totalPages').to.be.a('number');\r",
+									"    pm.expect(jsonData).to.have.property('currentPage').to.be.a('number');\r",
+									"\r",
+									"    pm.test(\"Data structure should be valid\", () => {\r",
+									"        if (jsonData.data.length > 0) {\r",
+									"            const firstUser = jsonData.data[0];\r",
+									"            pm.expect(firstUser).to.have.property('username').to.be.a('string');\r",
+									"            pm.expect(firstUser).to.have.property('links').to.be.an('array');\r",
+									"\r",
+									"            if (firstUser.links.length > 0) {\r",
+									"                const firstLink = firstUser.links[0];\r",
+									"                pm.expect(firstLink).to.have.property('rel').to.be.a('string');\r",
+									"                pm.expect(firstLink).to.have.property('href').to.be.a('string');\r",
+									"                pm.expect(firstLink).to.have.property('method').to.be.a('string');\r",
+									"                pm.expect(firstLink.rel).to.eql('owner');\r",
+									"            }\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific anime list by ID 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and valid structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('animeList').to.be.an('object');\r",
+									"    const animeList = jsonData.animeList;\r",
+									"    pm.expect(animeList).to.have.property('username').to.be.a('string');\r",
+									"    pm.expect(animeList).to.have.property('list').to.be.an('array');\r",
+									"\r",
+									"    pm.test(\"Animelist should have valid structure\", () => {\r",
+									"        animeList.list.forEach(anime => {\r",
+									"            const hasDeleteFromListLink = anime.links.some(link => link.rel === \"delete-from-list\");\r",
+									"            const hasAddToListLink = anime.links.some(link => link.rel === \"add-to-list\");\r",
+									"\r",
+									"            pm.expect(hasDeleteFromListLink || hasAddToListLink, \"Each anime should have either a delete-from-list or add-to-list link\").to.be.true;\r",
+									"\r",
+									"            if (anime.aniemId === pm.collectionVariables.get('animeId')) {\r",
+									"                pm.expect(hasDeleteFromListLink).to.be.true;\r",
+									"                pm.expect(hasAddToListLink).to.be.false;\r",
+									"            }\r",
+									"        });\r",
+									"        pm.test(\"Amimelist should have webhook links\", () => {\r",
+									"            const hasSubscribeLink = animeList.links.some(link => link.rel === \"subscribe\");\r",
+									"            const hasUnsubscribeLink = animeList.links.some(link => link.rel === \"unsubscribe\");\r",
+									"            pm.expect(hasSubscribeLink || hasUnsubscribeLink, \"AnimeList should have either a subscribe or unsubscribe link\").to.be.true;\r",
+									"        });\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific anime list by ID 200 No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 200 and valid structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('animeList').to.be.an('object');\r",
+									"    const animeList = jsonData.animeList;\r",
+									"    pm.expect(animeList).to.have.property('username').to.be.a('string');\r",
+									"    pm.expect(animeList).to.have.property('list').to.be.an('array');\r",
+									"\r",
+									"    animeList.list.forEach(anime => {\r",
+									"        const hasDeleteFromListLink = anime.links.some(link => link.rel === \"delete-from-list\");\r",
+									"        const hasAddToListLink = anime.links.some(link => link.rel === \"add-to-list\");\r",
+									"\r",
+									"        pm.expect(hasDeleteFromListLink || hasAddToListLink, \"Each anime should have either a delete-from-list or add-to-list link\").to.be.false;\r",
+									"    });\r",
+									"\r",
+									"    const hasSubscribeLink = animeList.links.some(link => link.rel === \"subscribe\");\r",
+									"    const hasUnsubscribeLink = animeList.links.some(link => link.rel === \"unsubscribe\");\r",
+									"\r",
+									"    pm.expect(hasSubscribeLink || hasUnsubscribeLink, \"AnimeList should have either a subscribe or unsubscribe link\").to.be.false;\r",
+									"\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific anime list by ID 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime list not found should return status 404\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The requested resource was not found.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific anime list by ID 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"UserID NaN should return status 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "adada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 201",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 201 and valid structure\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('animeList').to.be.an('object');\r",
+									"    const animeList = jsonData.animeList;\r",
+									"    pm.expect(animeList).to.have.property('username').to.be.a('string');\r",
+									"    pm.expect(animeList).to.have.property('list').to.be.an('array');\r",
+									"\r",
+									"    pm.test(\"Animelist should have valid structure\", () => {\r",
+									"        animeList.list.forEach(anime => {\r",
+									"            const hasDeleteFromListLink = anime.links.some(link => link.rel === \"delete-from-list\");\r",
+									"            const hasAddToListLink = anime.links.some(link => link.rel === \"add-to-list\");\r",
+									"\r",
+									"            pm.expect(hasDeleteFromListLink || hasAddToListLink, \"Each anime should have either a delete-from-list or add-to-list link\").to.be.true;\r",
+									"\r",
+									"            if (anime.aniemId === pm.collectionVariables.get('animeId')) {\r",
+									"                pm.expect(hasDeleteFromListLink).to.be.true;\r",
+									"                pm.expect(hasAddToListLink).to.be.false;\r",
+									"            }\r",
+									"        });\r",
+									"        pm.test(\"Amimelist should have webhook links\", () => {\r",
+									"            const hasSubscribeLink = animeList.links.some(link => link.rel === \"subscribe\");\r",
+									"            const hasUnsubscribeLink = animeList.links.some(link => link.rel === \"unsubscribe\");\r",
+									"            pm.expect(hasSubscribeLink || hasUnsubscribeLink, \"AnimeList should have either a subscribe or unsubscribe link\").to.be.true;\r",
+									"        });\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"POST\", \"Expected method for 'self' link is POST\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized request should return status 401\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"No authorization header present.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Attempting to add an anime already in the list should return 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The anime is already in the list.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 400 userId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return a 400 if the userId is not a valid number\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "adada"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 400 animeId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return a 400 if animeId is NaN\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "adadada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add anime to anime list 404 Invalid animeId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid animeid should return 404\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Anime could not be found with that ID.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove anime from list 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime deletion should return status 200 with confirmation message\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Anime successfully deleted from the list.\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"DELETE\", \"Expected method for 'self' link is DELETE\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove anime from list 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized deletion should return status 401\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"No authorization header present.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "{{animeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove anime from list 404 animeId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime not found should return 401\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Anime could not be found with that ID.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/anime-list/:userId/anime/:animeId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"anime-list",
+								":userId",
+								"anime",
+								":animeId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								},
+								{
+									"key": "animeId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Webhook",
+			"item": [
+				{
+					"name": "Subscribe status for list 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Subscription status retrieval should return status 200 with valid structure\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('subscribed').to.be.a('boolean');\r",
+									"    pm.expect(jsonData).to.have.property('data').to.be.an('array');\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"GET\", \"Expected method for 'self' link is GET\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe status for list 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid ID provided should return status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "adada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe status for list 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized request should return status 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql('No authorization header present.')\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe status for list 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime list not found should return status 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The requested resource was not found.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to list 201",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval should return status 201 and have valid animelist structure\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('animeList').to.be.an('object');\r",
+									"    const animeList = jsonData.animeList;\r",
+									"    pm.expect(animeList).to.have.property('username').to.be.a('string');\r",
+									"    pm.expect(animeList).to.have.property('list').to.be.an('array');\r",
+									"\r",
+									"    animeList.list.forEach(anime => {\r",
+									"        const hasDeleteFromListLink = anime.links.some(link => link.rel === \"delete-from-list\");\r",
+									"        const hasAddToListLink = anime.links.some(link => link.rel === \"add-to-list\");\r",
+									"\r",
+									"        pm.expect(hasDeleteFromListLink || hasAddToListLink, \"Each anime should have either a delete-from-list or add-to-list link\").to.be.false;\r",
+									"\r",
+									"        if (anime.aniemId === pm.collectionVariables.get('animeId')) {\r",
+									"            pm.expect(hasDeleteFromListLink).to.be.true;\r",
+									"            pm.expect(hasAddToListLink).to.be.false;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    const hasUnsubscribeLink = animeList.links.some(link => link.rel === \"unsubscribe\");\r",
+									"\r",
+									"    pm.expect(hasUnsubscribeLink, \"AnimeList should have an unsubscribe link\").to.be.true;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"POST\", \"Expected method for 'self' link is POST\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const randomEmail = pm.variables.replaceIn(\"{{$randomUrl}}\");\r",
+									"console.log(randomEmail)\r",
+									"pm.collectionVariables.set(\"webhookUrl\", randomEmail);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\",\r\n    \"secret\": \"someSecret\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to list 400 UserId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid UserID should return status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\",\r\n    \"secret\": \"someSecret\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "adada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to list 400 URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid URL should return status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Invalid 'url', or 'secret'. All fields are required and must be valid.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"not a url\",\r\n    \"secret\": \"someSecret\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to list 400 Secret",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing Secret should return status 400\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Invalid 'url', or 'secret'. All fields are required and must be valid.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to list 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Anime list not found should return status 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The requested resource was not found.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\",\r\n    \"secret\": \"totallascret\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful unsubscription should return 200 with confirmation message\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"Successfully unsubscribed from the anime list.\");\r",
+									"\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Link structure should be valid\", () => {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    const expectedLinks = [\"self\", \"search-anime\", \"animelists\", \"anime\", \"profile\", \"update-username\", \"refresh-login\"];\r",
+									"    const receivedLinks = jsonData.links.map(link => link.rel);\r",
+									"\r",
+									"    expectedLinks.forEach((rel) => {\r",
+									"        pm.expect(receivedLinks).to.include(rel, `Expected link relation \"${rel}\" is missing`);\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(jsonData).to.have.property('links').to.be.an('array');\r",
+									"    jsonData.links.forEach(link => {\r",
+									"        pm.expect(link).to.have.property('rel').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('href').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.a('string');\r",
+									"        pm.expect(link).to.have.property('method').to.be.oneOf(['GET', 'POST', 'DELETE', 'PUT'], \"Method should be one of the allowed HTTP methods\");\r",
+									"        if (link.rel === \"self\") {\r",
+									"            pm.expect(link.method).to.eql(\"DELETE\", \"Expected method for 'self' link is DELETE\");\r",
+									"        }\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 400 userId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid userId should return status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The id parameter must be a number.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "adada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 400 URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing URL should return status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(400);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"URL is required to unsubscribe.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing authorization should return 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(401);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"No authorization header present.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUrl}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 404 URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"URL not found should return status 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The requested resource could not be found.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"http://url-doesn't-exist.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{webhookUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe from list 404 Subscription",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing subscription should return status 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('status').to.eql(404);\r",
+									"    pm.expect(jsonData).to.have.property('message').to.eql(\"The requested resource could not be found.\");\r",
+									"\r",
+									"    pm.expect(jsonData.links).to.be.an('Array');\r",
+									"    pm.expect(jsonData.links.length).to.eql(1);\r",
+									"    pm.expect(jsonData.links[0].rel).to.eql('entry-point');\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(\"Refresh 200\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\": \"{{webhookUserId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"anime-list",
+								":userId",
+								"subscribe"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{ownUserId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "accessToken",
+			"value": "----",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "----",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "thisiswayytooloong"
+		},
+		{
+			"key": "currentUsername",
+			"value": ""
+		},
+		{
+			"key": "currentEmail",
+			"value": ""
+		},
+		{
+			"key": "ownUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "animeId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "animeTitle",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "webhookUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "webhookUrl",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
