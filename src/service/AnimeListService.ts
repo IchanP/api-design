@@ -53,8 +53,10 @@ export class AnimeListService {
       }
       await this.animeListRepo.updateOneValue(fieldToAddTo, JSON.stringify(minimzedAnime), animeListId);
       const updatedList = await this.getOneById(animeListId);
-      console.log(updatedList.animeList);
       // UpdatedList has its userId stripped for the response already.
+      const subscriptionsIds = await this.#getSubscriptionIds(animeListId);
+      const userNameAndLink = this.#constructAnimeListUrl([updatedList.animeList], subscriptionsIds, Number(animeListId))[0];
+      updatedList.animeList.links = userNameAndLink.links;
       await this.#postAnimeWebhooks(minimzedAnime, animeListId, updatedList.animeList, 'anime-added');
       updatedList.animeList.list.forEach(anime => anime.links.push(...generateAddOrRemoveAnimeLink(Number(animeListId), anime.animeId, true)));
       return updatedList;
