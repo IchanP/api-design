@@ -384,3 +384,7 @@ router.get('/:id',
   (req, res, next) => checkLoginStatus(req, res, next),
   (req, res, next) => controller.displayAnimeById(req, res, next),
   (req, res) => generateCommonLinks(req, res));
+
+router.post('/add-anime',
+  (req, res, next) => controller.addAnime(req, res, next)
+);

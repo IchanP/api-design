@@ -1,9 +1,8 @@
 {
   "scripts": {
-    "start": "node src/server.ts",
+    "start": "tsx src/server.ts",
     "dev": "nodemon",
     "lint": "eslint . --ext .ts",
-    "populate": "tsx ./populate.ts",
     "autogen": "tsx swagger.ts"
   },
   "type": "module",

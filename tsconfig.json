@@ -9,6 +9,7 @@
     "allowImportingTsExtensions": true,
     "noImplicitAny": true,
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "noEmit": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true
@@ -16,3 +17,4 @@
   "include": ["src/**/*", "./types/**/*", "./Utils/**/*", "./populate.ts", "./swagger.ts"],
   "exclude": ["node_modules"]
 }
+

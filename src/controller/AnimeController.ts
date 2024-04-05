@@ -54,6 +54,16 @@ export class AnimeController {
     }
   }
 
+  async addAnime (req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log('yop');
+      await this.service.addAnime(req.body);
+      return res.json({ status: 201 });
+    } catch (e: unknown) {
+      this.#handleError(e, next);
+    }
+  }
+
   #handleError (e: unknown, next: NextFunction): void {
     let err = e;
     if (e instanceof BadDataError) {

@@ -16,7 +16,6 @@ export class AnimeService {
       if (userId) {
         await attachMinimizedAnimeLinks(strippedAnime, userId, this.animeListRepo);
       }
-      console.log(userId);
       const nextAndPrevious = constructNextAndPreviousPageLink('anime', page, totalPages);
       const links = [...nextAndPrevious];
 
@@ -46,5 +45,13 @@ export class AnimeService {
       const response = anime as OneAnimeByIdSchema;
       response.links = links;
       return response;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async addAnime (data: any) {
+      if (data.pw !== process.env.ADMIN_PW) {
+        throw new Error('Unauthorized');
+      }
+      this.animeRepo.createDocument(data.anime);
     }
 }

@@ -9,7 +9,21 @@ export class AnimeRepository extends BaseRepository<IAnime> implements Repositor
   }
 
   // Not implemented due to only admins being able to add anime (not users)
-  createDocument: (data: IAnime) => Promise<IAnime>;
+  async createDocument (anime: IAnime): Promise<IAnime> {
+    const newAnime = new AnimeModel({
+      title: anime.title,
+      type: anime.type,
+      episodes: anime.episodes,
+      status: anime.status,
+      animeSeason: anime.animeSeason,
+      synonyms: anime.synonyms,
+      relatedAnime: anime.relatedAnime,
+      tags: anime.tags,
+      broadcast: anime.broadcast
+    });
+    await newAnime.save();
+    return newAnime.toObject();
+  }
 
   async getOneMatching (filter: { [key: string]: string | number }): Promise<IAnime> {
     AnimeModel.validateFilterKeys(filter);
