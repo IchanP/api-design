@@ -96,7 +96,7 @@ declare type OneAnimeByIdSchema = IAnime & {
 
 declare type WebhookMessage = {
     message: string;
-    userProfile: URLstring;
+    userProfile?: URLstring;
     data: MinimizedAnime;
     eventType: string;
     eventId: string;

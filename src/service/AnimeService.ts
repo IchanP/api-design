@@ -3,6 +3,7 @@ import { TYPES } from 'config/types.ts';
 import { animeExists } from '../../Utils/ValidatorUtil.ts';
 import { attachMinimizedAnimeLinks, generateAddOrRemoveAnimeLink, isInAnimeList, stripAnime } from './serviceUtility.ts';
 import { constructNextAndPreviousPageLink } from '../../Utils/linkgeneration.ts';
+import { BadCredentialsError } from '../../Utils/Errors/BadCredentialsError.ts';
 @injectable()
 export class AnimeService {
     @inject(TYPES.AnimeRepository) private animeRepo: Repository<IAnime>;
@@ -50,7 +51,7 @@ export class AnimeService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async addAnime (data: any) {
       if (data.pw !== process.env.ADMIN_PW) {
-        throw new Error('Unauthorized');
+        throw new BadCredentialsError('Unauthorized');
       }
       this.animeRepo.createDocument(data.anime);
     }

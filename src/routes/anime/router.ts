@@ -385,6 +385,55 @@ router.get('/:id',
   (req, res, next) => controller.displayAnimeById(req, res, next),
   (req, res) => generateCommonLinks(req, res));
 
+/**
+ * @swagger
+ * /add-anime:
+ *   post:
+ *     tags:
+ *       - anime
+ *     summary: Adds a new anime to the database
+ *     description: >
+ *       This endpoint allows for adding a new anime into the database.
+ *       It is an admin-only endpoint and requires authorization.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - anime
+ *               - pw
+ *             properties:
+ *               anime:
+ *                 $ref: '#/components/schemas/Anime'
+ *               pw:
+ *                 type: string
+ *                 format: password
+ *                 description: Admin password for authentication.
+ *     responses:
+ *       201:
+ *         description: Successfully added the anime.
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               serverError:
+ *                 $ref: '#/components/schemas/Error/examples/serverError'
+ */
 router.post('/add-anime',
   (req, res, next) => controller.addAnime(req, res, next)
 );

@@ -7,6 +7,7 @@ import { BadDataError } from '../../Utils/Errors/BadDataError.ts';
 import createError from 'http-errors';
 import { NotFoundError } from '../../Utils/Errors/NotFoudnError.ts';
 import { defaultToOne } from '../../Utils/index.ts';
+import { BadCredentialsError } from '../../Utils/Errors/BadCredentialsError.ts';
 @injectable()
 export class AnimeController {
   @inject(TYPES.AnimeService) private service: AnimeService;
@@ -56,7 +57,6 @@ export class AnimeController {
 
   async addAnime (req: Request, res: Response, next: NextFunction) {
     try {
-      console.log('yop');
       await this.service.addAnime(req.body);
       return res.json({ status: 201 });
     } catch (e: unknown) {
@@ -71,6 +71,9 @@ export class AnimeController {
     }
     if (e instanceof NotFoundError) {
       err = createError(404, e.message);
+    }
+    if (e instanceof BadCredentialsError) {
+      err = createError(401, e.message);
     }
     next(err);
   }
