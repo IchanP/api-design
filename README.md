@@ -9,7 +9,7 @@ The anime data is sourced from [this repository](https://github.com/manami-proje
 ## Application Links
 
 - [API Entry Point](https://aninac.com)
-- [API Documentation](https://aninac.com/api-docs/) 
+- [API Documentation](https://aninac.com/api-docs/)
 - [Postman Tests](./postman-tests.json) Download the file and import it into Postman to run the tests.
 
 ### Webhook
@@ -42,7 +42,7 @@ An example of what the webhook callback body may look like is as follows:
 
 ### Clarifications on HATOEAS terminology
 
-The rel term ``profile``will **ALWAYS** refer to the user's own animelist. The rel term ``owner`` is only used to refer to animelists which are not the current user's animelist.
+The rel term ``profile`` will **ALWAYS** refer to the user's own animelist. The rel term ``owner`` is only used to refer to animelists which are not the current user's animelist.
 
 ### Known Issues and Limitations
 
