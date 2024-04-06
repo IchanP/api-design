@@ -3293,7 +3293,7 @@
 		},
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:3000"
+			"value": ""
 		},
 		{
 			"key": "accessToken",

@@ -8,9 +8,9 @@ The anime data is sourced from [this repository](https://github.com/manami-proje
 
 ## Application Links
 
-- [API Entry Point]() // TODO
-- [API Documentation]() // TODO
-- [Postman Tests]() // TODO
+- [API Entry Point](https://aninac.com)
+- [API Documentation](https://aninac.com/api-docs/) 
+- [Postman Tests](./postman-tests.json) Download the file and import it into Postman to run the tests.
 
 ### Webhook
 
