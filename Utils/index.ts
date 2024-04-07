@@ -6,8 +6,6 @@ import { TYPES } from 'config/types.ts';
 
 export function validateAuthScheme (req: Request, res: Response, next: NextFunction) {
   try {
-    const jwtCrafter = container.get<JWTFactory>(TYPES.JWTFactory);
-
     if (!req.headers.authorization) {
       const err = createError(401);
       err.message = 'No authorization header present.';
@@ -20,16 +18,10 @@ export function validateAuthScheme (req: Request, res: Response, next: NextFunct
       return next(err);
     }
 
-    jwtCrafter.verifyAccess(token);
+    verifyToken(token, next);
     setPayloadToRequest(req, token);
     return next();
   } catch (e: unknown) {
-    console.log(e.constructor.name);
-    if (e.constructor.name === 'JsonWebTokenError') {
-      const err = createError(401);
-      err.message = 'Invalid token';
-      return next(err);
-    }
     next(e);
   }
 }
@@ -68,4 +60,28 @@ export function createHash (secret: string, payload: string) {
 
 export function createUUID (): string {
   return crypto.randomUUID().toString();
+}
+
+function verifyToken (token: string, next : NextFunction) {
+  const jwtCrafter = container.get<JWTFactory>(TYPES.JWTFactory);
+
+  let accessError: unknown = null;
+  let refreshError: unknown = null;
+  try {
+    jwtCrafter.verifyAccess(token);
+  } catch (e) {
+    accessError = e;
+  }
+
+  try {
+    jwtCrafter.verifyRefresh(token);
+  } catch (e) {
+    refreshError = e;
+  }
+
+  if (accessError && refreshError) {
+    const err = createError(401);
+    err.message = 'Invalid token';
+    return next(err);
+  }
 }

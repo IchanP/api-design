@@ -225,7 +225,7 @@ router.get('/anime-list/:id',
  *                       href: "/anime-list/34"
  *                       method: "GET"
  *                     - rel: "unsubscribe"
- *                       href: "/webhook/anime-list/34/subscribe"
+ *                       href: "/webhook/anime-list/34/unsubscribe"
  *                       method: "DELETE"
  *                 links:
  *                   - rel: "self"
@@ -304,7 +304,7 @@ router.post('/anime-list/:id/subscribe',
 
 /**
  * @swagger
- * /anime-list/{user-id}/subscribe:
+ * webhook/anime-list/{user-id}/unsubscribe:
  *   delete:
  *     tags:
  *       - webhook
@@ -364,7 +364,7 @@ router.post('/anime-list/:id/subscribe',
  *                 message: Successfully unsubscribed from the anime list.
  *                 links:
  *                   - rel: "self"
- *                     href: "/webhook-list/anime-listanime/34"
+ *                     href: "/webhook/anime-list/34/unsubscribe"
  *                     method: "DELETE"
  *                   - rel: "search-anime"
  *                     href: "/anime/search{?title,page}"
@@ -429,7 +429,7 @@ router.post('/anime-list/:id/subscribe',
  *                   code: 500
  *                   message: "Something else went wrong."
  */
-router.delete('/anime-list/:id/subscribe',
+router.delete('/anime-list/:id/unsubscribe',
   (req, res, next) => validateAuthScheme(req, res, next),
   (req, res, next) => validateId(req.params.id, res, next),
   (req, res, next) => controller.unSubscribeFromList(req, res, next),

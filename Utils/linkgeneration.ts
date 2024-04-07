@@ -131,7 +131,7 @@ export function generateSubscribeToWebhookLink (userId: number): LinkStructure {
 export function generateUnsubscribeToWebhookLink (userId: number): LinkStructure {
   return {
     rel: 'unsubscribe',
-    href: `/webhook/anime-list/${userId}/subscribe`,
+    href: `/webhook/anime-list/${userId}/unsubscribe`,
     method: 'DELETE'
   };
 }

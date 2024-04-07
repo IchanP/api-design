@@ -198,7 +198,7 @@ router.get('/',
  *                       href: "/anime-list/34"
  *                       method: "GET"
  *                     - rel: "unsubscribe"
- *                       href: "/webhook/anime-list/34/subscribe"
+ *                       href: "/webhook/anime-list/34/unsubscribe"
  *                       method: "DELETE"
  *                 links:
  *                   - rel: "self"
@@ -347,7 +347,7 @@ router.get('/:id',
  *                       href: "/anime-list/34"
  *                       method: "GET"
  *                     - rel: "unsubscribe"
- *                       href: "/webhook/anime-list/34/subscribe"
+ *                       href: "/webhook/anime-list/34/unsubscribe"
  *                       method: "DELETE"
  *                 links:
  *                   - rel: "self"
