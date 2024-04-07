@@ -47,7 +47,6 @@ export class WebhookRepository extends BaseRepository<IWebhookStore> implements 
 
   async updateOneValue (field: string, value: string, identifier: string | number) {
     try {
-      console.log(value);
       const webhookList = await WebhookModel.findOne({ userId: identifier });
       if (field === 'webhooks') {
         webhookList.webhooks.push(JSON.parse(value));
@@ -58,7 +57,6 @@ export class WebhookRepository extends BaseRepository<IWebhookStore> implements 
       if (e instanceof Error.ValidationError && e.message.includes('is not a valid URL!')) {
         err = new BadDataError('The URL provided is not valid.');
       } else if (e instanceof Error.ValidationError) {
-        console.log(e);
         throw new DuplicateError();
       }
       throw err;

@@ -13,7 +13,6 @@ export class WebhookService implements IWebhookService<AnimeListService, OneAnim
       if (!isValidType(webhookData, ['URL', 'secret', 'ownerId'])) {
         throw new BadDataError();
       }
-      console.log(webhookData);
       await this.webhookRepo.updateOneValue('webhooks', JSON.stringify(webhookData), subscriptionId);
       return listService.getOneById(subscriptionId, webhookData.ownerId.toString());
     }

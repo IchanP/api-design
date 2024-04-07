@@ -85,7 +85,6 @@ export class AnimeListController {
       next();
     } catch (e: unknown) {
       if (e instanceof BadDataError) {
-        console.log(e);
         e.message = 'Invalid \'url\', or \'secret\'. All fields are required and must be valid.';
       } if (e instanceof DuplicateError) {
         e.message = 'URL already exists for this resource.';
