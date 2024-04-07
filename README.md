@@ -9,12 +9,12 @@ The anime data is sourced from [this repository](https://github.com/manami-proje
 ## Application Links
 
 - [API Entry Point](https://aninac.com)
-- [API Documentation](https://aninac.com/api-docs/)
+- [API Documentation](https://aninac.com/api-docs)
 - [Postman Tests](./postman-tests.json) Download the file and import it into Postman to run the tests.
 
 ### Webhook
 
-The application offers the ability to subscribe to a specific users anime list. This is done through calling the POST method found under the webhook section in the [API Documentation](). When the specified user adds an anime to their list the application will send a POST request to the provided URL with information about the anime that was added.
+The application offers the ability to subscribe to a specific users anime list. This is done through calling the POST method found under the webhook section in the [API Documentation](https://aninac.com/api-docs). When the specified user adds an anime to their list the application will send a POST request to the provided URL with information about the anime that was added.
 
 An example of what the webhook callback body may look like is as follows:
 
