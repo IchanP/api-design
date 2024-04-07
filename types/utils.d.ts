@@ -4,5 +4,6 @@ declare global {
     verifyRefresh: (refreshToken: string) => JwtPayload | string;
     createRefreshToken: (payload: object) => string;
     createAccessToken: (payload: object) => string;
+    verifyAccess: (token: string) => JwtPayload | string;
 }
 }

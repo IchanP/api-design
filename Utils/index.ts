@@ -1,8 +1,13 @@
 import { createHmac } from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import createError from 'http-errors';
+import { container } from 'config/inversify.config.ts';
+import { TYPES } from 'config/types.ts';
+
 export function validateAuthScheme (req: Request, res: Response, next: NextFunction) {
   try {
+    const jwtCrafter = container.get<JWTFactory>(TYPES.JWTFactory);
+
     if (!req.headers.authorization) {
       const err = createError(401);
       err.message = 'No authorization header present.';
@@ -15,9 +20,16 @@ export function validateAuthScheme (req: Request, res: Response, next: NextFunct
       return next(err);
     }
 
+    jwtCrafter.verifyAccess(token);
     setPayloadToRequest(req, token);
     return next();
   } catch (e: unknown) {
+    console.log(e.constructor.name);
+    if (e.constructor.name === 'JsonWebTokenError') {
+      const err = createError(401);
+      err.message = 'Invalid token';
+      return next(err);
+    }
     next(e);
   }
 }

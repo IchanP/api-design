@@ -17,6 +17,10 @@ export class JWTCrafter implements JWTFactory {
     return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
   }
 
+  verifyAccess (token: string): JwtPayload | string {
+    return jwt.verify(token, fs.readFileSync(process.env.PRIVATE_KEY_PATH));
+  }
+
   createAccessToken (payload: object): string {
     return this.#issueToken({
       payload,

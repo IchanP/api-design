@@ -33,6 +33,6 @@ container.bind<Repository<IAnimeList, IUser>>(TYPES.AnimeListRepository).to(Anim
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
 container.bind<Repository<IAnime>>(TYPES.AnimeRepository).to(AnimeRepository).inSingletonScope();
-container.bind<IWebhookService>(TYPES.IWebhookService).to(WebhookService).inSingletonScope();
+container.bind<IWebhookService<AnimeListService, OneAnimeListResponseSchema>>(TYPES.IWebhookService).to(WebhookService).inSingletonScope();
 container.bind<Repository<IWebhookStore, number>>(TYPES.WebhookRepository).to(WebhookRepository).inSingletonScope();
 export { container };
