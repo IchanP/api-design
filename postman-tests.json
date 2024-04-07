@@ -2948,7 +2948,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2956,7 +2956,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
@@ -3004,7 +3004,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3012,7 +3012,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
@@ -3060,7 +3060,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3068,7 +3068,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
@@ -3119,7 +3119,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3127,7 +3127,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
@@ -3175,7 +3175,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3183,7 +3183,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
@@ -3233,7 +3233,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/webhook/anime-list/:userId/subscribe",
+							"raw": "{{baseUrl}}/webhook/anime-list/:userId/unsubscribe",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -3241,7 +3241,7 @@
 								"webhook",
 								"anime-list",
 								":userId",
-								"subscribe"
+								"unsubscribe"
 							],
 							"variable": [
 								{
